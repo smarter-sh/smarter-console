@@ -2,35 +2,35 @@
   display: block;
 }
 
-.plugin-card > .card-header {
+.llmtool-card > .card-header {
   border-bottom: 1px solid #e5e5e5;
 }
 
-.smarter-plugin-card {
+.smarter-llmtool-card {
 }
 
-.user-plugin-card {
+.user-llmtool-card {
 }
 
 .card-body > p {
   margin-bottom: 2px !important;
 }
 
-.plugin-list-card-link {
+.llmtool-list-card-link {
   text-decoration: none;
   color: inherit;
 }
 
-.plugin-list-card-header {
+.llmtool-list-card-header {
   position: relative;
 }
 
-.plugin-list-card-title {
+.llmtool-list-card-title {
   border-bottom: 1px solid red;
   padding-bottom: 6px;
 }
 
-.plugin-list-card-actions {
+.llmtool-list-card-actions {
   display: flex;
   gap: 8px;
   margin-top: 12px;

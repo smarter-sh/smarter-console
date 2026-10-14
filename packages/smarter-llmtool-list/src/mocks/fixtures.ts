@@ -1,10 +1,10 @@
 /**
  * Example data for this package's stories and tests: what the Django api returns.
- * See smarter.apps.plugin.serializers.PluginSerializer.
+ * See smarter.apps.llmtool.serializers.PluginSerializer.
  */
 import type { SessionContext, UserProfile } from "@smarter/common";
 
-import type { Plugin } from "@/lib/Types";
+import type { LLMTool } from "@/lib/Types";
 
 export const API_URL = "/plugin/react-integration/api/listview/";
 
@@ -17,7 +17,7 @@ export const sessionContext: SessionContext = {
   djangoSessionCookieName: "sessionid",
   cookieDomain: "localhost",
   debugMode: false,
-  smarterClient: "@smarter/plugin-list",
+  smarterClient: "@smarter/llmtool-list",
   smarterClientVersion: "0.0.0",
   smarterRequestId: "storybook-request-id",
 };
@@ -27,7 +27,7 @@ const USER_PROFILE: UserProfile = {
   account: { accountNumber: "3141-5926-5359" },
 };
 
-export function makeObject(id: number, overrides: Partial<Plugin> = {}): Plugin {
+export function makeObject(id: number, overrides: Partial<LLMTool> = {}): LLMTool {
   return {
     id,
     createdAt: "2026-06-01T12:00:00Z",
@@ -59,14 +59,14 @@ export function makeObject(id: number, overrides: Partial<Plugin> = {}): Plugin 
 }
 
 /** The objects that the user owns. The last one cannot be deleted. */
-export const ownedObjects: Plugin[] = [
+export const ownedObjects: LLMTool[] = [
   makeObject(1, { name: "first_example", description: "The first example." }),
   makeObject(2, { name: "second_example", description: "The second example." }),
   makeObject(3, { name: "in_use_example", description: "An example that cannot be deleted.", canDelete: false }),
 ];
 
 /** The objects that are shared with the user. */
-export const sharedObjects: Plugin[] = [
+export const sharedObjects: LLMTool[] = [
   makeObject(4, {
     name: "shared_example",
     description: "An example shared with the account.",

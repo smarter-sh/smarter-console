@@ -7,7 +7,7 @@ import App from "@/App";
 
 /** The whole app, as the web console renders it, with its api mocked. */
 const meta = {
-  title: "Plugin List/App",
+  title: "LLMTool List/App",
   component: App,
   args: { sessionContext },
   parameters: { layout: "fullscreen", msw: { handlers: [...listHandlers(), ...actionHandlers] } },

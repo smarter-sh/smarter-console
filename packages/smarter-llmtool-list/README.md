@@ -1,17 +1,17 @@
-# Smarter Plugins List React App
+# Smarter LLMTools List React App
 
-This is the source code for the Plugins List app located
+This is the source code for the LLMTools List app located
 at [http://localhost:9357/plugin/](http://localhost:9357/plugin/).
 
 This component is served by Django. See also:
 
-- [smarter.apps.plugin.views.listview.view.PluginListView](../../smarter/apps/plugin/views/listview/view.py)
-- [smarter.apps.plugin.templatetags.react_plugin_list.plugin_list_react_assets](../../smarter/apps/plugin/templatetags/react_plugin_list.py)
-- [templates/react/plugin-list.html](../../smarter/templates/react/plugin-list.html)
+- [smarter.apps.llmtool.views.listview.view.PluginListView](../../smarter/apps/llmtool/views/listview/view.py)
+- [smarter.apps.llmtool.templatetags.react_llmtool_list.llmtool_list_react_assets](../../smarter/apps/llmtool/templatetags/react_llmtool_list.py)
+- [templates/react/llmtool-list.html](../../smarter/templates/react/llmtool-list.html)
 
 ## Screen Shot
 
-![Plugin List Screenshot](https://cdn.smarter.sh/github.com/smarter-sh/react/plugin-list-screenshot.png)
+![LLMTool List Screenshot](https://cdn.smarter.sh/github.com/smarter-sh/react/plugin-list-screenshot.png)
 
 ## Setup
 
@@ -70,7 +70,7 @@ not changed.
 Note that the manifest.json file includes meta data that can be used for
 trouble shooting purposes.
 
-Example: `http://example.com/static/react/smarter-plugin-list/manifest.json`
+Example: `http://example.com/static/react/smarter-llmtool-list/manifest.json`
 
 ```json
 {

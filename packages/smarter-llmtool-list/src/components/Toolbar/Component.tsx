@@ -1,11 +1,11 @@
 /**
  * Toolbar React Component
  *
- * This component provides a toolbar for managing plugin resources, used in both ListView and CardView displays.
- * It offers actions for opening, editing, cloning, renaming, and deleting a plugin, with modal dialogs for confirmation and error handling.
+ * This component provides a toolbar for managing LLMTool resources, used in both ListView and CardView displays.
+ * It offers actions for opening, editing, cloning, renaming, and deleting an LLMTool, with modal dialogs for confirmation and error handling.
  *
  * Features:
- * - Action buttons for: Open (chat), Edit (YAML manifest), Clone, Rename, and Delete plugin resources.
+ * - Action buttons for: Open (chat), Edit (YAML manifest), Clone, Rename, and Delete LLMTool resources.
  * - Modal dialogs for clone, rename, delete, error, and confirmation workflows.
  * - Ensures only one modal is open at a time for clear user interaction.
  * - Handles API calls for clone, rename, and delete operations, with feedback on success or failure,
@@ -17,57 +17,57 @@
  *
  * Props:
  * - sessionContext (SessionContext): Contains authentication and API information for backend operations.
- * - plugin (Plugin): The plugin resource to manage.
+ * - llmtool (LLMTool): The LLMTool resource to manage.
  *
  * Usage:
- * <Toolbar sessionContext={sessionContext} plugin={plugin} onRequery={onRequery} />
+ * <Toolbar sessionContext={sessionContext} llmtool={llmtool} onRequery={onRequery} />
  *
- * This component is intended to be embedded in each plugin row or card in ListView and CardView.
+ * This component is intended to be embedded in each LLMTool row or card in ListView and CardView.
  */
 import { useState } from "react";
 import type { SessionContext } from "@smarter/common";
 import { actionUrl, fetchDjangoUrl, Modal } from "@smarter/common";
 
 import { loggerPrefix } from "@/lib/const";
-import type { Plugin } from "@/lib/Types";
+import type { LLMTool } from "@/lib/Types";
 import "@/components/Toolbar/styles.css";
 
 type ModalType = null | "clone" | "rename" | "delete" | "confirmation" | "error";
 
 interface NameModalProps {
-  plugin: Plugin | null;
+  llmtool: LLMTool | null;
   onOk: (newName: string) => void;
   onCancel: () => void;
 }
 
 /** Asks for the name of the clone. It is mounted only while open, so it starts empty. */
-const ModalClone = ({ plugin, onOk, onCancel }: NameModalProps) => {
+const ModalClone = ({ llmtool, onOk, onCancel }: NameModalProps) => {
   const [inputValue, setInputValue] = useState("");
   return (
-    <Modal show title="Clone Plugin" onOk={() => onOk(inputValue)} onCancel={onCancel}>
+    <Modal show title="Clone LLMTool" onOk={() => onOk(inputValue)} onCancel={onCancel}>
       <p>
-        Clone plugin <strong>{plugin?.name}</strong> to a new resource owned by you.
+        Clone LLMTool <strong>{llmtool?.name}</strong> to a new resource owned by you.
       </p>
       <p>
-        <em>Provide the new name for the cloned plugin.</em>
+        <em>Provide the new name for the cloned LLMTool.</em>
       </p>
-      <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Enter new plugin name" />
+      <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Enter new LLMTool name" />
     </Modal>
   );
 };
 
 /** Asks for the new name. It is mounted only while open, so it starts with the current name. */
-const ModalRename = ({ plugin, onOk, onCancel }: NameModalProps) => {
-  const [inputValue, setInputValue] = useState(plugin?.name || "");
+const ModalRename = ({ llmtool, onOk, onCancel }: NameModalProps) => {
+  const [inputValue, setInputValue] = useState(llmtool?.name || "");
   return (
-    <Modal show title="Rename Plugin" onOk={() => onOk(inputValue)} onCancel={onCancel}>
+    <Modal show title="Rename LLMTool" onOk={() => onOk(inputValue)} onCancel={onCancel}>
       <p>
-        Rename plugin <strong>{plugin?.name}</strong>.
+        Rename LLMTool <strong>{llmtool?.name}</strong>.
       </p>
       <p>
-        <em>Provide the new name for the plugin.</em>
+        <em>Provide the new name for the LLMTool.</em>
       </p>
-      <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Enter new plugin name" />
+      <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Enter new LLMTool name" />
     </Modal>
   );
 };
@@ -75,18 +75,18 @@ const ModalRename = ({ plugin, onOk, onCancel }: NameModalProps) => {
 /** Confirms the deletion. */
 const ModalDelete = ({
   show,
-  plugin,
+  llmtool,
   onOk,
   onCancel,
 }: {
   show: boolean;
-  plugin: Plugin | null;
+  llmtool: LLMTool | null;
   onOk: () => void;
   onCancel: () => void;
 }) => (
-  <Modal show={show} title="Delete Plugin" onOk={onOk} onCancel={onCancel}>
+  <Modal show={show} title="Delete LLMTool" onOk={onOk} onCancel={onCancel}>
     <p>
-      Are you sure you want to delete plugin <strong>{plugin?.name}</strong>?
+      Are you sure you want to delete LLMTool <strong>{llmtool?.name}</strong>?
     </p>
     <p>
       <em>Data is not recoverable.</em>
@@ -97,18 +97,18 @@ const ModalDelete = ({
 /** Shows the error message. */
 const ModalError = ({
   show,
-  plugin,
+  llmtool,
   message,
   onClose,
 }: {
   show: boolean;
-  plugin: Plugin | null;
+  llmtool: LLMTool | null;
   message: string;
   onClose: () => void;
 }) => (
   <Modal show={show} title="❌ Error" onClose={onClose}>
     <p>
-      An error occurred while performing the operation on plugin <strong>{plugin?.name}</strong>.
+      An error occurred while performing the operation on LLMTool <strong>{llmtool?.name}</strong>.
     </p>
     <p>{message ? <span className="text-danger">{message}</span> : <em>An unknown error occurred.</em>}</p>
   </Modal>
@@ -117,18 +117,18 @@ const ModalError = ({
 /** Confirms that the operation succeeded. */
 const ModalConfirmation = ({
   show,
-  plugin,
+  llmtool,
   message,
   onClose,
 }: {
   show: boolean;
-  plugin: Plugin | null;
+  llmtool: LLMTool | null;
   message: string;
   onClose: () => void;
 }) => (
   <Modal show={show} title="✅ Success" onClose={onClose}>
     <p>
-      {message} <strong>{plugin?.name}</strong>.
+      {message} <strong>{llmtool?.name}</strong>.
     </p>
     <p>
       <em>Operation completed successfully.</em>
@@ -138,22 +138,22 @@ const ModalConfirmation = ({
 
 interface ToolbarProps {
   sessionContext: SessionContext;
-  plugin: Plugin;
+  llmtool: LLMTool;
   onRequery: () => void;
 }
 
-export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => {
+export const Toolbar = ({ sessionContext, llmtool, onRequery }: ToolbarProps) => {
   // this is a single way to control which and whether a modal is open.
   // it ensures that only one modal can be open at a time.
-  const [modal, setModal] = useState<{ type: ModalType; plugin: Plugin | null }>({ type: null, plugin: null });
+  const [modal, setModal] = useState<{ type: ModalType; llmtool: LLMTool | null }>({ type: null, llmtool: null });
   const [errMessage, setErrMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
 
   const handleCloseModal = () => {
-    setModal({ type: null, plugin: null });
+    setModal({ type: null, llmtool: null });
   };
   const handleCloseModalWithRequery = () => {
-    setModal({ type: null, plugin: null });
+    setModal({ type: null, llmtool: null });
     onRequery();
   };
 
@@ -162,26 +162,26 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
    * confirmation modal on success, else the error modal with the server's error message.
    * See actionUrl() in @smarter/common for how the action's URL is built.
    */
-  const runAction = (target: Plugin, path: string, verb: "clone" | "rename" | "delete") => {
+  const runAction = (target: LLMTool, path: string, verb: "clone" | "rename" | "delete") => {
     handleCloseModal();
     fetchDjangoUrl(sessionContext, actionUrl(sessionContext, path), JSON.stringify({}))
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-          throw new Error(`Failed to ${verb} plugin (${response.status}): ${data.error || response.statusText}`);
+          throw new Error(`Failed to ${verb} LLMTool (${response.status}): ${data.error || response.statusText}`);
         }
         return data;
       })
       .then((data) => {
-        console.debug(loggerPrefix, `Successfully ${verb}d plugin:`, data);
-        setSuccessMessage(`Successfully ${verb}d plugin`);
-        // clone and rename return the resulting plugin; delete returns a message.
-        setModal({ type: "confirmation", plugin: data && data.id ? (data as Plugin) : target });
+        console.debug(loggerPrefix, `Successfully ${verb}d LLMTool:`, data);
+        setSuccessMessage(`Successfully ${verb}d LLMTool`);
+        // clone and rename return the resulting LLMTool; delete returns a message.
+        setModal({ type: "confirmation", llmtool: data && data.id ? (data as LLMTool) : target });
       })
       .catch((error) => {
-        console.error(loggerPrefix, `Error trying to ${verb} plugin:`, error);
+        console.error(loggerPrefix, `Error trying to ${verb} LLMTool:`, error);
         setErrMessage(error.message);
-        setModal({ type: "error", plugin: target });
+        setModal({ type: "error", llmtool: target });
       });
   };
 
@@ -189,17 +189,17 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
     <>
       <div className="toolbar btn-group pe-2" role="group" aria-label="Actions">
         <a
-          href={plugin.manifestUrl}
+          href={llmtool.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title="Chat: Open the plugin workbench"
+          title="Chat: Open the LLMTool workbench"
           tabIndex={0}
         >
           <i className="bi bi-chat-dots md-teal" />
         </a>
         <a
-          href={plugin.manifestUrl}
+          href={llmtool.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title="Edit: Open the YAML manifest that defines this plugin resource"
+          title="Edit: Open the YAML manifest that defines this LLMTool resource"
           tabIndex={0}
         >
           <i className="bi bi-pencil-square md-blue" />
@@ -207,8 +207,8 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
         <button
           type="button"
           className="btn btn-icon btn-sm border"
-          title="Clone: Clone this plugin resource to a new resource owned by you"
-          onClick={() => setModal({ type: "clone", plugin })}
+          title="Clone: Clone this LLMTool resource to a new resource owned by you"
+          onClick={() => setModal({ type: "clone", llmtool })}
           tabIndex={0}
         >
           <i className="bi bi-files md-green" />
@@ -216,8 +216,8 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
         <button
           type="button"
           className="btn btn-icon btn-sm border"
-          title="Rename: Rename this plugin resource"
-          onClick={() => setModal({ type: "rename", plugin })}
+          title="Rename: Rename this LLMTool resource"
+          onClick={() => setModal({ type: "rename", llmtool })}
           tabIndex={0}
         >
           <i className="bi bi-pencil md-blue" />
@@ -226,12 +226,12 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
           type="button"
           className="btn btn-icon btn-sm border"
           title={
-            plugin.canDelete === false
-              ? "Delete: You can't delete this plugin, because other resources depend on it, or you don't have permission to delete it"
-              : "Delete: Delete this plugin resource"
+            llmtool.canDelete === false
+              ? "Delete: You can't delete this LLMTool, because other resources depend on it, or you don't have permission to delete it"
+              : "Delete: Delete this LLMTool resource"
           }
-          onClick={() => setModal({ type: "delete", plugin })}
-          disabled={plugin.canDelete === false}
+          onClick={() => setModal({ type: "delete", llmtool })}
+          disabled={llmtool.canDelete === false}
           tabIndex={0}
         >
           <i className="bi bi-trash md-red" />
@@ -241,33 +241,33 @@ export const Toolbar = ({ sessionContext, plugin, onRequery }: ToolbarProps) => 
       <div>
         {modal.type === "clone" && (
           <ModalClone
-            plugin={modal.plugin}
-            onOk={(newName) => runAction(modal.plugin!, `clone/${modal.plugin!.id}/${newName}/`, "clone")}
+            llmtool={modal.llmtool}
+            onOk={(newName) => runAction(modal.llmtool!, `clone/${modal.llmtool!.id}/${newName}/`, "clone")}
             onCancel={handleCloseModal}
           />
         )}
         {modal.type === "rename" && (
           <ModalRename
-            plugin={modal.plugin}
-            onOk={(newName) => runAction(modal.plugin!, `rename/${modal.plugin!.id}/${newName}/`, "rename")}
+            llmtool={modal.llmtool}
+            onOk={(newName) => runAction(modal.llmtool!, `rename/${modal.llmtool!.id}/${newName}/`, "rename")}
             onCancel={handleCloseModal}
           />
         )}
         <ModalDelete
           show={modal.type === "delete"}
-          plugin={modal.plugin}
-          onOk={() => runAction(modal.plugin!, `delete/${modal.plugin!.id}/`, "delete")}
+          llmtool={modal.llmtool}
+          onOk={() => runAction(modal.llmtool!, `delete/${modal.llmtool!.id}/`, "delete")}
           onCancel={handleCloseModal}
         />
         <ModalError
           show={modal.type === "error"}
-          plugin={modal.plugin}
+          llmtool={modal.llmtool}
           message={errMessage}
           onClose={handleCloseModal}
         />
         <ModalConfirmation
           show={modal.type === "confirmation"}
-          plugin={modal.plugin}
+          llmtool={modal.llmtool}
           message={successMessage}
           onClose={handleCloseModalWithRequery}
         />

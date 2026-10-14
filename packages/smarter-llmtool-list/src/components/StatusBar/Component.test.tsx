@@ -10,7 +10,7 @@ describe("StatusBar", () => {
     [true, /^Ready:/],
     [false, /^Not ready:/],
   ])("shows whether it is ready: %s", (ready, title) => {
-    render(<StatusBar plugin={makeObject(1, { ready } as never)} />);
+    render(<StatusBar llmtool={makeObject(1, { ready } as never)} />);
     expect(screen.getByTitle(title)).toBeInTheDocument();
   });
 });

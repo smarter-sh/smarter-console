@@ -7,11 +7,11 @@ import { actionHandlers } from "@/mocks/handlers";
 import { Toolbar } from "@/components/Toolbar/Component";
 
 const meta = {
-  title: "Plugin List/Toolbar",
+  title: "LLMTool List/Toolbar",
   component: Toolbar,
   args: {
     sessionContext,
-    plugin: makeObject(1, { name: "first_example" }),
+    llmtool: makeObject(1, { name: "first_example" }),
     onRequery: fn(),
   },
   parameters: { msw: { handlers: actionHandlers } },
@@ -24,7 +24,7 @@ export const Default: Story = {};
 
 /** One that other resources depend on, or that the user may not delete, cannot be deleted. */
 export const CannotDelete: Story = {
-  args: { plugin: makeObject(3, { name: "in_use_example", canDelete: false }) },
+  args: { llmtool: makeObject(3, { name: "in_use_example", canDelete: false }) },
 };
 
 /** Deleting: confirm, then the list is queried again. */
