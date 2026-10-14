@@ -9,9 +9,9 @@ import { server } from "@test/server";
 
 import { Toolbar } from "@/components/Toolbar/Component";
 
-function renderToolbar(plugin = makeObject(1, { name: "first_example" })) {
+function renderToolbar(llmtool = makeObject(1, { name: "first_example" })) {
   const onRequery = vi.fn();
-  render(<Toolbar sessionContext={sessionContext} plugin={plugin} onRequery={onRequery} />);
+  render(<Toolbar sessionContext={sessionContext} llmtool={llmtool} onRequery={onRequery} />);
   return { onRequery, user: userEvent.setup() };
 }
 
@@ -26,10 +26,10 @@ describe("Toolbar", () => {
     const { onRequery, user } = renderToolbar();
 
     await user.click(screen.getByRole("button", { name: /^Delete:/ }));
-    expect(screen.getByRole("dialog", { name: "Delete Plugin" })).toHaveTextContent("first_example");
+    expect(screen.getByRole("dialog", { name: "Delete LLMTool" })).toHaveTextContent("first_example");
     await user.click(screen.getByRole("button", { name: "OK" }));
 
-    expect(await screen.findByRole("dialog", { name: /Success/ })).toHaveTextContent("Successfully deleted plugin");
+    expect(await screen.findByRole("dialog", { name: /Success/ })).toHaveTextContent("Successfully deleted LLMTool");
     await user.click(screen.getAllByRole("button", { name: "Close" })[0]);
     expect(onRequery).toHaveBeenCalledOnce();
   });
@@ -53,7 +53,7 @@ describe("Toolbar", () => {
     const { user } = renderToolbar();
 
     await user.click(screen.getByRole("button", { name: /^Rename:/ }));
-    const input = screen.getByPlaceholderText("Enter new plugin name");
+    const input = screen.getByPlaceholderText("Enter new LLMTool name");
     expect(input).toHaveValue("first_example");
     await user.clear(input);
     await user.type(input, "renamed_example");
@@ -72,7 +72,7 @@ describe("Toolbar", () => {
     const { onRequery, user } = renderToolbar();
 
     await user.click(screen.getByRole("button", { name: /^Clone:/ }));
-    await user.type(screen.getByPlaceholderText("Enter new plugin name"), "copy");
+    await user.type(screen.getByPlaceholderText("Enter new LLMTool name"), "copy");
     await user.click(screen.getByRole("button", { name: "OK" }));
 
     expect(await screen.findByRole("dialog", { name: /Error/ })).toHaveTextContent("The name copy is already used.");
@@ -81,13 +81,13 @@ describe("Toolbar", () => {
 
   it("disables deleting one that cannot be deleted", () => {
     renderToolbar(makeObject(3, { canDelete: false }));
-    expect(screen.getByRole("button", { name: /You can't delete this plugin/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /You can't delete this LLMTool/ })).toBeDisabled();
   });
 
   it("starts renaming one without a name from an empty name", async () => {
     const { user } = renderToolbar(makeObject(1, { name: "" }));
     await user.click(screen.getByRole("button", { name: /^Rename:/ }));
-    expect(screen.getByPlaceholderText("Enter new plugin name")).toHaveValue("");
+    expect(screen.getByPlaceholderText("Enter new LLMTool name")).toHaveValue("");
   });
 
   it("shows the status of a failed action without an error message", async () => {

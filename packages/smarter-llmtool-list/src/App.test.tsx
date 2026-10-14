@@ -17,7 +17,7 @@ describe("App", () => {
     expect(await screen.findByRole("row", { name: new RegExp(ownedObjects[0].name) })).toBeInTheDocument();
     expect(screen.queryByRole("row", { name: new RegExp(sharedObjects[0].name) })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Shared Plugins" }));
+    await user.click(screen.getByRole("button", { name: "Shared LLMTools" }));
     expect(await screen.findByRole("row", { name: new RegExp(sharedObjects[0].name) })).toBeInTheDocument();
   });
 

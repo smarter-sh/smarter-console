@@ -1,6 +1,6 @@
 {
-  "name": "@smarter/plugin-list",
-  "description": "A React component library for displaying a list of Plugins on the Smarter web console.",
+  "name": "@smarter/llmtool-list",
+  "description": "A React component library for displaying a list of LLMTool Plugins on the Smarter web console.",
   "version": "0.3.0",
   "type": "module",
   "scripts": {

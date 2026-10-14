@@ -5,9 +5,9 @@ import { makeObject } from "@/mocks/fixtures";
 import { StatusBar } from "@/components/StatusBar/Component";
 
 const meta = {
-  title: "Plugin List/StatusBar",
+  title: "LLMTool List/StatusBar",
   component: StatusBar,
-  args: { plugin: makeObject(1) },
+  args: { llmtool: makeObject(1) },
 } satisfies Meta<typeof StatusBar>;
 
 export default meta;

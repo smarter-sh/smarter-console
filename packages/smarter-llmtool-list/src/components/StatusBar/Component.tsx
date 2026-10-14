@@ -1,35 +1,35 @@
 /**
  *
- * StatusBar React component for displaying the status of a Plugin instance.
+ * StatusBar React component for displaying the status of an LLMTool instance.
  * Shows readiness, deployment, authentication, DNS, TLS, subdomain, and custom domain status using icons and tooltips.
  *
  * Exports:
- *   - StatusBar: Functional component that takes a Plugin and renders its status indicators.
+ *   - StatusBar: Functional component that takes an LLMTool and renders its status indicators.
  *
  * Usage:
- *   <StatusBar plugin={plugin} />
+ *   <StatusBar llmtool={llmtool} />
  */
-import type { Plugin } from "@/lib/Types";
+import type { LLMTool } from "@/lib/Types";
 interface StatusbarProps {
-  plugin: Plugin;
+  llmtool: LLMTool;
 }
 
-export const StatusBar = ({ plugin }: StatusbarProps) => {
+export const StatusBar = ({ llmtool }: StatusbarProps) => {
   return (
     <div className="statusbar d-flex align-items-center gap-2">
       {/* Ready */}
       <span
         className="status-icon"
-        title={plugin.ready ? "Ready: Plugin is ready to serve requests" : "Not ready: Plugin is initializing"}
+        title={llmtool.ready ? "Ready: LLMTool is ready to serve requests" : "Not ready: LLMTool is initializing"}
       >
-        <i className={plugin.ready ? "bi bi-check-circle text-success" : "bi bi-x-circle text-secondary"} />
+        <i className={llmtool.ready ? "bi bi-check-circle text-success" : "bi bi-x-circle text-secondary"} />
       </span>
       {/* Deployed */}
-      <span className="status-icon" title="Deployed: Plugin is deployed">
+      <span className="status-icon" title="Deployed: LLMTool is deployed">
         <i className="bi bi-cloud-check" />
       </span>
       {/* Authentication Required */}
-      <span className="status-icon" title="Authentication required to access this plugin">
+      <span className="status-icon" title="Authentication required to access this LLMTool">
         <i className="bi bi-lock" />
       </span>
       {/* DNS Verification */}

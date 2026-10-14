@@ -4,12 +4,12 @@
  */
 import { http, HttpResponse } from "msw";
 
-import type { Plugin } from "@/lib/Types";
+import type { LLMTool } from "@/lib/Types";
 
 import { ACTIONS_URL as BASE, API_URL, makeObject, ownedObjects, sharedObjects } from "./fixtures";
 
 /** The list api: the owned and shared objects. */
-export function listHandlers(owned: Plugin[] = ownedObjects, shared: Plugin[] = sharedObjects) {
+export function listHandlers(owned: LLMTool[] = ownedObjects, shared: LLMTool[] = sharedObjects) {
   return [
     http.post(`${API_URL}owned/`, () => HttpResponse.json({ objects: owned })),
     http.post(`${API_URL}shared/`, () => HttpResponse.json({ objects: shared })),

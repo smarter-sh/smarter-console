@@ -1,16 +1,16 @@
 /**
  * @file Types.tsx
- * @module plugin_list/lib/Types
+ * @module llmtool_list/lib/Types
  *
- * Central type definitions for the Plugin List React application.
+ * Central type definitions for the LLMTool List React application.
  *
  * This module exports TypeScript types and interfaces used throughout the CardView,
- * plugin, and API response layers. It provides strong typing for user, plugin,
- * plugin, API response, and session context data structures.
+ * llmtool, and API response layers. It provides strong typing for user, llmtool,
+ * llmtool, API response, and session context data structures.
  *
  * Exports:
  *   - TabKey: Type for tab keys ("user" | "shared").
- *   - Plugin: Type for plugin objects.
+ *   - LLMTool: Type for LLMTool objects.
  *   - SessionContext: Type for session and authentication context.
  *
  * Usage:
@@ -21,7 +21,7 @@ import type { SessionContext, Sorting, UserProfile, Tags, Annotations } from "@s
 export type TabKey = "user" | "shared";
 
 // ----------------------------------------------------------------------------
-// Plugin Definition
+// LLMTool Definition
 // ----------------------------------------------------------------------------
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -54,14 +54,14 @@ export type SqlData = {
   limit: number;
 };
 
-type PluginClass = "static" | "sql" | "api";
+type LLMToolClass = "static" | "sql" | "api";
 
-type PluginSelector = {
+type LLMToolSelector = {
   directive: "always" | "search_terms";
   searchTerms: string[] | null;
 };
 
-type PluginPrompt = {
+type LLMToolPrompt = {
   provider: string;
   systemRole: string;
   model: string;
@@ -69,7 +69,7 @@ type PluginPrompt = {
   maxTokens: number;
 };
 
-export type Plugin = {
+export type LLMTool = {
   id: number;
   createdAt: string;
   updatedAt: string;
@@ -79,12 +79,12 @@ export type Plugin = {
   kind: string;
   userProfile: UserProfile;
   description: string;
-  pluginClass: PluginClass;
+  pluginClass: LLMToolClass;
   version: string;
   annotations: Annotations;
   tags: Tags;
-  selector: PluginSelector;
-  prompt: PluginPrompt;
+  selector: LLMToolSelector;
+  prompt: LLMToolPrompt;
   staticData: StaticData | null;
   sqlData: SqlData | null;
   apiData: ApiData | null;
@@ -94,17 +94,17 @@ export type Plugin = {
 // ----------------------------------------------------------------------------
 // Component Props Interfaces
 // ----------------------------------------------------------------------------
-export interface PluginCardViewProps {
+export interface LLMToolCardViewProps {
   sessionContext: SessionContext;
-  objects: Plugin[];
+  objects: LLMTool[];
   onRequery: () => void;
 }
 
-export interface PluginListViewProps {
+export interface LLMToolListViewProps {
   isLoading: boolean;
   ghostRows: number;
   sessionContext: SessionContext;
-  objects: Plugin[];
+  objects: LLMTool[];
   onRequery: () => void;
   sorting?: Sorting;
 }
