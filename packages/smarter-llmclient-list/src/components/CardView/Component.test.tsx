@@ -25,6 +25,11 @@ describe("CardView", () => {
     expect(detail("Status")).toHaveTextContent("Not deployed");
     expect(detail("Functions")).toHaveTextContent("get_current_weather()");
     expect(detail("Plugins")).toHaveTextContent("example_configuration, everlasting_gobstopper");
+    expect(detail("MCP Clients")).toHaveTextContent("example_mcpclient");
+    expect(detail("Guardrails")).toHaveTextContent("example_guardrail");
+    expect(detail("Can Delete")).toHaveTextContent("Yes");
+    expect(detail("Styles")).toHaveTextContent("smarter-crop.png");
+    expect(detail("Allowed Origins")).toHaveTextContent("https://example.com");
     expect(detail("Custom Domains")).toHaveTextContent("No value");
     expect(detail("API Keys")).toHaveTextContent("No value");
   });
@@ -41,10 +46,13 @@ describe("CardView", () => {
     expect(detail("API Keys")).toHaveTextContent('"name":"key"');
   });
 
-  it("shows an LLMClient without functions, plugins or owner", () => {
+  it("shows an LLMClient without functions, plugins, MCPClients, guardrails or owner", () => {
     const llmclient = makeObject(1, {
       functions: undefined,
       plugins: [{ id: 1, name: "" }],
+      mcpclients: undefined,
+      guardrails: [],
+      allowedOrigins: [],
       customDomains: undefined,
       apiKeys: undefined,
       userProfile: undefined,
@@ -52,6 +60,9 @@ describe("CardView", () => {
     render(<CardView sessionContext={sessionContext} objects={[llmclient]} onRequery={() => {}} />);
     expect(detail("Functions")).toHaveTextContent("No value");
     expect(detail("Plugins")).toHaveTextContent("No value");
+    expect(detail("MCP Clients")).toHaveTextContent("No value");
+    expect(detail("Guardrails")).toHaveTextContent("No value");
+    expect(detail("Allowed Origins")).toHaveTextContent("No value");
     expect(detail("Owner")).toHaveTextContent("No value");
   });
 

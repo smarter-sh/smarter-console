@@ -7,7 +7,7 @@ import { actionHandlers } from "@/mocks/handlers";
 import { Toolbar } from "@/components/Toolbar/Component";
 
 const meta = {
-  title: "Prompt List/Toolbar",
+  title: "LLMClient List/Toolbar",
   component: Toolbar,
   args: {
     sessionContext,

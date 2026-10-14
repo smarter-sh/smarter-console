@@ -6,7 +6,7 @@ import { actionHandlers } from "@/mocks/handlers";
 import ListView from "@/components/ListView/Component";
 
 const meta = {
-  title: "Prompt List/ListView",
+  title: "LLMClient List/ListView",
   component: ListView,
   args: {
     isLoading: false,

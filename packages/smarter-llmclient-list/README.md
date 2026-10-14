@@ -1,15 +1,15 @@
 # Smarter LLMClients List app. React + TypeScript + Vite
 
 This is the source code for the Terminal Emulator app located
-at [http://localhost:9357/workbench/](http://localhost:9357/workbench/prompt_list/).
+at [http://localhost:9357/workbench/](http://localhost:9357/workbench/llmclient_list/).
 
 This component is served by Django in production. See:
 
 - builds are written by Vite into Django's static asset folder, smarter/smarter/static/react/,
   which the Dockerfile copies into the image.
 - [smarter.apps.prompt.views.listview.view.PromptListView](../../smarter/apps/prompt/views/listview/view.py)
-- [smarter.apps.prompt.templatetags.react_prompt_list.prompt_list_react_assets](../../smarter/apps/prompt/templatetags/react_prompt_list.py)
-- [templates/react/prompt-list.html](../../smarter/templates/react/prompt-list.html)
+- [smarter.apps.prompt.templatetags.react_llmclient_list.llmclient_list_react_assets](../../smarter/apps/prompt/templatetags/react_llmclient_list.py)
+- [templates/react/llmclient-list.html](../../smarter/templates/react/llmclient-list.html)
 
 ## Setup
 
@@ -65,7 +65,7 @@ speed up the build process in the expected case where React source code has
 not changed.
 
 Note that the manifest.json file includes meta data that can be used for
-trouble shooting purposes. http://example.com/static/react/prompt_list/manifest.json
+trouble shooting purposes. http://example.com/static/react/llmclient_list/manifest.json
 
 ```json
 {
@@ -96,7 +96,7 @@ npm run storybook
 
 ## Screen Shot
 
-![Prompt List Screenshot](https://cdn.smarter.sh/github.com/smarter-sh/react/prompt-list-screenshot.png)
+![LLMClient List Screenshot](https://cdn.smarter.sh/github.com/smarter-sh/react/prompt-list-screenshot.png)
 
 ## Vite Plugins
 

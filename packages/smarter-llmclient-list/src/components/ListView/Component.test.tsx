@@ -49,11 +49,20 @@ describe("ListView", () => {
     }
   });
 
-  it("shows the default model, and an LLMClient without plugins or functions", async () => {
+  it("shows an LLMClient's tools", async () => {
+    render(
+      <ListView isLoading={false} sessionContext={sessionContext} objects={[makeObject(1)]} onRequery={() => {}} />,
+    );
+    const row = await screen.findByRole("row", { name: /example_1/ });
+    expect(row).toHaveTextContent(
+      "get_current_weather, example_configuration, everlasting_gobstopper, example_mcpclient, example_guardrail",
+    );
+  });
+
+  it("shows the default model, and an LLMClient without tools", async () => {
     const llmclient = makeObject(1, {
       defaultModel: "",
-      plugins: [{ id: 1, name: "" }],
-      functions: undefined,
+      tools: undefined,
     } as unknown as Partial<ReturnType<typeof makeObject>>);
     render(<ListView isLoading={false} sessionContext={sessionContext} objects={[llmclient]} onRequery={() => {}} />);
     const row = await screen.findByRole("row", { name: /example_1/ });

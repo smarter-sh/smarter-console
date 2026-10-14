@@ -3,7 +3,7 @@
  *
  * Renders a responsive, table-based list of llmclient resources with key details and actions.
  * Features:
- * - Displays llmclient information in a styled table with columns for name, dates, provider, model, plugins, status, and actions.
+ * - Displays llmclient information in a styled table with columns for name, dates, provider, model, tools, status, and actions.
  * - Integrates Toolbar for per-llmclient actions (open, edit, clone, rename, delete).
  * - Formats dates and status using shared utilities.
  * - Shows skeleton (ghost) rows while loading, and supports incremental rendering for large lists.
@@ -66,7 +66,7 @@ const TableHeader = ({ sorting }: { sorting?: Sorting }) => {
         <SortableHeader column="defaultModel" sorting={sorting} className="min-width-150">
           Model
         </SortableHeader>
-        <th className="d-none d-xl-table-cell">Plugins</th>
+        <th className="d-none d-xl-table-cell">Tools</th>
         <th className="d-none d-md-table-cell">Status</th>
         <th className="">Operations</th>
       </tr>
@@ -88,22 +88,16 @@ const UpdatedDate = ({ date, createdAt }: { date: string; createdAt: string }) =
 };
 
 /**
- * Plugins
+ * Tools
  *
- * Displays an llmclient's plugins and functions as a comma-separated list.
+ * Displays an llmclient's tools (its functions, plugins, MCPClients and guardrails) as a comma-separated list.
  */
-const Plugins = ({ llmclient }: { llmclient: LLMClient }) => {
-  const plugins = llmclient.plugins
-    ?.map((p) => p?.name || "")
+const Tools = ({ llmclient }: { llmclient: LLMClient }) => {
+  const tools = llmclient.tools
+    ?.map((t) => t?.name || "")
     .filter(Boolean)
     .join(", ");
-  const functions = llmclient.functions
-    ?.map((f) => f?.name || "")
-    .filter(Boolean)
-    .join(", ");
-  // Combine plugins and functions into a single string
-  const combined = [plugins, functions].filter(Boolean).join(", ");
-  return <span>{combined}</span>;
+  return <span>{tools}</span>;
 };
 
 /**
@@ -144,9 +138,9 @@ const LLMClientRow = React.memo(function LLMClientRow({
       <td className="">{llmclient.provider}</td>
       {/* Model */}
       <td className="min-width-150">{llmclient.defaultModel || "default"}</td>
-      {/* Plugins */}
+      {/* Tools */}
       <td className="d-none d-xl-table-cell">
-        <Plugins llmclient={llmclient} />
+        <Tools llmclient={llmclient} />
       </td>
       {/* Status */}
       <td className="d-none d-md-table-cell ">
@@ -186,7 +180,7 @@ const LLMClientRowGhost = React.memo(function LLMClientRowGhost() {
       <td className=""></td>
       {/* Model */}
       <td className="min-width-150"></td>
-      {/* Plugins */}
+      {/* Tools */}
       <td className="d-none d-xl-table-cell"></td>
       {/* Status */}
       <td className="d-none d-md-table-cell "></td>
@@ -282,7 +276,7 @@ export function ListView({ isLoading, sessionContext, objects, onRequery, sortin
     `${loggerPrefix} ListView() Rendering ListView - {isLoading: ${isLoading}, objects length: ${Array.isArray(objects) ? objects.length : "N/A"}}`,
   );
   return (
-    <div className="table-responsive prompt-list-table-wrap ps-3 pe-3">
+    <div className="table-responsive llmclient-list-table-wrap ps-3 pe-3">
       <table className="table table-striped table-hover align-middle border">
         <TableHeader sorting={sorting} />
         <tbody>

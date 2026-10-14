@@ -30,8 +30,8 @@ export type DetailRowRenderer = (
 ) => ReactNode;
 
 export const renderDetailRow: DetailRowRenderer = (label, value, dataType, microHelp) => {
-  const colClasses = "w-25 prompt-list-detail-label";
-  const dataClasses = "prompt-list-detail-value";
+  const colClasses = "w-25 llmclient-list-detail-label";
+  const dataClasses = "llmclient-list-detail-value";
   const tdLabel = microHelp ? (
     <td className={colClasses}>
       {label}

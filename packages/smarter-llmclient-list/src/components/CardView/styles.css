@@ -16,21 +16,21 @@
   margin-bottom: 2px !important;
 }
 
-.prompt-list-card-link {
+.llmclient-list-card-link {
   text-decoration: none;
   color: inherit;
 }
 
-.prompt-list-card-header {
+.llmclient-list-card-header {
   position: relative;
 }
 
-.prompt-list-card-title {
+.llmclient-list-card-title {
   border-bottom: 1px solid red;
   padding-bottom: 6px;
 }
 
-.prompt-list-card-actions {
+.llmclient-list-card-actions {
   display: flex;
   gap: 8px;
   margin-top: 12px;

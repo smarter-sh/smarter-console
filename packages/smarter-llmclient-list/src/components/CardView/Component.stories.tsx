@@ -6,7 +6,7 @@ import { actionHandlers } from "@/mocks/handlers";
 import CardView from "@/components/CardView/Component";
 
 const meta = {
-  title: "Prompt List/CardView",
+  title: "LLMClient List/CardView",
   component: CardView,
   args: {
     sessionContext,

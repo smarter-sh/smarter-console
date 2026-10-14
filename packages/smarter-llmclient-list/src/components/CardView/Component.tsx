@@ -31,6 +31,15 @@ import { renderDetailRow } from "@/components/CardView/renderDetail";
 
 import "@/components/CardView/styles.css";
 
+/** A comma-separated list of the names of an llmclient's plugins, MCPClients or guardrails. */
+const names = (items?: Array<{ name: string }>) =>
+  Array.isArray(items)
+    ? items
+        .map((item) => item?.name || "")
+        .filter(Boolean)
+        .join(", ")
+    : "";
+
 interface CardViewProps {
   sessionContext: SessionContext;
   objects: LLMClient[];
@@ -75,6 +84,12 @@ export function CardView({ sessionContext, objects, onRequery }: CardViewProps) 
                     {renderDetailRow("Status", llmclient.deployed ? "Deployed" : "Not deployed")}
                     {renderDetailRow("Ready", llmclient.ready, "bool")}
                     {renderDetailRow("Owner", llmclient.userProfile?.user?.username)}
+                    {renderDetailRow(
+                      "Can Delete",
+                      llmclient.canDelete,
+                      "bool",
+                      "False if other resources depend on this llmclient, or you may not delete it.",
+                    )}
                     {renderDetailRow("Created", llmclient.createdAt, "dateTime")}
                     {renderDetailRow("Last updated", llmclient.updatedAt, "dateTime")}
                     {renderDetailRow("Version", llmclient.version)}
@@ -104,14 +119,21 @@ export function CardView({ sessionContext, objects, onRequery }: CardViewProps) 
                     )}
                     {renderDetailRow(
                       "Plugins",
-                      Array.isArray(llmclient.plugins)
-                        ? llmclient.plugins
-                            .map((p) => p?.name || "")
-                            .filter(Boolean)
-                            .join(", ")
-                        : "",
+                      names(llmclient.plugins),
                       "string",
                       "Comma-separated list of plugin names attached to this llmclient.",
+                    )}
+                    {renderDetailRow(
+                      "MCP Clients",
+                      names(llmclient.mcpclients),
+                      "string",
+                      "Comma-separated list of the MCPClients whose MCP servers' tools this llmclient offers the LLM.",
+                    )}
+                    {renderDetailRow(
+                      "Guardrails",
+                      names(llmclient.guardrails),
+                      "string",
+                      "Comma-separated list of the guardrails that check this llmclient's prompts and replies.",
                     )}
                     {renderDetailRow(
                       "Custom Domains",
@@ -179,6 +201,18 @@ export function CardView({ sessionContext, objects, onRequery }: CardViewProps) 
                     )}
                     {renderDetailRow("App Logo URL", llmclient.styles?.appLogoUrl ?? null, "url")}
                     {renderDetailRow("App File Attachment", llmclient.appFileAttachment, "bool")}
+                    {renderDetailRow(
+                      "Styles",
+                      llmclient.styles,
+                      "json",
+                      "The look of the llmclient's chat: its manifest's spec.config.styles.",
+                    )}
+                    {renderDetailRow(
+                      "Allowed Origins",
+                      llmclient.allowedOrigins?.length ? llmclient.allowedOrigins : null,
+                      "str[]",
+                      "The web origins, besides the llmclient's own hosts, that may call its api from a browser (CORS).",
+                    )}
                     {renderDetailRow("DNS Status", llmclient.dnsVerificationStatus)}
                     {renderDetailRow("TLS Certificate Issuance Status", llmclient.tlsCertificateIssuanceStatus)}
                     {renderDetailRow("Subdomain", llmclient.subdomain)}

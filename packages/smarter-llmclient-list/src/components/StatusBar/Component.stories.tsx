@@ -5,7 +5,7 @@ import { makeObject } from "@/mocks/fixtures";
 import { StatusBar } from "@/components/StatusBar/Component";
 
 const meta = {
-  title: "Prompt List/StatusBar",
+  title: "LLMClient List/StatusBar",
   component: StatusBar,
   args: { llmclient: makeObject(1) },
 } satisfies Meta<typeof StatusBar>;

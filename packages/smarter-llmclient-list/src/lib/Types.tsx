@@ -1,8 +1,8 @@
 /**
  * @file Types.tsx
- * @module prompt_list/lib/Types
+ * @module llmclient_list/lib/Types
  *
- * Central type definitions for the Prompt List React application.
+ * Central type definitions for the LLMClient List React application.
  *
  * This module exports TypeScript types and interfaces used throughout the CardView,
  * llmclient, and API response layers. It provides strong typing for user, plugin,
@@ -11,6 +11,8 @@
  * Exports:
  *   - TabKey: Type for tab keys ("user" | "shared").
  *   - Plugin: Type for plugin objects.
+ *   - MCPClient, Guardrail: Types for an llmclient's MCPClients and guardrails.
+ *   - Tool: Type for one of an llmclient's functions, plugins, MCPClients or guardrails.
  *   - User, UserProfile: Types for user and profile data.
  *   - LLMClient: Type for llmclient configuration and metadata.
  *   - SessionContext: Type for session and authentication context.
@@ -24,6 +26,23 @@ export type TabKey = "user" | "shared";
 export type Plugin = {
   id: number;
   name: string;
+};
+
+export type MCPClient = {
+  id: number;
+  name: string;
+};
+
+export type Guardrail = {
+  id: number;
+  name: string;
+};
+
+/** One of an llmclient's functions, plugins, MCPClients or guardrails. */
+export type Tool = {
+  id: number;
+  name: string;
+  kind: "Function" | "Plugin" | "MCPClient" | "Guardrail";
 };
 
 export type Function = {
@@ -48,6 +67,9 @@ export type LLMClient = {
   userProfile: UserProfile;
   functions: Function[];
   plugins: Array<Plugin>;
+  mcpclients: MCPClient[];
+  guardrails: Guardrail[];
+  tools: Tool[]; // functions, plugins, mcpclients and guardrails, in that order
   customDomains: unknown[];
   apiKeys: unknown[];
   rfc1034CompliantName: string;
@@ -80,6 +102,7 @@ export type LLMClient = {
   appPlaceholder: string;
   appInfoUrl: string;
   appFileAttachment: boolean;
+  allowedOrigins: string[];
   styles: LLMClientStyles | null; // the manifest's spec.config.styles, with its camelCase keys
   dnsVerificationStatus: string;
   tlsCertificateIssuanceStatus: string;
