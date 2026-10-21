@@ -54,6 +54,10 @@ check(
 // React's production build replaces its error messages with links to react.dev/errors; the development build doesn't.
 check(source.includes("react.dev/errors/"), "embed.js is React's production build");
 check(!/\bprocess\.env\.NODE_ENV\b/.test(source), "embed.js has no process.env.NODE_ENV for a page to trip on");
+for (const file of ["smarter-chat-library.es.js", "embed.js"]) {
+  const built = fs.existsSync(path.join(dist, file)) ? fs.readFileSync(path.join(dist, file), "utf-8") : "";
+  check(!/jsxDEV|jsx-dev-runtime/.test(built), `${file} uses React's production JSX runtime`);
+}
 
 // the embed script, in a page.
 const page = new JSDOM(

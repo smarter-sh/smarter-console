@@ -4,15 +4,15 @@
 > WordPress, Django, Flask, Node.js or plain HTML, and it gets its behavior and its look from the LLMClient's YAML
 > manifest.
 
-[![GitHub](https://img.shields.io/badge/github-smarter--sh%2Fsmarter--chat-181717?logo=github)](https://github.com/smarter-sh/smarter-chat)
+[![GitHub](https://img.shields.io/badge/github-smarter--sh%2Fsmarter-181717?logo=github)](https://github.com/smarter-sh/smarter/tree/main/smarter/react/packages/smarter.sh-chat)
 [![npm version](https://img.shields.io/npm/v/@smarter.sh/ui-chat?logo=npm)](https://www.npmjs.com/package/@smarter.sh/ui-chat)
 [![npm downloads](https://img.shields.io/npm/dm/@smarter.sh/ui-chat)](https://www.npmjs.com/package/@smarter.sh/ui-chat)
-[![Test Status](https://github.com/smarter-sh/smarter-chat/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/smarter-sh/smarter-chat/actions/workflows/test.yml)
+[![Release](https://github.com/smarter-sh/smarter/actions/workflows/uiChatRelease.yml/badge.svg)](https://github.com/smarter-sh/smarter/actions/workflows/uiChatRelease.yml)
 [![Docs](https://img.shields.io/badge/Read%20the%20Docs-smarter.sh-blue?logo=readthedocs)](https://docs.smarter.sh/smarter-framework/smarter-chat.html)
-[![Coverage](https://img.shields.io/codecov/c/github/smarter-sh/smarter-chat/main?label=coverage&logo=codecov)](https://app.codecov.io/gh/smarter-sh/smarter-chat)
+[![Coverage](https://img.shields.io/codecov/c/github/smarter-sh/smarter/main?flag=react&label=coverage&logo=codecov)](https://app.codecov.io/gh/smarter-sh/smarter)
 [![TypeScript](https://img.shields.io/badge/types-included-blue?logo=typescript&logoColor=white)](#typescript)
 [![React 19](https://img.shields.io/badge/react-19-61dafb?logo=react&logoColor=white)](https://react.dev)
-[![License: AGPL-3.0-or-later](https://img.shields.io/npm/l/@smarter.sh/ui-chat)](https://github.com/smarter-sh/smarter-chat/blob/main/LICENSE)
+[![License: AGPL-3.0-or-later](https://img.shields.io/npm/l/@smarter.sh/ui-chat)](https://github.com/smarter-sh/smarter/blob/main/LICENSE)
 
 ![Smarter Chat](https://cdn.smarter.sh/images/smarter-chat-ui-example.png)
 
@@ -22,8 +22,8 @@ You build and run the chatbot on Smarter, and this package displays it on your p
 [docs.smarter.sh](https://docs.smarter.sh/smarter-framework/smarter-chat.html).
 
 **[Documentation](https://docs.smarter.sh/smarter-framework/smarter-chat.html)** ·
-**[Storybook](#development)** · **[Changelog](https://github.com/smarter-sh/smarter-chat/blob/main/CHANGELOG.md)** ·
-**[Issues](https://github.com/smarter-sh/smarter-chat/issues)**
+**[Storybook](#development)** · **[Changelog](https://github.com/smarter-sh/smarter/blob/main/changelogs/CHANGELOG.md)** ·
+**[Issues](https://github.com/smarter-sh/smarter/issues)**
 
 ## Contents
 
@@ -528,26 +528,30 @@ Smarter Chat supports current versions of Chrome, Edge, Firefox and Safari. It u
 
 ## Development
 
+Smarter Chat is developed in the [Smarter repository](https://github.com/smarter-sh/smarter/tree/main/smarter/react/packages/smarter.sh-chat), as a package of its React workspace, and is
+released with each Smarter release, at the platform's version:
+
 ```console
-git clone https://github.com/smarter-sh/smarter-chat.git
-cd smarter-chat
-make init    # npm install
-make serve   # Storybook at http://localhost:6006, with the Smarter api mocked
-make test    # Vitest; every story is also rendered as a test
+git clone https://github.com/smarter-sh/smarter.git
+cd smarter
+make react-install                         # npm install, for the whole React workspace
+make react-storybook APP=smarter.sh-chat   # Storybook at http://localhost:6006, with the Smarter api mocked
+cd smarter/react
+npx vitest run --project smarter.sh-chat   # Vitest; every story is also rendered as a test
 ```
 
 You don't need a Smarter backend: the stories mock the api with [MSW](https://mswjs.io/), using fixtures that are
-validated against the contract's schema. See
-[CONTRIBUTING.md](https://github.com/smarter-sh/smarter-chat/blob/main/.github/CONTRIBUTING.md) for the rest of the
-workflow (every `make` target, working inside the Smarter repository, commits and releases), and the
-[developer guide](https://docs.smarter.sh/smarter-framework/smarter-chat/development.html) for the
-architecture.
+validated against the contract's schema. See the
+[developer guide](https://docs.smarter.sh/smarter-framework/smarter-chat/development.html) for the architecture, the
+rest of the workflow and releases. The package's history before it moved into the Smarter repository, up to version
+0.16.2, is in [CHANGELOG.md](https://github.com/smarter-sh/smarter/tree/main/smarter/react/packages/smarter.sh-chat/CHANGELOG.md) and the archived
+[smarter-sh/smarter-chat](https://github.com/smarter-sh/smarter-chat) repository.
 
 ## License
 
-[AGPL-3.0-or-later](https://github.com/smarter-sh/smarter-chat/blob/main/LICENSE), as Smarter is. Copyright © Lawrence
+[AGPL-3.0-or-later](https://github.com/smarter-sh/smarter/blob/main/LICENSE), as Smarter is. Copyright © Lawrence
 McDaniel.
 
 Contributions are welcome: code, documentation, how-to videos, testing and community help. See
-[CONTRIBUTING.md](https://github.com/smarter-sh/smarter-chat/blob/main/.github/CONTRIBUTING.md), or contact
+[CONTRIBUTING.md](https://github.com/smarter-sh/smarter/blob/main/CONTRIBUTING.md), or contact
 [Lawrence McDaniel](https://lawrencemcdaniel.com/contact).

@@ -39,3 +39,4 @@ See: [Michael Nygard's ADRs](https://cognitect.com/blog/2011/11/15/documenting-a
 - [ADR-017: Documentation](017-documentation.md)
 - [ADR-018: Translations](018-translations.md)
 - [ADR-019: The Workbench Hosts the Chat](019-hosted-by-the-workbench.md)
+- [ADR-020: Part of the Platform's Repository](020-part-of-the-platform-repository.md)

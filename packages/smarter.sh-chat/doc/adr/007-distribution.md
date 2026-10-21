@@ -4,6 +4,9 @@
 
 Accepted
 
+Amended by [ADR-020](020-part-of-the-platform-repository.md): the platform's `uiChatRelease.yml` publishes
+the package, and the `alpha` and `beta` prereleases are published to npm with their own dist-tags.
+
 ## Context
 
 React applications install packages from npm. Pages without a bundler need a url for `embed.js`. Hosting a CDN of our own would be one more service to run, and the integrations need a version they can pin and test.

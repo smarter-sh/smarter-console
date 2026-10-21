@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-020](020-part-of-the-platform-repository.md): Smarter Chat is now a package committed in
+the platform's repository, and `smarter-sh/smarter-chat` is archived.
 
 ## Context
 

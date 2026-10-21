@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-020](020-part-of-the-platform-repository.md): the platform's CI covers the package, and its
+`uiChatRelease.yml` publishes it with each platform release.
 
 Follows the platform's [ADR-014: CI/CD](https://github.com/smarter-sh/smarter/blob/main/docs/source/adr/014-ci-cd.rst): the same branches, semantic-release configuration and merge-back.
 

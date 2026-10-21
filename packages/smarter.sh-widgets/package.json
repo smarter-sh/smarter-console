@@ -33,7 +33,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/smarter-sh/smarter.git",
-    "directory": "smarter/react/packages/smarter-widgets"
+    "directory": "smarter/react/packages/smarter.sh-widgets"
   },
   "bugs": {
     "url": "https://github.com/smarter-sh/smarter/issues"

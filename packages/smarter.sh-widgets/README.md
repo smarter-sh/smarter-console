@@ -85,14 +85,14 @@ The other widgets have no props. They fill the element that holds them.
 ## Development
 
 The package is part of the Smarter web console's npm workspace, in
-[smarter/react/packages/smarter-widgets](https://github.com/smarter-sh/smarter/tree/main/smarter/react/packages/smarter-widgets).
+[smarter/react/packages/smarter.sh-widgets](https://github.com/smarter-sh/smarter/tree/main/smarter/react/packages/smarter.sh-widgets).
 
 ```console
 cd smarter/react
-npx vitest run --project smarter-widgets            # tests, including every story
+npx vitest run --project smarter.sh-widgets           # tests, including every story
 npm run build:lib -w @smarter.sh/ui-widgets         # dist/
 npm run check:dist -w @smarter.sh/ui-widgets        # checks dist/ before it is published
-make react-storybook APP=smarter-widgets            # Storybook, from the repository's root
+make react-storybook APP=smarter.sh-widgets           # Storybook, from the repository's root
 ```
 
 Each Smarter release publishes the package, at the platform's version:

@@ -1,6 +1,9 @@
 # Change Log
 
-All notable changes to this project will be documented in this file.
+This is the history of `@smarter.sh/ui-chat` up to version 0.16.2, when it had its own repository,
+[smarter-sh/smarter-chat](https://github.com/smarter-sh/smarter-chat), now archived. Since then, the package has been
+part of the Smarter repository and is released with the platform, at its version: see Smarter's
+[changelog](https://github.com/smarter-sh/smarter/blob/main/changelogs/CHANGELOG.md).
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 

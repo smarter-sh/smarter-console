@@ -237,6 +237,9 @@ function devConfig(): UserConfig {
 }
 
 export default defineConfig(({ command, mode }: ConfigEnv) => {
+  // vite build keeps a NODE_ENV that the shell sets. With NODE_ENV=development, the library and the embed script would
+  // bundle React's development JSX runtime: the library would require() react, and the embed script would fail.
+  if (command === "build") process.env.NODE_ENV = "production";
   if (mode === "lib") return libraryConfig();
   if (mode === "embed") return embedConfig();
   if (mode === "embed-mermaid") return embedMermaidConfig();

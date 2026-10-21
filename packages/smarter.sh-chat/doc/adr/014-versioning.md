@@ -4,6 +4,9 @@
 
 Accepted
 
+Amended by [ADR-020](020-part-of-the-platform-repository.md): the package's version is the platform's, set
+from each platform release's tag. What counts as breaking, below, is unchanged.
+
 Follows the platform's [ADR-020: Semantic Versioning](https://github.com/smarter-sh/smarter/blob/main/docs/source/adr/020-semantic-versioning.rst).
 
 ## Context
