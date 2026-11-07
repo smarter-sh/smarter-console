@@ -119,7 +119,8 @@ export function Sidebar({ session, open, drawer, onClose }: SidebarProps) {
       >
         <div className="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
           <Link to="/" aria-label={session.branding.productName}>
-            <img alt="" src={session.branding.logoUrl} className="h-25px app-sidebar-logo-default" />
+            {/* large enough to read its wordmark, within the logo's area, which is the header's 70 px. */}
+            <img alt="" src={session.branding.logoUrl} className="h-60px app-sidebar-logo-default" />
           </Link>
         </div>
         {/*

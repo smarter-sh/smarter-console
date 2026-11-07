@@ -57,6 +57,15 @@ afterEach(() => {
 });
 
 describe("the sidebar", () => {
+  it("shows the logo large enough to read its wordmark, within the header's height", async () => {
+    mountAt("/");
+    const home = within(await screen.findByRole("complementary", { name: "Sidebar" })).getByRole("link", {
+      name: userSession.branding.productName,
+    });
+    // eslint-disable-next-line testing-library/no-node-access -- the logo is decorative: its link has the name.
+    expect(home.querySelector("img")).toHaveClass("h-60px");
+  });
+
   it("links to the session's pages, and leaves out the ones it doesn't have", async () => {
     mountAt("/");
     const nav = await findSidebar();

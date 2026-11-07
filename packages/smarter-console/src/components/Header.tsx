@@ -46,7 +46,8 @@ export function Header({ session, drawer, onOpenSidebar }: HeaderProps) {
               <i className="ki-outline ki-abstract-14 fs-2" aria-hidden="true" />
             </button>
             <Link to="/" className="ms-3" aria-label={session.branding.productName}>
-              <img alt="" src={session.branding.logoUrl} className="h-25px" />
+              {/* the size of the Django header's logo, on narrow screens. */}
+              <img alt="" src={session.branding.logoUrl} className="h-60px" />
             </Link>
           </div>
         )}
