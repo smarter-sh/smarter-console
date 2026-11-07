@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.6](https://github.com/smarter-sh/smarter-console/compare/v1.0.5...v1.0.6) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** load a resource with TanStack Query, never cached ([72fe492](https://github.com/smarter-sh/smarter-console/commit/72fe49238215ecfa95cb036970cc908ec7ee8500))
+* **console:** recheck cached pages each time they open ([30b6784](https://github.com/smarter-sh/smarter-console/commit/30b6784a55555903149e1db6377e6079647b3214))
+
 ## [1.0.5](https://github.com/smarter-sh/smarter-console/compare/v1.0.4...v1.0.5) (2026-11-07)
 
 ### Bug Fixes
