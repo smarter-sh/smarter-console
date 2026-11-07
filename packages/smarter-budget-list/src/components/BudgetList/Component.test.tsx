@@ -1,9 +1,11 @@
+import { createSmarterQueryClient } from "@smarter/common";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 
-import { budgets, listResponse, makeBudget, makeResourceStatus, sessionContext } from "@/mocks/fixtures";
+import { budgets, listResponse, makeBudget, makeResourceStatus, SERIES_URL, sessionContext } from "@/mocks/fixtures";
 import { listErrorHandlers, listHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
@@ -135,6 +137,48 @@ describe("BudgetList", () => {
     const gone = screen.getAllByRole("row", { name: /llmclient:gone/ }).at(-1)!;
     expect(within(gone).getByText("Ended")).toBeInTheDocument();
     expect(within(gone).getByText("No limit")).toBeInTheDocument();
+  });
+
+  it("shows the budgets at once when the page opens again, from the console's cache", async () => {
+    let requests = 0;
+    server.use(
+      http.post(sessionContext.ApiUrl, () => {
+        requests += 1;
+        return HttpResponse.json(listResponse);
+      }),
+    );
+    const client = createSmarterQueryClient();
+    const page = (
+      <QueryClientProvider client={client}>
+        <BudgetList sessionContext={sessionContext} />
+      </QueryClientProvider>
+    );
+    const view = render(page);
+    expect(await screen.findByRole("row", { name: /daily_token_budget/ })).toBeInTheDocument();
+    view.unmount();
+    render(page);
+    expect(screen.getByRole("row", { name: /daily_token_budget/ })).toBeInTheDocument();
+    expect(requests).toBe(1);
+  });
+
+  it("shows a resource's chart again without loading its series again", async () => {
+    let seriesRequests = 0;
+    server.use(
+      http.post(SERIES_URL, () => {
+        seriesRequests += 1;
+        return HttpResponse.json([]);
+      }),
+      ...listHandlers(),
+    );
+    const user = userEvent.setup();
+    render(<BudgetList sessionContext={sessionContext} />);
+    const row = await screen.findByRole("row", { name: /monthly_llm_budget/ });
+    await user.click(within(row).getByRole("button", { name: "Show resources" }));
+    await user.click(screen.getByRole("button", { name: "Chart" }));
+    await user.click(await screen.findByRole("button", { name: "Hide" }));
+    await user.click(screen.getByRole("button", { name: "Chart" }));
+    expect(await screen.findByRole("button", { name: "Hide" })).toBeInTheDocument();
+    expect(seriesRequests).toBe(1);
   });
 
   it("shows and hides a resource's chart", async () => {

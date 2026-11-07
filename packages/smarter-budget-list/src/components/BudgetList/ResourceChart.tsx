@@ -2,10 +2,10 @@
  * ResourceChart
  *
  * Loads a resource's budget versus actual series, and charts it. Loaded in its own chunk,
- * with recharts.
+ * with recharts. The series is a query of the console's cache (TanStack Query).
  */
-import { useEffect, useState } from "react";
-import { fetchDjangoUrl, gettext, interpolate } from "@smarter/common";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDjangoUrl, gettext, interpolate, useSmarterQueryClient } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import BudgetChart from "./BudgetChart";
@@ -17,6 +17,39 @@ const PERIODS = 12;
 
 type SeriesResponse = { status: { budget: string }; series: BudgetSeriesRow[] }[];
 
+/**
+ * Loads a resource's series, for its budget.
+ *
+ * @param sessionContext - The request's authentication and headers.
+ * @param status - The resource's status under its budget, which names the series' url.
+ * @param signal - Aborts the request, when TanStack Query no longer needs it.
+ * @returns The budget's series for the resource, or none.
+ * @throws Error - With the status of a failed response.
+ */
+async function loadSeries(
+  sessionContext: SessionContext,
+  status: BudgetResourceStatus,
+  signal: AbortSignal,
+): Promise<BudgetSeriesRow[]> {
+  try {
+    const response = await fetchDjangoUrl(
+      sessionContext,
+      `${status.seriesUrl}?periods=${PERIODS}`,
+      JSON.stringify({}),
+      signal,
+    );
+    if (!response.ok)
+      throw new Error(
+        interpolate(gettext("Failed to load the budget series (%(status)s)."), { status: response.status }),
+      );
+    const data = (await response.json()) as SeriesResponse;
+    return data.find((s) => s.status.budget === status.budget)?.series ?? [];
+  } catch (error) {
+    console.error(loggerPrefix, "Error loading budget series:", error);
+    throw error;
+  }
+}
+
 export default function ResourceChart({
   sessionContext,
   status,
@@ -24,24 +57,17 @@ export default function ResourceChart({
   sessionContext: SessionContext;
   status: BudgetResourceStatus;
 }) {
-  const [series, setSeries] = useState<BudgetSeriesRow[] | null>(null);
-  const [errMessage, setErrMessage] = useState("");
-
-  useEffect(() => {
-    fetchDjangoUrl(sessionContext, `${status.seriesUrl}?periods=${PERIODS}`, JSON.stringify({}))
-      .then(async (response) => {
-        if (!response.ok)
-          throw new Error(
-            interpolate(gettext("Failed to load the budget series (%(status)s)."), { status: response.status }),
-          );
-        const data = (await response.json()) as SeriesResponse;
-        setSeries(data.find((s) => s.status.budget === status.budget)?.series ?? []);
-      })
-      .catch((error: Error) => {
-        console.error(loggerPrefix, "Error loading budget series:", error);
-        setErrMessage(error.message);
-      });
-  }, [sessionContext, status]);
+  // the series is a query of the console's cache: a chart shown again, e.g. after Hide and Chart, shows at once.
+  const queryClient = useSmarterQueryClient();
+  const query = useQuery(
+    {
+      queryKey: ["smarter-budget-series", status.seriesUrl, PERIODS, status.budget],
+      queryFn: ({ signal }) => loadSeries(sessionContext, status, signal),
+    },
+    queryClient,
+  );
+  const series = query.data ?? null;
+  const errMessage = query.isError ? query.error.message : "";
 
   if (errMessage) return <div className="text-danger fs-7">{errMessage}</div>;
   if (series === null) return <div className="text-muted fs-7">{gettext("Loading…")}</div>;

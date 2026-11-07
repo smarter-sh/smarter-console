@@ -5,8 +5,13 @@
  * to, with their budget versus actual spending, and a chart of the last 12 billing periods.
  * Superusers may delete a budget. Budgets are created and changed with Budget manifests. The
  * Refresh button at the top loads the list again.
+ *
+ * The list is a query of the console's cache (TanStack Query, see @smarter/common's lib/query), keyed by
+ * listQueryKey(api url), as the other lists' pages are: it shows at once when the page opens again, and a delete
+ * marks it stale.
  */
-import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React, { lazy, Suspense, useCallback, useState } from "react";
 import {
   actionUrl,
   fetchDjangoUrl,
@@ -14,8 +19,11 @@ import {
   gettext,
   interpolate,
   interpolateNodes,
+  listQueryKey,
   Loading,
   ngettext,
+  SmarterQueryProvider,
+  useSmarterQueryClient,
 } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
@@ -209,35 +217,64 @@ const BudgetRow = React.memo(function BudgetRow({
   );
 });
 
+/**
+ * Loads the budgets that the user may see.
+ *
+ * @param sessionContext - The request's authentication and headers, and the list api's url.
+ * @param signal - Aborts the request, when TanStack Query no longer needs it.
+ * @returns The budgets, and whether the user is a superuser.
+ * @throws Error - With the status of a failed response.
+ */
+async function loadBudgets(sessionContext: SessionContext, signal: AbortSignal): Promise<BudgetListResponse> {
+  try {
+    const response = await fetchDjangoUrl(sessionContext, sessionContext.ApiUrl, JSON.stringify({}), signal);
+    if (!response.ok)
+      throw new Error(interpolate(gettext("Failed to load budgets (%(status)s)."), { status: response.status }));
+    return (await response.json()) as BudgetListResponse;
+  } catch (error) {
+    console.error(loggerPrefix, "Error loading budgets:", error);
+    throw error;
+  }
+}
+
+/**
+ * The budget list, with the console's QueryClient, or one of its own outside the console, which its charts share.
+ * See SmarterQueryProvider.
+ */
 export default function BudgetList({ sessionContext }: { sessionContext: SessionContext }) {
-  const [data, setData] = useState<BudgetListResponse | null>(null);
-  const [errMessage, setErrMessage] = useState("");
-  // whether a load is in flight: the first one on mount, and each one of the Refresh button.
-  const [isLoading, setIsLoading] = useState(true);
+  return (
+    <SmarterQueryProvider>
+      <Budgets sessionContext={sessionContext} />
+    </SmarterQueryProvider>
+  );
+}
 
+function Budgets({ sessionContext }: { sessionContext: SessionContext }) {
+  const queryClient = useSmarterQueryClient();
+  const queryKey = listQueryKey(sessionContext.ApiUrl);
+  const query = useQuery(
+    {
+      queryKey,
+      queryFn: ({ signal }) => loadBudgets(sessionContext, signal),
+    },
+    queryClient,
+  );
+  const data = query.data ?? null;
+  // a failed delete's message, until the list loads again.
+  const [deleteError, setDeleteError] = useState("");
+  const loadError = query.isError && !query.isFetching ? query.error.message : "";
+  const errMessage = deleteError || loadError;
+  // whether a load is in flight: the first one, and each one of the Refresh button.
+  const isLoading = query.isFetching;
+
+  // load the list now, whether or not it is stale.
   const load = useCallback(() => {
-    fetchDjangoUrl(sessionContext, sessionContext.ApiUrl, JSON.stringify({}))
-      .then(async (response) => {
-        if (!response.ok)
-          throw new Error(interpolate(gettext("Failed to load budgets (%(status)s)."), { status: response.status }));
-        setData((await response.json()) as BudgetListResponse);
-        setErrMessage("");
-      })
-      .catch((error: Error) => {
-        console.error(loggerPrefix, "Error loading budgets:", error);
-        setErrMessage(error.message);
-      })
-      .finally(() => setIsLoading(false));
-  }, [sessionContext]);
+    setDeleteError("");
+    void queryClient.invalidateQueries({ queryKey });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the key is the api url, which it names.
+  }, [queryClient, sessionContext.ApiUrl]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const onRefresh = useCallback(() => {
-    setIsLoading(true);
-    load();
-  }, [load]);
+  const onRefresh = load;
 
   const onDelete = useCallback(
     (budget: Budget) => {
@@ -265,7 +302,7 @@ export default function BudgetList({ sessionContext }: { sessionContext: Session
           }
           load();
         })
-        .catch((error: Error) => setErrMessage(error.message));
+        .catch((error: Error) => setDeleteError(error.message));
     },
     [sessionContext, load],
   );
