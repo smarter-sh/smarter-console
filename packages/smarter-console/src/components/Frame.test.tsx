@@ -209,6 +209,20 @@ describe("the welcome dialog", () => {
 });
 
 describe("the header", () => {
+  it("shows the product's name above the Did you know? tip", async () => {
+    mountAt("/");
+    const tip = await screen.findByRole("complementary", { name: "Did you know?" });
+    const header = within(screen.getByRole("banner"));
+    const title = header.getByRole("heading", { level: 1, name: userSession.branding.productName });
+    expect(title.compareDocumentPosition(tip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows the product's name while the tip's switch is off", async () => {
+    mountAt("/", { ...userSession, flags: { ...userSession.flags, didYouKnow: false } });
+    await findSidebar();
+    expect(screen.getByRole("heading", { level: 1, name: userSession.branding.productName })).toBeInTheDocument();
+  });
+
   it("shows the Did you know? tip while its switch is on", async () => {
     mountAt("/");
     expect(await screen.findByRole("complementary", { name: "Did you know?" })).toBeInTheDocument();

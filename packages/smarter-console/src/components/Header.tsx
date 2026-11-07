@@ -1,6 +1,6 @@
 /**
- * The console's header: the button that opens the sidebar below the lg breakpoint, the logo there, the Did you know?
- * tip from lg up while its switch is on, the theme mode menu, and the user menu. It is the theme's own header (Keen's app-header and app-navbar classes), so the theme's variables style
+ * The console's header: the button that opens the sidebar below the lg breakpoint, the logo there, the product's
+ * name from lg up, with the Did you know? tip below it while its switch is on, the theme mode menu, and the user menu. It is the theme's own header (Keen's app-header and app-navbar classes), so the theme's variables style
  * it, e.g. --bs-app-header-height.
  *
  * :param drawer: Whether the sidebar is a drawer, which the header's button opens.
@@ -50,9 +50,11 @@ export function Header({ session, drawer, onOpenSidebar }: HeaderProps) {
             </Link>
           </div>
         )}
-        {session.flags.didYouKnow && (
-          // the theme's utility classes, so that a theme styles the tip through its variables.
-          <div className="d-none d-lg-flex align-items-center min-w-0 me-5">
+        {/* the product's name, and the tip below it, from lg up. The theme's utility classes, so that a theme styles
+            them through its variables. */}
+        <div className="d-none d-lg-flex flex-column justify-content-center min-w-0 me-5 user-select-none">
+          <h1 className="mb-0 text-truncate">{session.branding.productName}</h1>
+          {session.flags.didYouKnow && (
             <DidYouKnow
               fact={factOfTheDay(new Date())}
               classNames={{
@@ -62,8 +64,8 @@ export function Header({ session, drawer, onOpenSidebar }: HeaderProps) {
                 link: "flex-shrink-0 link-primary",
               }}
             />
-          </div>
-        )}
+          )}
+        </div>
         <div className="app-navbar flex-shrink-0 ms-auto">
           <div className="app-navbar-item ms-1 ms-md-3">
             <ThemeModeMenu />
