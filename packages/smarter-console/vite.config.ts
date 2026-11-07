@@ -7,6 +7,9 @@
  * - `npm run build` writes index.html and its assets into dist/react/@smarter/console/. A release's tarball of
  *   dist/ unpacks into the backend's static folder, from which Django serves the console's pages at
  *   /static/react/@smarter/console/ (or the CDN, with SMARTER_STATIC_FILES_ON_CDN).
+ * - @smarter/common and the other packages of workspaceSources.ts are read from their source, not their dist/
+ *   builds, so that a rebuild of one (e.g. make lint's build:deps, which empties dist/ first) never breaks the dev
+ *   server, and a change to one shows at once.
  * - console.debug() calls are removed from production builds.
  * - The built scripts and styles load their chunks, fonts and images relative to themselves, so that they follow
  *   them to the CDN while the backend serves the page with its CDN's STATIC_URL (SMARTER_STATIC_FILES_ON_CDN).
@@ -15,6 +18,8 @@ import { defineConfig, type ConfigEnv, type ProxyOptions } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import packageJson from "./package.json" with { type: "json" };
+
+import { WORKSPACE_SOURCES } from "../../workspaceSources.ts";
 
 const packageName = packageJson.name;
 
@@ -41,6 +46,7 @@ export default defineConfig(({ command }: ConfigEnv) => ({
   base: command === "serve" ? "/" : `/static/react/${packageName}/`,
   resolve: {
     alias: {
+      ...WORKSPACE_SOURCES,
       "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
