@@ -127,8 +127,9 @@ The packages are tested with [Vitest](https://vitest.dev/) and
   (`npm run typecheck`).
 - pre-commit runs them, with codespell and commitlint, on each commit, with the workspace's own versions: run
   `make install` first.
-- CI (`.github/workflows/test.yml`) checks formatting, lint, types, the ui-widgets package and the tests on every
-  pull request to `main`, and every push to `main` and `alpha`.
+- CI (`.github/workflows/test.yml`) runs on every pull request to `main`, and every push to `main`, `alpha` and
+  `beta`, when testable code changed: formatting, lint, types and the ui-widgets package in one job, and the tests in
+  four shards, whose results and coverage one job merges and sends to Codecov.
 
 ## Contributing
 

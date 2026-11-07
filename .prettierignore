@@ -16,3 +16,4 @@ i18n/messages.js
 packages/smarter.sh-chat/src/catalogs.gen.ts
 # Scalar's vendored, minified build, which the console's OpenAPI page loads.
 packages/smarter-console/public/scalar/standalone.js
+**/.vitest/

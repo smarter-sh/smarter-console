@@ -2,8 +2,10 @@ name: Tests
 
 #------------------------------------------------------------------------------
 # Every pull request to main, and every push to main, alpha and beta, checks
-# the workspace: formatting, lint, types, the published ui-widgets package, and
-# the unit tests with coverage. A new push cancels the run in progress.
+# the workspace: formatting, lint, types and the published ui-widgets package
+# (checks), and the unit tests with coverage, in four shards (test), whose
+# results and coverage are merged into one report (report). A new push
+# cancels the run in progress.
 #
 # The checks run only when testable code changed (see the changes job): a
 # commit of docs, skills or release configuration alone, or semantic-release's
@@ -81,14 +83,20 @@ jobs:
           echo "testable=$testable" >> "$GITHUB_OUTPUT"
           echo "Testable code changed: $testable"
 
-  react:
+  #----------------------------------------------------------------------------
+  # Formatting, lint, types and the published ui-widgets package, alongside the
+  # test shards.
+  #----------------------------------------------------------------------------
+  checks:
     needs: changes
     if: needs.changes.outputs.testable == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Install Node
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -114,10 +122,92 @@ jobs:
       - name: Check @smarter.sh/ui-widgets
         run: npm run check:dist --workspace=@smarter.sh/ui-widgets
 
-      # Naming any reporter replaces Vitest's defaults, so default (the log)
-      # and github-actions (annotations and the job summary) are named too.
-      - name: Unit tests (Vitest), with coverage
-        run: npm run coverage -- --reporter=default --reporter=github-actions
+  #----------------------------------------------------------------------------
+  # The unit tests, in shards, as the smarter repository's Python tests are:
+  # Vitest splits the test files into SHARDS parts, and each shard runs one
+  # part, with coverage, into a blob report (.vitest/blob/), which the report
+  # job merges. A shard's annotations and log are its own tests'.
+  #----------------------------------------------------------------------------
+  test:
+    needs: changes
+    if: needs.changes.outputs.testable == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      SHARDS: 4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Install Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: npm ci
+        run: npm ci --include=dev
+
+      # The workbench's tests import Smarter Chat's built library.
+      - name: Build the libraries that packages import
+        run: npm run build:deps
+
+      # Naming any reporter replaces Vitest's defaults, so default (the log) and
+      # github-actions (annotations and the job summary) are named too.
+      - name: Unit tests (Vitest), shard ${{ matrix.shard }} of ${{ env.SHARDS }}
+        run: >-
+          npx vitest run --shard=${{ matrix.shard }}/${{ env.SHARDS }} --coverage
+          --reporter=default --reporter=github-actions --reporter=blob
+
+      - name: Upload the shard's blob report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vitest-blob-${{ matrix.shard }}
+          path: .vitest/blob/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  #----------------------------------------------------------------------------
+  # The shards' results and coverage, merged into one report, as the smarter
+  # repository's python-report job does: the log of every test, and the
+  # coverage of the whole workspace, which goes to Codecov.
+  #----------------------------------------------------------------------------
+  report:
+    needs: [changes, test]
+    if: needs.changes.outputs.testable == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Install Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: npm ci
+        run: npm ci --include=dev
+
+      - name: Download the shards' blob reports
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: vitest-blob-*
+          path: .vitest/blob/
+          merge-multiple: true
+
+      - name: Merge the shards' results and coverage
+        run: npx vitest run --merge-reports --coverage --reporter=default
 
       # Optional: it needs the repository's CODECOV_TOKEN secret, and a run
       # without it still passes.

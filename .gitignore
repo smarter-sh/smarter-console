@@ -22,3 +22,6 @@ coverage/
 # the Python virtual environment of the development tools: make init
 venv/
 .venv/
+
+# Vitest's cache and the shards' blob reports
+.vitest/
