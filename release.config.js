@@ -1,8 +1,9 @@
 /**
  * semantic-release: each release of the console, from the conventional commits since the last one.
  *
- * A release builds the console and the deployed LLMClient page into dist/react/, packs that folder as
- * smarter-console-<version>.tar.gz, and attaches it to the GitHub release. The smarter repository pins a version,
+ * A release builds the console and the deployed LLMClient page into dist/react/, adds the console's translatable
+ * messages, dist/i18n/messages.js, packs the two folders as smarter-console-<version>.tar.gz, and attaches it to the
+ * GitHub release. The backend's makemessages reads messages.js into its djangojs catalogs. The smarter repository pins a version,
  * and its Docker build unpacks that release's tarball into the backend's static folder. The console's own
  * package.json carries the version, which it sends to the backend as X-Smarter-ClientVersion.
  *
@@ -49,14 +50,15 @@ export default {
       },
     ],
     [
-      // the release's version in the console's package.json, then the production builds, packed.
+      // the release's version in the console's package.json, then the production builds and the messages, packed.
       "@semantic-release/exec",
       {
         prepareCmd: [
           "npm version ${nextRelease.version} --no-git-tag-version --workspace=@smarter/console",
           "NODE_ENV=production npm run build",
-          "mkdir -p release",
-          "tar -czf release/smarter-console-${nextRelease.version}.tar.gz -C dist react",
+          "mkdir -p dist/i18n release",
+          "cp i18n/messages.js dist/i18n/messages.js",
+          "tar -czf release/smarter-console-${nextRelease.version}.tar.gz -C dist react i18n",
         ].join(" && "),
       },
     ],
