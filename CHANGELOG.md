@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.14](https://github.com/smarter-sh/smarter-console/compare/v1.0.13...v1.0.14) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** sweep a light across the splash on slow networks ([518cced](https://github.com/smarter-sh/smarter-console/commit/518cced6bc6ec41194117816362b387d6c73651f))
+
 ## [1.0.13](https://github.com/smarter-sh/smarter-console/compare/v1.0.12...v1.0.13) (2026-11-07)
 
 ### Bug Fixes
