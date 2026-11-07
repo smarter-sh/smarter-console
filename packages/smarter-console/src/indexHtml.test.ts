@@ -26,6 +26,13 @@ describe("index.html", () => {
     expect(theme).toBeGreaterThan(mode);
   });
 
+  it("links the platform's icons from the backend's static files", () => {
+    // as the backend's templates/base.html does: Vite's dev server proxies /static/, and the backend rewrites it.
+    expect(html).toContain('<link rel="icon" href="/static/images/logo/favicon.ico" />');
+    expect(html).toContain('href="/static/images/logo/apple-touch-icon.png"');
+    expect(html).toContain('<link rel="manifest" href="/static/site.webmanifest" />');
+  });
+
   it("has the root element that main.tsx mounts the console in", () => {
     expect(html).toContain('id="smarter-console-root"');
   });
