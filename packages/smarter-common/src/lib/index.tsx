@@ -13,6 +13,7 @@ export {
   QUERY_GC_TIME_MS,
   QUERY_STALE_TIME_MS,
   SmarterQueryProvider,
+  useOwnQueryClient,
   useSmarterQueryClient,
 } from "./query";
 export { currentLanguage, gettext, interpolate, interpolateNodes, ngettext, npgettext, pgettext };

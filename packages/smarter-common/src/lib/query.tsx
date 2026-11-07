@@ -10,7 +10,7 @@
  * from the console. SmarterQueryProvider gives it one of its own.
  */
 import { QueryClient, QueryClientContext, QueryClientProvider } from "@tanstack/react-query";
-import { useContext, useState, type ReactNode } from "react";
+import { useContext, useEffect, useState, type ReactNode } from "react";
 
 /** How long a response is fresh: a page opened again within it shows the response without asking the api again. */
 export const QUERY_STALE_TIME_MS = 30 * 1000;
@@ -60,7 +60,34 @@ export function useSmarterQueryClient(): QueryClient {
   const outer = useContext(QueryClientContext);
   // made once, and only used without the console's client.
   const [own] = useState(() => (outer ? null : createSmarterQueryClient()));
+  useMountedQueryClient(own);
   return (outer ?? own) as QueryClient;
+}
+
+/**
+ * A QueryClient of the component's own, made once, for queries that must not share the console's cache, e.g. the
+ * console's session, which decides which cache the pages get.
+ *
+ * @returns The client.
+ */
+export function useOwnQueryClient(): QueryClient {
+  const [own] = useState(createSmarterQueryClient);
+  useMountedQueryClient(own);
+  return own;
+}
+
+/**
+ * Mounts a client that no QueryClientProvider mounts, while the component is mounted: a mounted client listens
+ * for the window's focus and the network, and refetches its stale queries when they return.
+ *
+ * @param client - The client, or null for none.
+ */
+function useMountedQueryClient(client: QueryClient | null): void {
+  useEffect(() => {
+    if (!client) return;
+    client.mount();
+    return () => client.unmount();
+  }, [client]);
 }
 
 /**

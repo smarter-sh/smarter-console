@@ -51,9 +51,14 @@ async function handle<T>(url: string, response: Response): Promise<T> {
   return body as T;
 }
 
-/** GET a JSON endpoint. */
-export async function getJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { method: "GET", credentials: "include", headers: smarterHeaders() });
+/**
+ * GET a JSON endpoint.
+ *
+ * @param url - The endpoint.
+ * @param signal - Aborts the request, e.g. when TanStack Query no longer needs it.
+ */
+export async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(url, { method: "GET", credentials: "include", headers: smarterHeaders(), signal });
   return handle<T>(url, response);
 }
 
