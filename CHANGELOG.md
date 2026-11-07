@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.9](https://github.com/smarter-sh/smarter-console/compare/v1.0.8...v1.0.9) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** show a splash page from the first paint ([de29011](https://github.com/smarter-sh/smarter-console/commit/de290110d4d83c1a62bcf7110f2004205bd6435f)), closes [#0F1014](https://github.com/smarter-sh/smarter-console/issues/0F1014)
+
+### Refactoring
+
+* **common:** share one ResourceToolbar among the resource lists ([bd6562c](https://github.com/smarter-sh/smarter-console/commit/bd6562c6ba77df2567c3e81376c9ad92045927ac))
+
 ## [1.0.8](https://github.com/smarter-sh/smarter-console/compare/v1.0.7...v1.0.8) (2026-11-07)
 
 ### Bug Fixes
