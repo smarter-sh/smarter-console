@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.12](https://github.com/smarter-sh/smarter-console/compare/v1.0.11...v1.0.12) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** show a page's skeleton while its code loads ([ed0177c](https://github.com/smarter-sh/smarter-console/commit/ed0177cd4ccc8157053ea403716298f747b36ed8))
+
 ## [1.0.11](https://github.com/smarter-sh/smarter-console/compare/v1.0.10...v1.0.11) (2026-11-07)
 
 ### Bug Fixes
