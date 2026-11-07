@@ -41,10 +41,7 @@ const packageName = packageJson.name;
 const addCustomManifestData: PluginOption = {
   name: "add-custom-manifest-data",
   writeBundle() {
-    const manifestPath = path.resolve(
-      import.meta.dirname,
-      `../../../smarter/static/react/${packageName}/manifest.json`,
-    );
+    const manifestPath = path.resolve(import.meta.dirname, `../../dist/react/${packageName}/manifest.json`);
     if (fs.existsSync(manifestPath)) {
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
       manifest._custom = {
@@ -95,14 +92,12 @@ export default defineConfig(({ command }: ConfigEnv) => ({
     // ------------------------------------------------------------------------
     manifest: "manifest.json",
     // ------------------------------------------------------------------------
-    // we're placing our build output in the primary Django static directory so
-    // that these files are automatically included in the Django collectstatic
-    // process and served by Django at runtime.
-    //
-    // In development, we rely on Vite's dev server to serve these files, so we
-    // set the outDir to a directory that is not used by the Django dev server.
+    // the build goes into the repository's dist/react/<package>/. Each release's
+    // tarball of dist/ unpacks into Django's static folder, smarter/static/, where
+    // collectstatic picks it up, so the backend serves the files at
+    // /static/react/<package>/. In development, Vite's dev server serves them.
     // ------------------------------------------------------------------------
-    outDir: `../../../smarter/static/react/${packageName}`,
+    outDir: `../../dist/react/${packageName}`,
     emptyOutDir: true,
     rolldownOptions: {
       output: {

@@ -4,9 +4,9 @@
  * - `npm run dev` serves the console at http://localhost:5173/. Every path that belongs to the backend is
  *   proxied to the Django dev server at http://localhost:9357, so the browser sees one origin, and Django's
  *   session and CSRF cookies work as they do in production.
- * - `npm run build` writes index.html and its assets into Django's static folder,
- *   smarter/static/react/@smarter/console/, from which Django serves the console's pages until the console
- *   moves to its own host.
+ * - `npm run build` writes index.html and its assets into dist/react/@smarter/console/. A release's tarball of
+ *   dist/ unpacks into the backend's static folder, from which Django serves the console's pages at
+ *   /static/react/@smarter/console/ (or the CDN, with SMARTER_STATIC_FILES_ON_CDN).
  * - console.debug() calls are removed from production builds.
  * - The built scripts and styles load their chunks, fonts and images relative to themselves, so that they follow
  *   them to the CDN while the backend serves the page with its CDN's STATIC_URL (SMARTER_STATIC_FILES_ON_CDN).
@@ -52,7 +52,7 @@ export default defineConfig(({ command }: ConfigEnv) => ({
   },
   build: {
     manifest: "manifest.json",
-    outDir: `../../../smarter/static/react/${packageName}`,
+    outDir: `../../dist/react/${packageName}`,
     emptyOutDir: true,
     rolldownOptions: {
       output: {

@@ -76,7 +76,7 @@ describe("extractFromSource", () => {
     expect(() => extractFromSource("App.tsx", "gettext();")).toThrow(ExtractionError);
   });
 
-  it("refuses an HTML entity in a React message, but not in static/js", () => {
+  it("refuses an HTML entity in a React message, but not in plain JavaScript", () => {
     expect(() => extractFromSource("App.tsx", 'gettext("Build one &rarr;");')).toThrow(
       /must not contain an HTML entity/,
     );
@@ -110,9 +110,8 @@ describe("formatMessages", () => {
 describe("the React apps' messages", () => {
   const files = sourceFiles();
 
-  it("come from every package's sources except Smarter Chat's, tests, stories and mocks, and static/js", () => {
+  it("come from every package's sources except Smarter Chat's, tests, stories and mocks", () => {
     expect(files.some((f) => f.includes("/packages/smarter-secret-list/src/App.tsx"))).toBe(true);
-    expect(files.some((f) => f.endsWith("/smarter/static/js/smarter-base.js"))).toBe(true);
     expect(files.some((f) => f.includes("/packages/smarter.sh-chat/"))).toBe(false);
     expect(files.some((f) => /\.(test|stories)\.tsx?$|\/mocks\/|\.d\.ts$/.test(f))).toBe(false);
   });
