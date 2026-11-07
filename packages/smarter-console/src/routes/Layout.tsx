@@ -9,8 +9,10 @@ import { Outlet } from "react-router";
 
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { useNavigationSkeleton } from "@/lib/pageSkeleton";
 import { useAppLayout, useBelowLg } from "@/lib/theme";
 import { welcomeContext } from "@/lib/welcome";
+import { PageSkeleton } from "@/routes/PageSkeleton";
 import { useConsoleSession } from "@/session/context";
 
 export function Layout() {
@@ -21,6 +23,7 @@ export function Layout() {
   // opens it again.
   const welcome = useMemo(() => (session ? welcomeContext(session) : null), [session]);
   useAppLayout();
+  const skeleton = useNavigationSkeleton();
 
   // Escape closes the sidebar's drawer.
   useEffect(() => {
@@ -48,7 +51,8 @@ export function Layout() {
           <div id="kt_app_main" className="app-main flex-column flex-row-fluid">
             <main id="kt_app_content" className="app-content flex-column-fluid">
               <div id="kt_app_content_container" className="app-container container-xxl">
-                <Outlet />
+                {/* the page, or the skeleton of the page whose code is loading. */}
+                {skeleton ? <PageSkeleton kind={skeleton} /> : <Outlet />}
               </div>
             </main>
             <footer id="kt_app_footer" className="app-footer">

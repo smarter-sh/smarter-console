@@ -10,6 +10,8 @@ import { Link, NavLink, Outlet } from "react-router";
 import { ThemeModeMenu } from "@/components/ThemeModeMenu";
 import { DASHBOARD_PATH, LOGIN_PATH } from "@/lib/const";
 import { DOCS_TOOLS, JSON_SCHEMAS_PATH, MANIFESTS_PATH, OPENAPI_PATH } from "@/lib/docs";
+import { useNavigationSkeleton } from "@/lib/pageSkeleton";
+import { PageSkeleton } from "@/routes/PageSkeleton";
 import { useConsoleSession } from "@/session/context";
 
 /** A link of the header, which shows when its page is open. */
@@ -28,6 +30,7 @@ function DocsNavLink({ to, children }: { to: string; children: ReactNode }) {
 
 export function DocsLayout() {
   const { session } = useConsoleSession();
+  const skeleton = useNavigationSkeleton();
   if (!session) return null;
   const { branding } = session;
 
@@ -62,7 +65,8 @@ export function DocsLayout() {
         </div>
       </header>
       <main className="container-xxl flex-grow-1 py-8">
-        <Outlet />
+        {/* the page, or the skeleton of the page whose code is loading. */}
+        {skeleton ? <PageSkeleton kind={skeleton} /> : <Outlet />}
       </main>
       <footer className="border-top">
         <div className="container-xxl d-flex flex-wrap justify-content-between gap-3 py-4 text-gray-600 fs-7">

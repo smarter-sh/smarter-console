@@ -32,10 +32,18 @@ function SessionGate({ router }: { router: Router }) {
   const queryClient = useSessionQueryClient(session);
   // the packages' plain links to the console's pages open in place, as the sidebar's do.
   useInPlaceLinks(router);
-  // index.html's splash may go: the console has its session, or knows that it can't get it.
+  // index.html's splash may go: the console has its session, or knows that it can't get it, and the router has the
+  // first page's code, so that the splash gives way to the page, rather than to an empty frame.
   useEffect(() => {
-    if (session || error) splashAppReady();
-  }, [session, error]);
+    if (!session && !error) return;
+    if (router.state.initialized) {
+      splashAppReady();
+      return;
+    }
+    return router.subscribe((state) => {
+      if (state.initialized) splashAppReady();
+    });
+  }, [session, error, router]);
   if (error && !session) {
     return (
       <div role="alert" className="text-center py-10">
