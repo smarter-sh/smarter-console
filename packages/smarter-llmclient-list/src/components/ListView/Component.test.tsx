@@ -33,7 +33,8 @@ describe("ListView", () => {
     expect(name.tagName).toBe("SPAN");
     // the Toolbar's Chat button still opens its chat.
     const row = within(screen.getByRole("row", { name: new RegExp(ownedObjects[0].name) }));
-    expect(row.getByTitle("Chat: Open the prompt workbench")).toHaveAttribute("href", ownedObjects[0].urlChatapp);
+    const path = new URL(ownedObjects[0].urlChatapp).pathname;
+    expect(row.getByTitle("Chat: Open the prompt workbench")).toHaveAttribute("href", path);
   });
 
   it("has a Workbench button in each row, which opens the llmclient's prompt workbench", async () => {
@@ -41,7 +42,8 @@ describe("ListView", () => {
     for (const object of ownedObjects) {
       const row = within(await screen.findByRole("row", { name: new RegExp(object.name) }));
       const button = row.getByRole("link", { name: "Workbench" });
-      expect(button).toHaveAttribute("href", object.urlChatapp);
+      // the path alone, on the console's own origin: the api's url names the backend's host.
+      expect(button).toHaveAttribute("href", new URL(object.urlChatapp).pathname);
       expect(button).toHaveAttribute("title", `Open the prompt workbench of ${object.name}`);
       expect(button).toHaveClass("btn-primary");
     }

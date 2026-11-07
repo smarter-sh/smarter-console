@@ -30,6 +30,7 @@ import { actionUrl, fetchDjangoUrl, gettext, interpolate, interpolateNodes, Moda
 
 import { loggerPrefix } from "../../const";
 import type { LLMClient } from "../../lib/Types";
+import { workbenchPath } from "../../lib/workbench";
 import "./styles.css";
 
 type ModalType = null | "clone" | "rename" | "delete" | "confirmation" | "error";
@@ -230,7 +231,7 @@ export const Toolbar = ({ sessionContext, llmclient, onRequery }: ToolbarProps) 
     <>
       <div className="toolbar btn-group pe-2" role="group" aria-label={gettext("Actions")}>
         <a
-          href={llmclient.urlChatapp}
+          href={workbenchPath(llmclient)}
           className="btn btn-icon btn-sm border"
           title={gettext("Chat: Open the prompt workbench")}
           tabIndex={0}

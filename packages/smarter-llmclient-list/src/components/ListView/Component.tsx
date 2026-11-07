@@ -32,6 +32,7 @@ import { formatDateTime, gettext, interpolate, Loading, LoadingText, SortableHea
 import type { SessionContext, Sorting } from "@smarter/common";
 
 import type { LLMClient } from "../../lib/Types";
+import { workbenchPath } from "../../lib/workbench";
 import { Toolbar } from "../Toolbar";
 import { StatusBar } from "../StatusBar";
 import { loggerPrefix } from "../../const";
@@ -130,7 +131,7 @@ const LLMClientRow = React.memo(function LLMClientRow({
             {llmclient.name}
           </span>
           <a
-            href={llmclient.urlChatapp}
+            href={workbenchPath(llmclient)}
             className="btn btn-sm btn-primary text-nowrap"
             title={interpolate(gettext("Open the prompt workbench of %(name)s"), { name: llmclient.name })}
           >
