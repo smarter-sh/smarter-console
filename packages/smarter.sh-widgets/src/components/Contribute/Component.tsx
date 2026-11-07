@@ -57,6 +57,9 @@ function Contribute() {
           {/* The Keen theme's illustration, which the page serves along with the Keen stylesheet. */}
           <img
             src="/static/assets/media/illustrations/dozzy-1/13.png"
+            // below the fold: it loads as it scrolls into view, rather than with what the page shows first.
+            loading="lazy"
+            decoding="async"
             className="position-absolute bottom-0 end-0 me-3 h-250px d-none d-md-block contribute-illustration"
             alt=""
           />

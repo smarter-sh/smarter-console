@@ -8,6 +8,9 @@ import {
   SPLASH_FADE_MS,
   SPLASH_ID,
   SPLASH_MIN_MS,
+  FONTS_WAIT_MS,
+  fontsLoaded,
+  TEXT_FONTS,
   splashAppReady,
   stylesheetsLoaded,
 } from "@/lib/splash";
@@ -113,6 +116,30 @@ describe("hideSplashWhenReady()", () => {
     await vi.advanceTimersByTimeAsync(1);
     await hiding;
     expect(element).toHaveClass(SPLASH_DONE_CLASS);
+  });
+
+  it("waits for the console's text font, at most FONTS_WAIT_MS", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    // a page whose fonts never arrive. jsdom has no document.fonts.
+    const page = { fonts: { load: () => new Promise<FontFace[]>(() => {}) } } as unknown as Document;
+    let done = false;
+    void fontsLoaded(page).then(() => {
+      done = true;
+    });
+    await vi.advanceTimersByTimeAsync(FONTS_WAIT_MS - 1);
+    expect(done).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(done).toBe(true);
+  });
+
+  it("goes on at once when the fonts have loaded", async () => {
+    const load = vi.fn((_font: string) => Promise.resolve([] as FontFace[]));
+    const page = { fonts: { load } } as unknown as Document;
+    await expect(fontsLoaded(page)).resolves.toBeUndefined();
+    // the text font's faces only: the icon fonts, which don't move text, aren't waited for.
+    expect(load.mock.calls.map(([font]) => font)).toEqual(TEXT_FONTS);
+    // and without the CSS Font Loading API, e.g. in jsdom.
+    await expect(fontsLoaded()).resolves.toBeUndefined();
   });
 
   it("does nothing without a splash, e.g. in a page of its own", async () => {

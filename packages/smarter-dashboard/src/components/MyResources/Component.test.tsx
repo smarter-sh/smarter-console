@@ -8,11 +8,19 @@ import { appContext, myResources } from "@/mocks/fixtures";
 import { server } from "@test/server";
 
 import MyResources from "@/components/MyResources/Component";
+import { HEADER_BACKGROUND } from "@/components/MyResources/header";
 
 const apiUrl = appContext.myResourcesApiUrl;
 const sessionContext = appContext.sessionContext;
 
 describe("MyResources", () => {
+  it("draws its header's globe inline, with nothing to download, so that the header paints with the card", () => {
+    // jsdom's CSS parser drops a data URI this long from an element's style, so the value itself is checked.
+    expect(HEADER_BACKGROUND).toMatch(/^url\("data:image\/svg\+xml,/);
+    expect(HEADER_BACKGROUND).toContain("linear-gradient");
+    expect(HEADER_BACKGROUND).not.toContain(".png");
+  });
+
   it("shows its tiles' and its grid's skeletons while the counts load", () => {
     server.use(http.post(apiUrl, () => new Promise<Response>(() => {})));
     render(<MyResources sessionContext={sessionContext} apiUrl={apiUrl} />);

@@ -53,6 +53,8 @@ describe("index.html", () => {
     expect(html).toContain("animation: smarter-splash-reveal 500ms ease 1500ms forwards;");
     expect(html).toContain("animation: smarter-splash-sweep 2.4s ease-in-out 1500ms infinite;");
     expect(html).toMatch(/prefers-reduced-motion: reduce[\s\S]*#smarter-splash::before \{\s*animation: none;/);
+    // the console stays hidden under the splash until the splash starts to fade.
+    expect(html).toContain("#smarter-splash:not(.smarter-splash-done) ~ #smarter-console-root {");
     // the translations' script is deferred, so it doesn't either.
     expect(html).toContain('<script defer src="/jsi18n/"></script>');
   });

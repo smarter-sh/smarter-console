@@ -61,6 +61,13 @@
           background-position: -50% 0;
         }
       }
+      /*
+        the console stays hidden under the splash until the splash starts to fade: what it lays out meanwhile, e.g.
+        as its stylesheets arrive, moves unseen, and isn't a shift of the page.
+      */
+      #smarter-splash:not(.smarter-splash-done) ~ #smarter-console-root {
+        visibility: hidden;
+      }
       #smarter-splash.smarter-splash-done {
         opacity: 0;
         pointer-events: none;

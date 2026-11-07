@@ -92,6 +92,9 @@ function Integrations({ className = "col-xl-4" }: IntegrationsProps) {
             {/* begin::Illustration */}
             <img
               src="/static/assets/media/illustrations/sketchy-1/17-dark.png"
+              // below the fold: it loads as it scrolls into view, rather than with what the page shows first.
+              loading="lazy"
+              decoding="async"
               className="position-absolute top-0 end-0 h-125px me-3 mt-3 integrations-illustration"
               alt=""
             />

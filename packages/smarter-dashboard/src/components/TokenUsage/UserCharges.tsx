@@ -4,6 +4,8 @@ import type { SessionContext } from "@smarter/common";
 import "./styles.css";
 import { gettext, SkeletonChart } from "@smarter/common";
 
+import useInView from "../../hooks/useInView";
+
 // recharts is a large dependency and is only needed for this chart, so it's
 // loaded in its own chunk instead of bloating the main app bundle.
 const TokenUsageChart = lazy(() => import("./Chart"));
@@ -16,7 +18,8 @@ interface UserUsageProps {
 }
 
 function UserCharges({ sessionContext, apiUrl, className = "col-xl-12" }: UserUsageProps) {
-  console.debug("apiUrl", apiUrl);
+  // below the fold: the chart loads recharts and its data once it comes near the viewport.
+  const [body, inView] = useInView<HTMLDivElement>();
   return (
     <>
       <div id="user-usage" aria-label={gettext("User Usage")} className={`${className} mb-5 mb-xl-10`}>
@@ -33,11 +36,15 @@ function UserCharges({ sessionContext, apiUrl, className = "col-xl-12" }: UserUs
           </div>
           {/* end::Header */}
           {/* begin::Body */}
-          <div className="card-body d-flex flex-column pt-3">
-            {/* the chart's skeleton while its code, with recharts, loads. */}
-            <Suspense fallback={<SkeletonChart height={400} controls />}>
-              <TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} />
-            </Suspense>
+          <div ref={body} className="card-body d-flex flex-column pt-3">
+            {/* the chart's skeleton until it comes near the viewport, and while its code, with recharts, loads. */}
+            {inView ? (
+              <Suspense fallback={<SkeletonChart height={400} controls />}>
+                <TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} />
+              </Suspense>
+            ) : (
+              <SkeletonChart height={400} controls />
+            )}
           </div>
         </div>
       </div>

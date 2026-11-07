@@ -105,7 +105,8 @@ function VSCodeExtension() {
                   <span className="vscode-dot vscode-dot-green"></span>
                   <span className="vscode-tab">
                     {/* Served by the page: library mode would inline it, and it is 115 kB. */}
-                    <img src="/static/images/vs-code-logo.png" alt="" />
+                    {/* below the fold: it loads as it scrolls into view, rather than with what the page shows first. */}
+                    <img src="/static/images/vs-code-logo.png" alt="" loading="lazy" decoding="async" />
                     {gettext("secret.yaml")}
                   </span>
                 </div>

@@ -24,6 +24,7 @@ import { gettext, interpolateNodes, Skeleton } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import useDashboardApi from "../../hooks/useDashboardApi";
+import { HEADER_BACKGROUND } from "./header";
 
 import "./styles.css";
 
@@ -112,9 +113,9 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
           {/* begin::Heading */}
           <div
             className="card-header rounded bgi-no-repeat bgi-size-cover bgi-position-y-top bgi-position-x-center align-items-start h-250px"
-            style={{
-              backgroundImage: "url('/static/assets/media/svg/shapes/top-green.png')",
-            }}
+            // a wireframe globe over a green gradient, inline: nothing to download, so the header paints with the
+            // card, and isn't the page's last paint on a slow network.
+            style={{ backgroundImage: HEADER_BACKGROUND }}
             data-bs-theme="light"
           >
             <img
