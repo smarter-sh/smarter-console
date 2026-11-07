@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.13](https://github.com/smarter-sh/smarter-console/compare/v1.0.12...v1.0.13) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** show skeletons while pages, tabs and dialogs load ([3611fc8](https://github.com/smarter-sh/smarter-console/commit/3611fc880d58a4fb2f7fa886ade59ed8cb2833ae))
+* **console:** show the sidebar's logo large enough to read ([78ac0a5](https://github.com/smarter-sh/smarter-console/commit/78ac0a5294186b221e5edf6279a09133ef426727))
+
 ## [1.0.12](https://github.com/smarter-sh/smarter-console/compare/v1.0.11...v1.0.12) (2026-11-07)
 
 ### Bug Fixes
