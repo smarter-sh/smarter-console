@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 
+import "@/fonts.css";
 import App from "@/App";
 import { hideSplashWhenReady } from "@/lib/splash";
 import { reloadOnce } from "@/lib/staleRelease";

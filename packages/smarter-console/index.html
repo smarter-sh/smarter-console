@@ -68,6 +68,13 @@
       #smarter-splash:not(.smarter-splash-done) ~ #smarter-console-root {
         visibility: hidden;
       }
+      /*
+        and nothing in it animates meanwhile: the theme's stylesheet brings the sidebar's margin and its 0.3s
+        transition together, so the page would still be sliding into place as the splash fades.
+      */
+      #smarter-splash:not(.smarter-splash-done) ~ #smarter-console-root * {
+        transition: none !important;
+      }
       #smarter-splash.smarter-splash-done {
         opacity: 0;
         pointer-events: none;
@@ -170,18 +177,17 @@
     <link rel="icon" type="image/png" sizes="256x256" href="/static/images/logo/favicon-256x256.png" />
     <link rel="manifest" href="/static/site.webmanifest" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Inter, the theme's text font, from the console's own build rather than Google Fonts (src/fonts.css): preloaded,
+      so that it arrives with the stylesheets, from the same host. The build points the href at the font's hashed
+      asset (vite.config.ts, fontPreloads), and the backend at its CDN.
+    -->
     <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"
-      media="print"
-      data-smarter-style
-      onload="
-        this.media = 'all';
-        this.dataset.loaded = '1';
-      "
-      onerror="this.dataset.loaded = '1'"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="@fontsource-variable/inter/files/inter-latin-wght-normal.woff2"
     />
 
     <!--

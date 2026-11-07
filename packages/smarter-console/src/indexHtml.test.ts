@@ -7,7 +7,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { nonBlockingStylesheets } from "../vite.config";
+import { fontPreloads, nonBlockingStylesheets } from "../vite.config";
 
 const html = fs.readFileSync(path.resolve(import.meta.dirname, "..", "index.html"), "utf-8");
 
@@ -42,7 +42,7 @@ describe("index.html", () => {
     expect(html).toContain("#smarter-splash {");
     // no stylesheet holds back the first paint: each loads as print, then all, and src/lib/splash.ts waits for it.
     const stylesheets = html.match(/<link[^>]*rel="stylesheet"[^>]*>/gs) ?? [];
-    expect(stylesheets).toHaveLength(3);
+    expect(stylesheets).toHaveLength(2);
     for (const link of stylesheets) {
       expect(link).toContain('media="print"');
       expect(link).toContain("data-smarter-style");
@@ -55,6 +55,10 @@ describe("index.html", () => {
     expect(html).toMatch(/prefers-reduced-motion: reduce[\s\S]*#smarter-splash::before \{\s*animation: none;/);
     // the console stays hidden under the splash until the splash starts to fade.
     expect(html).toContain("#smarter-splash:not(.smarter-splash-done) ~ #smarter-console-root {");
+    // nor slides into place: the theme's layout transitions wait for the splash too.
+    expect(html).toMatch(
+      /#smarter-splash:not\(\.smarter-splash-done\) ~ #smarter-console-root \* \{\s*transition: none !important;/,
+    );
     // the translations' script is deferred, so it doesn't either.
     expect(html).toContain('<script defer src="/jsi18n/"></script>');
   });
@@ -65,6 +69,30 @@ describe("index.html", () => {
     const built = transform.handler('<link rel="stylesheet" crossorigin href="/static/assets/index-abc.css">');
     expect(built).toContain('href="/static/assets/index-abc.css" media="print" data-smarter-style');
     expect(built).toContain("onload=\"this.media = 'all'; this.dataset.loaded = '1'\"");
+  });
+
+  it("preloads Inter from the console's own build, not Google Fonts", () => {
+    expect(html).not.toContain("fonts.googleapis.com");
+    expect(html).not.toContain("fonts.gstatic.com");
+    expect(html).toMatch(
+      /<link\s+rel="preload"\s+as="font"\s+type="font\/woff2"\s+crossorigin\s+href="@fontsource-variable\/inter\/files\/inter-latin-wght-normal\.woff2"/,
+    );
+  });
+
+  it("points a font's preload at the font's hashed asset in the build", () => {
+    const plugin = fontPreloads();
+    const configResolved = plugin.configResolved as (config: { base: string }) => void;
+    configResolved({ base: "/static/react/@smarter/console/" });
+    const transform = plugin.transformIndexHtml as {
+      handler: (html: string, context: { bundle?: Record<string, unknown> }) => string;
+    };
+    const page = '<link rel="preload" as="font" type="font/woff2" crossorigin href="pkg/files/inter-latin.woff2" />';
+    const built = transform.handler(page, { bundle: { "assets/inter-latin-Ab_1.woff2": {}, "assets/x.js": {} } });
+    expect(built).toBe(
+      '<link rel="preload" as="font" type="font/woff2" crossorigin href="/static/react/@smarter/console/assets/inter-latin-Ab_1.woff2">',
+    );
+    // without the font in the build, e.g. on the dev server, the preload is removed rather than left to fail.
+    expect(transform.handler(page, {})).toBe("");
   });
 
   it("has the root element that main.tsx mounts the console in", () => {

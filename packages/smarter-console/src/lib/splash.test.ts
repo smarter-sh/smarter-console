@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  afterNextFrame,
   hideSplashWhenReady,
   resetSplashForTests,
   SPLASH_DONE_CLASS,
@@ -54,6 +55,7 @@ afterEach(() => {
   document.getElementById(SPLASH_ID)?.remove();
   vi.useRealTimers();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("stylesheetsLoaded()", () => {
@@ -71,6 +73,13 @@ describe("stylesheetsLoaded()", () => {
     expect(await settled(waiting)).toBe(false);
     second.dispatchEvent(new Event("error"));
     expect(await settled(waiting)).toBe(true);
+  });
+});
+
+describe("afterNextFrame()", () => {
+  it("resolves at once without requestAnimationFrame", async () => {
+    vi.stubGlobal("requestAnimationFrame", undefined);
+    expect(await settled(afterNextFrame())).toBe(true);
   });
 });
 
@@ -114,6 +123,8 @@ describe("hideSplashWhenReady()", () => {
     await vi.advanceTimersByTimeAsync(SPLASH_MIN_MS - 200 - 1);
     expect(element).not.toHaveClass(SPLASH_DONE_CLASS);
     await vi.advanceTimersByTimeAsync(1);
+    // and the frame that applies the stylesheets: the fake timers render one every 16 ms.
+    await vi.advanceTimersByTimeAsync(32);
     await hiding;
     expect(element).toHaveClass(SPLASH_DONE_CLASS);
   });
@@ -140,6 +151,23 @@ describe("hideSplashWhenReady()", () => {
     expect(load.mock.calls.map(([font]) => font)).toEqual(TEXT_FONTS);
     // and without the CSS Font Loading API, e.g. in jsdom.
     await expect(fontsLoaded()).resolves.toBeUndefined();
+  });
+
+  it("shows the console only after a frame with its stylesheets applied", async () => {
+    // the browser's frames, which this test renders.
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => frames.push(callback));
+    const element = splash();
+    stylesheet(true);
+    splashAppReady();
+    const hiding = hideSplashWhenReady();
+    expect(await settled(hiding)).toBe(false);
+    frames.shift()?.(0);
+    expect(await settled(hiding)).toBe(false);
+    expect(element).not.toHaveClass(SPLASH_DONE_CLASS);
+    frames.shift()?.(16);
+    await hiding;
+    expect(element).toHaveClass(SPLASH_DONE_CLASS);
   });
 
   it("does nothing without a splash, e.g. in a page of its own", async () => {

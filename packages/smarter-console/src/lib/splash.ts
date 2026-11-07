@@ -29,9 +29,9 @@ export const SPLASH_MIN_MS = 1200;
 export const FONTS_WAIT_MS = 1500;
 
 /**
- * The text font's faces that the console uses: the theme's Inter (--bs-font-sans-serif), in the weights that
- * index.html asks Google Fonts for. Its icon fonts, Keen's, much larger, don't move text, so the splash doesn't wait
- * for them.
+ * The text font's faces that the console uses: the theme's Inter (--bs-font-sans-serif), in the theme's weights.
+ * They are one variable font (src/fonts.css), which index.html preloads. Its icon fonts, Keen's, much larger, don't
+ * move text, so the splash doesn't wait for them.
  */
 export const TEXT_FONTS = ["300 1em Inter", "400 1em Inter", "500 1em Inter", "600 1em Inter", "700 1em Inter"];
 
@@ -89,6 +89,17 @@ export function fontsLoaded(doc: Document = document): Promise<void> {
 }
 
 /**
+ * Resolves once the browser has rendered the next frame: a style change made before it, e.g. a stylesheet that has
+ * just been switched on, has been applied by then. Without requestAnimationFrame, at once.
+ */
+export function afterNextFrame(): Promise<void> {
+  if (typeof window.requestAnimationFrame !== "function") return Promise.resolve();
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
+  });
+}
+
+/**
  * Fades the splash out, and removes it, once the console is ready, its stylesheets have loaded, and then the fonts
  * that it renders with, up to FONTS_WAIT_MS.
  *
@@ -101,6 +112,9 @@ export async function hideSplashWhenReady(doc: Document = document): Promise<voi
   await fontsLoaded(doc);
   const remaining = SPLASH_MIN_MS - performance.now();
   if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
+  // a frame with the stylesheets applied, before the console shows: its layout settles while index.html still holds
+  // back its transitions, e.g. the sidebar's margin, which would otherwise slide into place in view.
+  await afterNextFrame();
   const splash = doc.getElementById(SPLASH_ID);
   if (!splash) return;
   splash.classList.add(SPLASH_DONE_CLASS);

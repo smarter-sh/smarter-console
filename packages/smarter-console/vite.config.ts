@@ -66,8 +66,39 @@ export function nonBlockingStylesheets(): Plugin {
   };
 }
 
+/** A font's preload in index.html, whose href names the font's file in its npm package. */
+const FONT_PRELOAD = /<link\s+rel="preload"\s+as="font"([^>]*?)\s+href="([^"]+\/([^"/]+)\.woff2)"\s*\/?>/g;
+
+/**
+ * Vite resolves a font's url() in index.html's inline @font-face to its hashed build asset, but not a preload's
+ * href. This plugin points each font preload at that asset, found by name in the build's output, so that the browser
+ * fetches the font once, early. A preload whose font isn't in the build is removed, rather than left to fail. On
+ * the dev server the preloads are removed too: preloading matters only on a slow network.
+ */
+export function fontPreloads(): Plugin {
+  let base = "/";
+  return {
+    name: "smarter-font-preloads",
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: "post",
+      handler: (html, context) => {
+        const fileNames = Object.keys(context.bundle ?? {});
+        return html.replace(FONT_PRELOAD, (_link, attributes: string, _href: string, name: string) => {
+          const asset = new RegExp(`(^|/)${name}-[\\w-]+\\.woff2$`);
+          const fileName = fileNames.find((candidate) => asset.test(candidate));
+          if (!fileName) return "";
+          return `<link rel="preload" as="font"${attributes} href="${base}${fileName}">`;
+        });
+      },
+    },
+  };
+}
+
 export default defineConfig(({ command }: ConfigEnv) => ({
-  plugins: [react(), nonBlockingStylesheets()],
+  plugins: [react(), nonBlockingStylesheets(), fontPreloads()],
   base: command === "serve" ? "/" : `/static/react/${packageName}/`,
   resolve: {
     alias: {
