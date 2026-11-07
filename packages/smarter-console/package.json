@@ -2,7 +2,7 @@
   "name": "@smarter/console",
   "private": true,
   "description": "The Smarter web console, a single-page app (ADR-035).",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
