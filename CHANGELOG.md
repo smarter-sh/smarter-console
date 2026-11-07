@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.8](https://github.com/smarter-sh/smarter-console/compare/v1.0.7...v1.0.8) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** remove the lists' Chat links to a workbench they lack ([f6f750b](https://github.com/smarter-sh/smarter-console/commit/f6f750b8e3fff9969565d4d32cd4b89b8dbdfb95))
+
 ## [1.0.7](https://github.com/smarter-sh/smarter-console/compare/v1.0.6...v1.0.7) (2026-11-07)
 
 ### Bug Fixes
