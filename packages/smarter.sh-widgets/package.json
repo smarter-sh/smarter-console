@@ -32,11 +32,11 @@
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smarter-sh/smarter.git",
-    "directory": "smarter/react/packages/smarter.sh-widgets"
+    "url": "git+https://github.com/smarter-sh/smarter-console.git",
+    "directory": "packages/smarter.sh-widgets"
   },
   "bugs": {
-    "url": "https://github.com/smarter-sh/smarter/issues"
+    "url": "https://github.com/smarter-sh/smarter-console/issues"
   },
   "scripts": {
     "build:lib": "vite build --mode lib && tsc -p tsconfig.lib.json",
