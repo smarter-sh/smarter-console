@@ -72,9 +72,15 @@ HTTP, and through the console's build, which the backend serves (ADR-035).
   `X-Smarter-Capabilities`. A new custom header must also be added to Django's
   `CORS_ALLOW_HEADERS` in the `smarter` repository's `smarter/smarter/settings/base.py`.
 - **`load()`** (`lib/load.tsx`) fetches `<ApiUrl>/<owned|shared|all>/?invalidate_cache=...`
-  and reads `objects`. `TabbedListView` shows each page from `lib/cache.tsx`
-  (localStorage, keyed by `sessionScope()`, the tab, page, ordering and filter;
-  never searches) at once, with a "Refreshing" spinner, while it loads.
+  and reads `objects`; it is the query function of `TabbedListView`'s pages.
+  Each page is a TanStack Query query (`lib/query.tsx`), keyed by
+  `listQueryKey(apiUrl)`, the tab, and the page's number, search, ordering and
+  narrowing. A page seen before shows at once, with a "Refreshing" spinner,
+  while it is fetched again. The console's QueryClient lives in memory, and
+  starts empty for each user and account (`lib/queryCache.ts`); outside the
+  console, `SmarterQueryProvider` and `useSmarterQueryClient()` give a package
+  a client of its own. Invalidate a list with
+  `queryClient.invalidateQueries({ queryKey: listQueryKey(apiUrl) })`.
 - **`actionUrl(sessionContext, "clone/12/new_name/")`** turns the list URL into
   its sibling action URL.
 - **`TabbedListView`** (`@smarter/common`) gives the owned/shared tabs. A list

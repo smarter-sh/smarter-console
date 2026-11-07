@@ -13,9 +13,10 @@
  * gray placeholders in the shape of its content, so that the dashboard keeps
  * its layout. The refresh button stays, to try again.
  *
- * Health doesn't change from second to second, so a response is kept for five
- * minutes in localStorage and reused by later page loads, and an open page
- * asks again every five minutes while it's visible. The ring animates only
+ * Health doesn't change from second to second, so a response is fresh for
+ * five minutes in the console's cache, and reused when the dashboard opens
+ * again within them, and an open page asks again every five minutes while
+ * it's visible. The ring animates only
  * when the score changes, from the score it showed last. The refresh button in
  * the header runs the checks again at once, bypassing the api's cache.
  *
