@@ -56,6 +56,7 @@ make install                       # npm install
 make test                          # every package's tests, with coverage
 npx vitest run packages/<name>     # one package
 make lint                          # formatting, lint and types, as CI does
+make analyze                       # lines of code, by language, with cloc
 make build                         # production builds into dist/react/<package>/
 make contracts                     # the backend's api contracts, from ../smarter, and their types
 make dev                           # the console on :5173, against a Smarter dev server on :9357

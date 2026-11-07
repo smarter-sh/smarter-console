@@ -28,6 +28,7 @@ You need Node.js 24 and npm, and Python 3 for pre-commit.
 make init             # once: a Python venv with pre-commit, npm install, and the pre-commit hooks
 make test             # every package's tests, with a coverage report in coverage/
 make lint             # formatting, lint and types, as CI checks them
+make analyze          # lines of code, by language, with cloc (brew install cloc)
 make build            # the production builds, into dist/react/<package>/
 ```
 

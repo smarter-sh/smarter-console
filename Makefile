@@ -6,7 +6,7 @@ PYTHON ?= python3
 VENV := venv
 VENV_BIN := $(VENV)/bin
 
-.PHONY: init venv install test lint format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
+.PHONY: init venv install test lint analyze format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
 
@@ -33,6 +33,13 @@ test:
 # What CI checks: formatting, lint and types.
 lint:
 	npm run build:deps && npm run format:check && npm run lint && npm run typecheck
+
+# A count of the repository's lines of code, by language, with cloc (brew install cloc), as the smarter repository's
+# make analyze does. --vcs=git counts only the files that git tracks, so node_modules, the builds and the untracked
+# Keen theme are left out.
+analyze:
+	@command -v cloc > /dev/null || { echo >&2 "cloc is not installed: brew install cloc, or see https://github.com/AlDanial/cloc"; exit 1; }
+	cloc . --exclude-ext=svg,zip --fullpath --vcs=git
 
 # Fix formatting and auto-fixable lint.
 format:
@@ -106,6 +113,7 @@ help:
 	@echo 'install          - Install the workspace'"'"'s dependencies'
 	@echo 'test             - Run every package'"'"'s tests, with coverage'
 	@echo 'lint             - Check formatting, lint and types, as CI does'
+	@echo 'analyze          - Count the lines of code, by language, with cloc'
 	@echo 'format           - Fix formatting and auto-fixable lint'
 	@echo 'typecheck        - Check types'
 	@echo 'build            - Build the production bundles into dist/react/'
