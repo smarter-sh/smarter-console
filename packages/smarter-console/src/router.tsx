@@ -16,6 +16,7 @@ import { PasswordResetPage } from "@/routes/PasswordResetPage";
 import { PasswordResetRequestPage } from "@/routes/PasswordResetRequestPage";
 import { RegisterPage } from "@/routes/RegisterPage";
 import { RequireAuth } from "@/routes/RequireAuth";
+import { RouteError } from "@/routes/RouteError";
 import { DASHBOARD_PATH, EXTENSIONS_PATH, INACTIVE_PATH, LOGIN_PATH } from "@/lib/const";
 import { DOCS_PATH, MANIFESTS_PATH } from "@/lib/docs";
 import { LIST_PAGES, type ListPage as ListPageConfig } from "@/lib/lists";
@@ -45,7 +46,16 @@ function manifestRoute(page: ManifestPageConfig): RouteObject {
   };
 }
 
-export const routes: RouteObject[] = [
+/**
+ * The routes inside a frame, with the error page inside it: a page that fails shows the error page, while the frame's
+ * sidebar and header still work.
+ */
+function framed(children: RouteObject[]): RouteObject[] {
+  return [{ errorElement: <RouteError />, children }];
+}
+
+/** The console's routes, inside one that shows the error page of any that fails, e.g. a frame. */
+const consoleRoutes: RouteObject[] = [
   // the pages of a visitor who isn't signed in.
   { path: LOGIN_PATH, element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
@@ -61,7 +71,7 @@ export const routes: RouteObject[] = [
   {
     path: DOCS_PATH,
     lazy: async () => ({ Component: (await import("@/routes/DocsLayout")).DocsLayout }),
-    children: [
+    children: framed([
       { index: true, element: <Navigate to={MANIFESTS_PATH} replace /> },
       {
         path: "manifests",
@@ -84,7 +94,7 @@ export const routes: RouteObject[] = [
         lazy: async () => ({ Component: (await import("@/routes/OpenApiPage")).OpenApiPage }),
       },
       { path: "*", element: <NotFoundPage /> },
-    ],
+    ]),
   },
   {
     path: "/",
@@ -93,7 +103,7 @@ export const routes: RouteObject[] = [
         <Layout />
       </RequireAuth>
     ),
-    children: [
+    children: framed([
       // the dashboard is the console's home.
       { index: true, element: <Navigate to={DASHBOARD_PATH} replace /> },
       {
@@ -131,6 +141,12 @@ export const routes: RouteObject[] = [
         lazy: async () => ({ Component: (await import("@/routes/WorkbenchPage")).WorkbenchPage }),
       },
       { path: "*", element: <NotFoundPage /> },
-    ],
+    ]),
   },
 ];
+
+/**
+ * The console's routes. A page that fails, or whose code can't load, shows RouteError: inside its frame, or, for a
+ * frame or a sign-in page that fails, on its own.
+ */
+export const routes: RouteObject[] = [{ errorElement: <RouteError />, children: consoleRoutes }];

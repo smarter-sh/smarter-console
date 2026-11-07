@@ -30,7 +30,7 @@ gettext("Key");
 gettext("Shown only once, when the key is created.");
 // Translators: used in packages/smarter-authtoken-list/src/components/DetailView/Component.tsx
 gettext("Smarter keeps only a hash of the key, so it can't be shown again. Its ID is its public identifier.");
-// Translators: used in packages/smarter-authtoken-list/src/components/ListView/Component.tsx, packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-connection-list/src/components/ListView/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-console/src/routes/ManifestPage.tsx, packages/smarter-console/src/routes/PasswordResetPage.tsx, packages/smarter-console/src/routes/WorkbenchPage.tsx, packages/smarter-custom-domain-list/src/components/ListView/Component.tsx, packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-guardrail-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-list/src/components/ListView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-llmtool-list/src/components/ListView/Component.tsx, packages/smarter-mcpclient-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/ListView/Component.tsx, packages/smarter-provider-list/src/components/ListView/Component.tsx, packages/smarter-proxy-list/src/components/ListView/Component.tsx, packages/smarter-secret-list/src/components/ListView/Component.tsx, packages/smarter-vectorsearch-list/src/components/ListView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
+// Translators: used in packages/smarter-authtoken-list/src/components/ListView/Component.tsx, packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-connection-list/src/components/ListView/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-console/src/routes/ManifestPage.tsx, packages/smarter-console/src/routes/PasswordResetPage.tsx, packages/smarter-console/src/routes/RouteError.tsx, packages/smarter-console/src/routes/WorkbenchPage.tsx, packages/smarter-custom-domain-list/src/components/ListView/Component.tsx, packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-guardrail-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-list/src/components/ListView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-llmtool-list/src/components/ListView/Component.tsx, packages/smarter-mcpclient-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/ListView/Component.tsx, packages/smarter-provider-list/src/components/ListView/Component.tsx, packages/smarter-proxy-list/src/components/ListView/Component.tsx, packages/smarter-secret-list/src/components/ListView/Component.tsx, packages/smarter-vectorsearch-list/src/components/ListView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
 gettext("Loading...");
 // Translators: used in packages/smarter-authtoken-list/src/components/ListView/Component.tsx, packages/smarter-budget-list/src/components/BudgetList/Component.tsx, packages/smarter-connection-list/src/components/ListView/Component.tsx, packages/smarter-custom-domain-list/src/components/DetailView/Component.tsx, packages/smarter-custom-domain-list/src/components/ListView/Component.tsx, packages/smarter-guardrail-list/src/components/ListView/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmclient-deployment/src/components/Hero.tsx, packages/smarter-llmclient-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-list/src/components/ListView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionDetailView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-llmtool-list/src/components/ListView/Component.tsx, packages/smarter-mcpclient-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/ListView/Component.tsx, packages/smarter-provider-list/src/components/ListView/Component.tsx, packages/smarter-proxy-list/src/components/ListView/Component.tsx, packages/smarter-secret-list/src/components/ListView/Component.tsx, packages/smarter-vectorsearch-list/src/components/ListView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
 gettext("Name");
@@ -684,7 +684,7 @@ gettext("Sign up");
 gettext("The manifest could not be loaded.");
 // Translators: used in packages/smarter-console/src/routes/NotFoundPage.tsx
 gettext("Page not found");
-// Translators: used in packages/smarter-console/src/routes/NotFoundPage.tsx
+// Translators: used in packages/smarter-console/src/routes/NotFoundPage.tsx, packages/smarter-console/src/routes/RouteError.tsx
 gettext("Return Home");
 // Translators: used in packages/smarter-console/src/routes/OpenApiPage.tsx
 gettext("Smarter OpenAPI Contract");
@@ -722,6 +722,10 @@ gettext("Check your email");
 gettext("Didn't get the email?");
 // Translators: used in packages/smarter-console/src/routes/RegisterPage.tsx
 gettext("Already have an account?");
+// Translators: used in packages/smarter-console/src/routes/RouteError.tsx, packages/smarter-workbench/src/components/ErrorBoundary/Component.tsx
+gettext("Something went wrong.");
+// Translators: used in packages/smarter-console/src/routes/RouteError.tsx, packages/smarter-llmclient-architecture/src/App.tsx
+gettext("Reload");
 // Translators: used in packages/smarter-console/src/routes/WorkbenchPage.tsx
 gettext("The LLMClient could not be loaded.");
 // Translators: used in packages/smarter-console/src/routes/WorkbenchPage.tsx
@@ -1578,8 +1582,6 @@ ngettext("%(count)s resource", "%(count)s resources", 1);
 ngettext("%(count)s level deep", "%(count)s levels deep", 1);
 // Translators: used in packages/smarter-llmclient-architecture/src/App.tsx
 gettext("Fetch the tree again, after a manifest was changed");
-// Translators: used in packages/smarter-llmclient-architecture/src/App.tsx
-gettext("Reload");
 // Translators: used in packages/smarter-llmclient-architecture/src/App.tsx
 gettext("A locked card is a resource that you can't read, such as another account's.");
 // Translators: used in packages/smarter-llmclient-architecture/src/App.tsx
@@ -3956,8 +3958,6 @@ gettext("Building and testing LLMClients in the sandbox.");
 gettext("Software Engineer");
 // Translators: used in packages/smarter-workbench/src/components/DocsDialog/data.ts
 gettext("Hosting an LLMClient in your own application.");
-// Translators: used in packages/smarter-workbench/src/components/ErrorBoundary/Component.tsx
-gettext("Something went wrong.");
 // Translators: used in packages/smarter-workbench/src/components/HelpMenu/Component.tsx
 gettext("The documentation, and a guided tour of the workbench");
 // Translators: the button that opens the workbench's Help menu.
