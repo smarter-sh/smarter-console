@@ -55,6 +55,12 @@ beforeEach(() => {
 });
 
 describe("a manifest page", () => {
+  it("shows the page's skeleton while the resource loads", async () => {
+    server.use(http.get(resourceUrl("secret-rMTAwx"), () => new Promise<Response>(() => {})));
+    mountAt("/secret/secrets/rMTAwx/");
+    expect(await screen.findByRole("status", { name: "Loading" })).toHaveClass("smarter-page-skeleton");
+  });
+
   it("shows the resource's name and its manifest in the editor", async () => {
     server.use(resourceHandler(), ...cliHandlers);
     mountAt("/secret/secrets/rMTAwx/");

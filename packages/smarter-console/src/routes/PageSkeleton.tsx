@@ -2,7 +2,7 @@
  * The skeleton of a page whose code is loading, in its frame (see lib/pageSkeleton): gray shapes in the layout of
  * the page to come, from @smarter/common's Skeletons. Screen readers hear Loading once.
  */
-import { Skeleton, SkeletonRegion, SkeletonRows, SkeletonText } from "@smarter/common";
+import { Skeleton, SkeletonCode, SkeletonRegion, SkeletonRows, SkeletonText } from "@smarter/common";
 import type { SkeletonColumn } from "@smarter/common";
 
 import type { PageSkeletonKind } from "@/lib/pageSkeleton";
@@ -115,9 +115,7 @@ function ManifestSkeleton() {
         <Skeleton width={14} height={1.6} className="d-block mb-6" />
         <div className="card">
           <div className="card-body">
-            {[10, 6, 14, 12, 8, 16, 11, 7, 13, 9, 15, 6].map((width, line) => (
-              <Skeleton key={line} width={width} height={0.8} className="d-block mb-3" />
-            ))}
+            <SkeletonCode />
           </div>
         </div>
       </div>

@@ -13,6 +13,8 @@ import {
   interpolateNodes,
   plainLines,
   prettyJson,
+  SkeletonCode,
+  SkeletonRegion,
 } from "@smarter/common";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
@@ -276,7 +278,11 @@ export function KindDocumentPage({ document }: { document: KindDocument }) {
           </>
         )}
       </p>
-      {loaded.state === "loading" && <p className="text-gray-600">{gettext("Loading…")}</p>}
+      {loaded.state === "loading" && (
+        <SkeletonRegion className="card card-body">
+          <SkeletonCode />
+        </SkeletonRegion>
+      )}
       {loaded.state === "error" && (
         <div className="alert alert-danger" role="alert">
           {interpolate(gettext("%(title)s couldn't be loaded. Try again later."), { title })}

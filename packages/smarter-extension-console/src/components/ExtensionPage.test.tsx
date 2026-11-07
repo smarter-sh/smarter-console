@@ -20,6 +20,13 @@ function renderPage(props: Partial<Parameters<typeof ExtensionPage>[0]> = {}) {
 }
 
 describe("ExtensionPage", () => {
+  it("shows the page's shape while the extension loads", () => {
+    // the requests never answer, as on a very slow network.
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    renderPage();
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+  });
+
   it("shows the extension, its documentation and its update", async () => {
     server.use(...detailHandlers());
     renderPage();

@@ -18,6 +18,7 @@ import {
 } from "@/lib/manifestPages";
 import { useResource } from "@/lib/useResource";
 import { NotFoundPage } from "@/routes/NotFoundPage";
+import { PageSkeleton } from "@/routes/PageSkeleton";
 import { useConsoleSession } from "@/session/context";
 
 export function ManifestPage({ page }: { page: ManifestPageConfig }) {
@@ -32,13 +33,8 @@ export function ManifestPage({ page }: { page: ManifestPageConfig }) {
 
   if (!session || !sessionContext) return null;
   if (page.visible && !page.visible(session)) return <NotFoundPage />;
-  if (current.state === "loading") {
-    return (
-      <p role="status" className="mt-5">
-        {gettext("Loading...")}
-      </p>
-    );
-  }
+  // the page's skeleton, as while its code loaded, until the resource arrives.
+  if (current.state === "loading") return <PageSkeleton kind="manifest" />;
   if (current.state === "not-found") return <NotFoundPage />;
   if (current.state === "error") {
     return (

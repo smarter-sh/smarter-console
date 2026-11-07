@@ -2,7 +2,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Skeleton, SkeletonRegion, SkeletonRows, SkeletonText } from "./Component";
+import { Skeleton, SkeletonCode, SkeletonRegion, SkeletonRows, SkeletonText } from "./Component";
 
 describe("Skeleton", () => {
   it("is a bar by default, sized in rem or any CSS length, and hidden from screen readers", () => {
@@ -28,6 +28,16 @@ describe("Skeleton", () => {
     const lines = Array.from(container.querySelectorAll<HTMLElement>(".smarter-skeleton"));
     expect(lines).toHaveLength(3);
     expect(lines[2]).toHaveStyle({ width: "40%" });
+  });
+
+  it("writes lines of code, indented, which screen readers skip", () => {
+    const { container } = render(<SkeletonCode lines={4} />);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- shapes have no role.
+    const lines = Array.from(container.querySelectorAll<HTMLElement>(".smarter-skeleton"));
+    expect(lines).toHaveLength(4);
+    expect(lines.map((line) => line.style.marginLeft)).toEqual(["0rem", "0rem", "1.25rem", "1.25rem"]);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- shapes have no role.
+    expect(container.querySelector(".smarter-skeleton-code")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("announces a region once, as loading", () => {

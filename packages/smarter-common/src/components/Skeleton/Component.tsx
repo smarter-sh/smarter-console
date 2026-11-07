@@ -10,6 +10,7 @@
  *   skip.
  * - SkeletonRows: a list's table rows, one shape per column (see SkeletonRows' columns).
  * - SkeletonChart: a chart, with the control that chooses what it shows, e.g. a period.
+ * - SkeletonCode: lines of code, e.g. a manifest's YAML, indented as code is.
  */
 import type { CSSProperties, ReactNode } from "react";
 
@@ -102,6 +103,41 @@ export function SkeletonChart({ height, controls = false }: { height: number; co
       {controls && <Skeleton shape="block" width={8} height={2.1} className="d-block mb-4" />}
       <Skeleton shape="block" height={`${height}px`} className="d-block" />
     </SkeletonRegion>
+  );
+}
+
+/** The lines of SkeletonCode: each one's indent, in steps, and width, in rem, as a manifest's YAML is. */
+const CODE_LINES: [number, number][] = [
+  [0, 9],
+  [0, 6],
+  [1, 11],
+  [1, 14],
+  [1, 8],
+  [0, 5],
+  [1, 12],
+  [2, 15],
+  [2, 10],
+  [3, 13],
+  [3, 9],
+  [1, 7],
+  [2, 12],
+  [2, 8],
+];
+
+/**
+ * Lines of code while they load, e.g. a manifest's YAML in its editor, indented as code is. Screen readers skip
+ * them: put them in a SkeletonRegion, or a page's skeleton, which says Loading.
+ *
+ * @param lines - How many lines; the pattern repeats.
+ */
+export function SkeletonCode({ lines = CODE_LINES.length }: { lines?: number }) {
+  return (
+    <span className="smarter-skeleton-code" aria-hidden="true">
+      {Array.from({ length: lines }, (_, line) => {
+        const [indent, width] = CODE_LINES[line % CODE_LINES.length];
+        return <Skeleton key={line} width={width} height={0.8} style={{ marginLeft: `${indent * 1.25}rem` }} />;
+      })}
+    </span>
   );
 }
 

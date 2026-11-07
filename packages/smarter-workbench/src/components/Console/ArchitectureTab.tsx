@@ -4,7 +4,7 @@
  * Reload button is pressed, e.g. after a manifest was changed in another tab.
  */
 import { useState } from "react";
-import { Loading } from "@smarter/common";
+import { Skeleton, SkeletonRegion } from "@smarter/common";
 import { LLMClientArchitecture } from "@smarter/llmclient-architecture";
 
 import TabError from "./TabError";
@@ -15,7 +15,19 @@ import type { WorkbenchConfig } from "../../lib/types";
 function ArchitectureTree({ url, onReload }: { url: string; onReload: () => void }) {
   const { data: architecture, error } = useTabData(() => fetchArchitecture(url));
   if (error) return <TabError error={error} />;
-  if (architecture === null) return <Loading />;
+  // the diagram's shape while the architecture loads: the LLMClient, and the resources it uses, below it.
+  if (architecture === null) {
+    return (
+      <SkeletonRegion className="d-flex flex-column align-items-center gap-6 p-8">
+        <Skeleton shape="block" width={16} height={4.5} />
+        <span className="d-flex flex-wrap justify-content-center gap-4">
+          {[0, 1, 2, 3].map((card) => (
+            <Skeleton key={card} shape="block" width={11} height={3.5} />
+          ))}
+        </span>
+      </SkeletonRegion>
+    );
+  }
   return <LLMClientArchitecture architecture={architecture} onReload={onReload} />;
 }
 

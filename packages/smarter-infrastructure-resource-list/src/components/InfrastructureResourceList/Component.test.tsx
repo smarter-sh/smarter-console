@@ -11,6 +11,13 @@ import InfrastructureResourceList from "@/components/InfrastructureResourceList/
 import { defaultFilters, listRequest } from "@/components/InfrastructureResourceList/filters";
 
 describe("InfrastructureResourceList", () => {
+  it("shows the summary's, the filters' and the table's skeletons while the resources load", () => {
+    // the requests never answer, as on a very slow network.
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    render(<InfrastructureResourceList sessionContext={sessionContext} />);
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+  });
+
   it("summarizes the ledger, and lists the active resources", async () => {
     server.use(...listHandlers());
     render(<InfrastructureResourceList sessionContext={sessionContext} />);

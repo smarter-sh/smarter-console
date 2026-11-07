@@ -202,10 +202,24 @@
   gap: 1rem;
 }
 
+/* a tab's skeleton while the detail loads. */
 .smarter-detail-loading {
+  padding: 1.5rem 0;
+}
+
+/* the hierarchy's skeleton: the resource's card, and the cards of what it uses, below it. */
+.smarter-skeleton-tree {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.smarter-skeleton-tree-children {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  padding: 3rem 0;
+  gap: 1rem;
 }
 
 .smarter-detail-tab-toolbar {

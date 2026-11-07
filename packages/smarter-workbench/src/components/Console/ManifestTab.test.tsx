@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http } from "msw";
 import { describe, expect, it, vi } from "vitest";
 
 import ManifestTab from "@/components/Console/ManifestTab";
@@ -10,6 +11,13 @@ import { server } from "@test/server";
 vi.mock("@smarter/manifest-editor", async () => await import("@/mocks/ManifestEditor"));
 
 describe("ManifestTab", () => {
+  it("shows the editor's lines while the manifest loads", () => {
+    // the requests never answer, as on a very slow network.
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    render(<ManifestTab workbench={workbench} />);
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+  });
+
   it("fetches the manifest, and edits it with the cli api's urls", async () => {
     server.use(...tabHandlers);
     render(<ManifestTab workbench={workbench} />);

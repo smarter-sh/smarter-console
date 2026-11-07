@@ -14,6 +14,7 @@ import { useResource } from "@/lib/useResource";
 import { onboardingContext } from "@/lib/welcome";
 import { llmclientLocator, workbenchConfig } from "@/lib/workbench";
 import { NotFoundPage } from "@/routes/NotFoundPage";
+import { PageSkeleton } from "@/routes/PageSkeleton";
 import { useConsoleSession } from "@/session/context";
 
 export function WorkbenchPage() {
@@ -29,13 +30,8 @@ export function WorkbenchPage() {
   const onboarding = useMemo(() => (session ? onboardingContext(session) : null), [session]);
 
   if (!session || !workbench) return null;
-  if (loaded.state === "loading") {
-    return (
-      <p role="status" className="mt-5">
-        {gettext("Loading...")}
-      </p>
-    );
-  }
+  // the page's skeleton, as while its code loaded, until the LLMClient arrives.
+  if (loaded.state === "loading") return <PageSkeleton kind="workbench" />;
   if (loaded.state === "not-found") return <NotFoundPage />;
   if (loaded.state === "error") {
     return (

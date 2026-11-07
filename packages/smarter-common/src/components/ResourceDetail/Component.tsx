@@ -40,7 +40,7 @@ import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from "react";
 
 import type { DetailObject, DetailViewBaseProps, Filtering, SessionContext } from "../../lib/Types";
 import { gettext, interpolate } from "../../lib/i18n";
-import { Loading } from "../Loading";
+import { Skeleton, SkeletonCode, SkeletonRegion, SkeletonText } from "../Skeleton";
 import { kindInfo } from "../ResourceTree/kinds";
 import { countResources } from "../ResourceTree/tree";
 import type { ResourceTreeNode } from "../ResourceTree/types";
@@ -273,10 +273,22 @@ export default function ResourceDetail({
         </div>
       );
     }
+    // the tab's shape while the detail loads: the manifest's lines, the hierarchy's cards, or the list of its users.
     return (
-      <div className="smarter-detail-loading">
-        <Loading />
-      </div>
+      <SkeletonRegion className="smarter-detail-loading">
+        {tab === "manifest" && <SkeletonCode />}
+        {tab === "hierarchy" && (
+          <span className="smarter-skeleton-tree">
+            <Skeleton shape="block" width={14} height={4} />
+            <span className="smarter-skeleton-tree-children">
+              <Skeleton shape="block" width={12} height={3.5} />
+              <Skeleton shape="block" width={12} height={3.5} />
+              <Skeleton shape="block" width={12} height={3.5} />
+            </span>
+          </span>
+        )}
+        {tab === "dependencies" && <SkeletonText lines={5} lastWidth="40%" />}
+      </SkeletonRegion>
     );
   };
 

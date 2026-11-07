@@ -1,3 +1,36 @@
+/** The columns of the table's skeleton rows: the resource, its type, its provider, billable, status and created. */
+const SKELETON_COLUMNS: SkeletonColumn[] = ["", "", "", "", "", "d-none d-lg-table-cell"];
+
+/** The page's skeleton while the resources load: the summary's tiles, the filters, and the table's rows. */
+function InfrastructureSkeleton() {
+  return (
+    <SkeletonRegion>
+      <div className="row g-3 mb-5">
+        {[0, 1, 2, 3].map((tile) => (
+          <div key={tile} className="col-6 col-md-3">
+            <span className="d-block border rounded p-4">
+              <Skeleton width={3} height={1.6} className="d-block mb-2" />
+              <Skeleton width={6} height={0.7} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="d-flex flex-wrap gap-3 mb-4">
+        {[7, 8, 8].map((width, filter) => (
+          <Skeleton key={filter} shape="block" width={width} height={2.1} />
+        ))}
+      </div>
+      <div className="table-responsive">
+        <table className="table align-middle">
+          <tbody>
+            <SkeletonRows count={6} columns={SKELETON_COLUMNS} />
+          </tbody>
+        </table>
+      </div>
+    </SkeletonRegion>
+  );
+}
+
 /**
  * InfrastructureResourceList
  *
@@ -7,8 +40,17 @@
  * is written by the platform, so the list is read-only.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchDjangoUrl, formatDateTime, gettext, interpolate, interpolateNodes, Loading } from "@smarter/common";
-import type { SessionContext } from "@smarter/common";
+import {
+  fetchDjangoUrl,
+  formatDateTime,
+  gettext,
+  interpolate,
+  interpolateNodes,
+  Skeleton,
+  SkeletonRegion,
+  SkeletonRows,
+} from "@smarter/common";
+import type { SessionContext, SkeletonColumn } from "@smarter/common";
 
 import type {
   InfrastructureResource,
@@ -218,7 +260,7 @@ export default function InfrastructureResourceList({ sessionContext }: { session
             {errMessage}
           </div>
         )}
-        {data === null && !errMessage && <Loading />}
+        {data === null && !errMessage && <InfrastructureSkeleton />}
         {data && (
           <>
             <Summary summary={data.summary} />

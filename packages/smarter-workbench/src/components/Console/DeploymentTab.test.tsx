@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { http } from "msw";
 import { describe, expect, it } from "vitest";
 
 import DeploymentTab from "@/components/Console/DeploymentTab";
@@ -7,6 +8,13 @@ import { tabErrorHandlers, tabHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
 describe("DeploymentTab", () => {
+  it("shows the page's shape while it loads", () => {
+    // the requests never answer, as on a very slow network.
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    render(<DeploymentTab workbench={workbench} />);
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+  });
+
   it("fetches the deployment page, and shows it in its workbench mode", async () => {
     server.use(...tabHandlers);
     render(<DeploymentTab workbench={workbench} />);

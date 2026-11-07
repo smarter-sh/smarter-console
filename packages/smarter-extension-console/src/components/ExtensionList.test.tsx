@@ -9,6 +9,13 @@ import { errorHandlers, listHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
 describe("ExtensionList", () => {
+  it("shows its table, with skeleton rows, while the extensions load", async () => {
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    render(<ExtensionList context={listContext} />);
+    expect(await screen.findAllByText("Loading...")).toHaveLength(1);
+    expect(screen.getByRole("columnheader", { name: "Extension" })).toBeInTheDocument();
+  });
+
   it("lists the installed extensions, with their versions, badges and errors", async () => {
     server.use(...listHandlers());
     render(<ExtensionList context={listContext} />);

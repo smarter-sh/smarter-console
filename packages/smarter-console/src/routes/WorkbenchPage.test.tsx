@@ -66,6 +66,12 @@ beforeEach(() => {
 });
 
 describe("the workbench", () => {
+  it("shows the workbench's skeleton while the LLMClient loads", async () => {
+    server.use(http.get(resourceUrl(LOCATOR), () => new Promise<Response>(() => {})));
+    mountAt("/workbench/llm-clients/rMTAwx/prompt");
+    expect(await screen.findByRole("status", { name: "Loading" })).toHaveClass("smarter-page-skeleton");
+  });
+
   it("configures the workbench from the hashed id and the session", async () => {
     server.use(resourceAnswers(200));
     mountAt("/workbench/llm-clients/rMTAwx/prompt/", { serverLogs: true });

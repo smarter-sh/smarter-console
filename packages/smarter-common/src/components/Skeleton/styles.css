@@ -62,6 +62,14 @@
   max-width: 100%;
 }
 
+/* lines of code, one under the other. */
+.smarter-skeleton-code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
 /* a name, with a button below it. */
 .smarter-skeleton-stack {
   display: flex;

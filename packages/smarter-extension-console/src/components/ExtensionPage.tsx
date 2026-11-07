@@ -5,7 +5,15 @@
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { formatDateTime, gettext, interpolate, interpolateNodes } from "@smarter/common";
+import {
+  formatDateTime,
+  gettext,
+  interpolate,
+  interpolateNodes,
+  Skeleton,
+  SkeletonRegion,
+  SkeletonText,
+} from "@smarter/common";
 
 import { Documentation, Fact, Notice, Spinner, TrustBadge } from "./common";
 import type { NoticeState } from "./common";
@@ -103,7 +111,12 @@ export default function ExtensionPage({
         {loadFailed ? (
           <a href={context.listUrl}>{gettext("Back to Extensions")}</a>
         ) : (
-          <p className="text-muted">{gettext("Loading...")}</p>
+          // the page's shape while the extension loads: its name, its description, and its sections.
+          <SkeletonRegion className="d-flex flex-column gap-5">
+            <Skeleton width={14} height={1.8} />
+            <SkeletonText lines={3} />
+            <Skeleton shape="block" height={10} />
+          </SkeletonRegion>
         )}
       </section>
     );

@@ -4,7 +4,7 @@
  * the manifest, the chat reloads the LLMClient's configuration. When it deletes the LLMClient, the workbench, whose
  * LLMClient is gone, leaves for the LLM Clients list.
  */
-import { Loading } from "@smarter/common";
+import { SkeletonCode, SkeletonRegion } from "@smarter/common";
 import { ManifestEditor } from "@smarter/manifest-editor";
 
 import TabError from "./TabError";
@@ -30,7 +30,14 @@ function goTo(workbench: WorkbenchConfig, url: string) {
 function ManifestTab({ workbench, onSaved }: ManifestTabProps) {
   const { data: manifest, error } = useTabData(() => fetchManifest(workbench.manifestUrl ?? ""));
   if (error) return <TabError error={error} />;
-  if (manifest === null) return <Loading />;
+  // the editor's lines while the manifest loads.
+  if (manifest === null) {
+    return (
+      <SkeletonRegion className="p-5">
+        <SkeletonCode />
+      </SkeletonRegion>
+    );
+  }
   return (
     <div className="console-manifest-editor">
       <ManifestEditor

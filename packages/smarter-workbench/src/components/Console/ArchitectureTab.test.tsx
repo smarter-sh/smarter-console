@@ -10,6 +10,13 @@ import { tabErrorHandlers, tabHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
 describe("ArchitectureTab", () => {
+  it("shows the diagram's shape while the architecture loads", () => {
+    // the requests never answer, as on a very slow network.
+    server.use(http.all("*", () => new Promise<Response>(() => {})));
+    render(<ArchitectureTab workbench={workbench} />);
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+  });
+
   it("fetches the LLMClient's tree, and draws it", async () => {
     server.use(...tabHandlers);
     render(<ArchitectureTab workbench={workbench} />);

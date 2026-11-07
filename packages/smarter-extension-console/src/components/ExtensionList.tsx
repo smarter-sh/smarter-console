@@ -4,7 +4,8 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { gettext, interpolate, interpolateNodes, Modal, WorkbenchHelp } from "@smarter/common";
+import { gettext, interpolate, interpolateNodes, Modal, SkeletonRows, WorkbenchHelp } from "@smarter/common";
+import type { SkeletonColumn } from "@smarter/common";
 
 import { Documentation, Notice, Spinner, TrustBadge } from "./common";
 import type { NoticeState } from "./common";
@@ -222,6 +223,18 @@ export default function ExtensionList({ context, navigate = (url) => window.loca
   );
 }
 
+/**
+ * The columns of the table's skeleton rows, while the extensions load: the name with its description, the
+ * version, the trust, the source and the switch. See SkeletonRows in @smarter/common.
+ */
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  { shape: "paragraph" }, // Extension
+  "", // Version
+  "d-none d-md-table-cell", // Trust
+  "d-none d-lg-table-cell", // Source
+  "", // Enabled
+];
+
 /** The installed extensions. */
 export function InstalledTable({
   list,
@@ -235,8 +248,7 @@ export function InstalledTable({
   canEdit?: boolean;
   onToggle: (extension: ExtensionSummary) => void;
 }) {
-  if (list === null) return <p className="text-muted">{gettext("Loading...")}</p>;
-  if (list.objects.length === 0)
+  if (list !== null && list.objects.length === 0)
     return (
       <p className="text-muted">
         {canEdit
@@ -257,7 +269,8 @@ export function InstalledTable({
           </tr>
         </thead>
         <tbody>
-          {list.objects.map((extension) => (
+          {list === null && <SkeletonRows count={4} columns={SKELETON_COLUMNS} />}
+          {list?.objects.map((extension) => (
             <tr key={extension.slug}>
               <td>
                 <a href={extension.detailUrl} className="fw-bold text-gray-800 text-hover-primary">

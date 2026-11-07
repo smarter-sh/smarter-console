@@ -164,7 +164,7 @@ gettext("Week of %(date)s");
 gettext("Failed to load the budget series (%(status)s).");
 // Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx
 gettext("Loading");
-// Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-console/src/routes/ManifestPage.tsx, packages/smarter-console/src/routes/PasswordResetPage.tsx, packages/smarter-console/src/routes/RouteError.tsx, packages/smarter-console/src/routes/WorkbenchPage.tsx, packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-extension-console/src/components/ExtensionPage.tsx
+// Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-console/src/routes/PasswordResetPage.tsx, packages/smarter-console/src/routes/RouteError.tsx
 gettext("Loading...");
 // Translators: used in packages/smarter-common/src/components/MetadataChips/Component.tsx, packages/smarter-common/src/components/ResourceDetail/DetailFields.tsx
 gettext("No value");
@@ -331,7 +331,7 @@ gettext("You can't read this resource");
 gettext("Show the detail of %(name)s");
 // Translators: used in packages/smarter-common/src/components/ResourceTree/ResourceCard.tsx
 gettext("Open the manifest of %(name)s in a new tab");
-// Translators: used in packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-console/src/routes/DocsPages.tsx, packages/smarter-dashboard/src/components/TokenUsage/Chart.tsx, packages/smarter-dashboard-user-menu/src/components/ChangeProfile/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
+// Translators: used in packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-dashboard/src/components/TokenUsage/Chart.tsx, packages/smarter-dashboard-user-menu/src/components/ChangeProfile/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
 gettext("Loading…");
 // Translators: used in packages/smarter-common/src/components/TabbedListView/AnnotationSelectorBox.tsx
 gettext("Annotation, e.g. acme.com/id=42");

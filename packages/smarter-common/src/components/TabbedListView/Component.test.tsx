@@ -591,6 +591,20 @@ describe("TabbedListView's resource detail", () => {
   /** The detail dialog, by the name of its resource. */
   const dialog = (name: string) => screen.findByRole("dialog", { name });
 
+  it("shows each tab's skeleton while the detail loads: the manifest's lines, the hierarchy's cards, the users' list", async () => {
+    server.use(
+      ...listHandlers(),
+      http.post("/api/web/dashboard/resource/Example/:locator/", () => new Promise<Response>(() => {})),
+    );
+    const user = setup();
+    await user.click(await screen.findByText("first_example"));
+    const detail = within(await dialog("first_example"));
+    for (const tab of ["Manifest", "Hierarchy", "Dependencies"]) {
+      await user.click(detail.getByRole("tab", { name: new RegExp(tab) }));
+      expect(detail.getByRole("status", { name: "Loading" })).toHaveClass("smarter-detail-loading");
+    }
+  });
+
   it("opens a row's detail when the row is clicked, with its DetailView, and closes it", async () => {
     server.use(...listHandlers(), detailHandler());
     const user = setup();
