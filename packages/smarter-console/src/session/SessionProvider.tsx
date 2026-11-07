@@ -6,8 +6,8 @@
  *
  * The session is a TanStack Query query, in a QueryClient of its own, made once. It can't share the pages' cache:
  * the console gives the pages a new, empty cache for each user and account, which the session names (see
- * lib/queryCache). Like any query, it is loaded again when the window regains focus after it has gone stale, so a
- * sign-out in another tab sends this one to the sign-in page.
+ * lib/queryCache). It is loaded again when the window regains focus after half a minute, so a sign-out in another
+ * tab sends this one to the sign-in page.
  */
 import { useOwnQueryClient } from "@smarter/common";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,9 @@ import { SessionContext, type SessionState } from "@/session/context";
 
 /** The session query's key. */
 const SESSION_QUERY_KEY = ["smarter-session"] as const;
+
+/** How long the session is fresh: the window's focus loads it again only once it is older. */
+const SESSION_STALE_TIME_MS = 30 * 1000;
 
 /**
  * Loads the session.
@@ -40,7 +43,11 @@ async function loadSession(signal?: AbortSignal): Promise<ConsoleSession> {
 export function SessionProvider({ children }: { children: ReactNode }) {
   // the session's own client, made once. See above.
   const client = useOwnQueryClient();
-  const query = useQuery({ queryKey: SESSION_QUERY_KEY, queryFn: ({ signal }) => loadSession(signal) }, client);
+  // fresh for half a minute, rather than the pages' none: the window's focus would load it again each time.
+  const query = useQuery(
+    { queryKey: SESSION_QUERY_KEY, queryFn: ({ signal }) => loadSession(signal), staleTime: SESSION_STALE_TIME_MS },
+    client,
+  );
   const session = query.data ?? null;
   const error = query.error;
 

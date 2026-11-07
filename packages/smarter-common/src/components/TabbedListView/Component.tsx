@@ -66,8 +66,8 @@
  *
  * Page Rendering Performance and Caching behavior:
  * - Each page is a query of TanStack Query, keyed by listQueryKey(api url), the tab, and the page's page number,
- *   search, ordering and narrowing. A page shown within QUERY_STALE_TIME_MS is shown again without a request;
- *   an older one is shown at once, and fetched again (stale-while-revalidate). The list api caches its pages too
+ *   search, ordering and narrowing. A page shown before is shown again at once, and fetched again behind it
+ *   (stale-while-revalidate, see QUERY_STALE_TIME_MS), with the Refreshing spinner. The list api caches its pages too
  *   (smarter.lib.django.listview), so the fresh fetch is usually quick.
  * - The Refresh button, and a clone, rename or delete, mark every page of the list stale, and fetch each tab's
  *   page again with ?invalidate_cache=true, so that the list api rebuilds its own cache.

@@ -1,5 +1,5 @@
 /** The dashboard keeps its widgets' responses in the console's cache while the user visits other pages. */
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { createMemoryRouter } from "react-router";
@@ -16,7 +16,7 @@ import { userSessionHandler } from "@/mocks/handlers";
 import { routes } from "@/router";
 
 describe("the dashboard", () => {
-  it("shows My Resources at once when the user comes back to it, without asking the api again", async () => {
+  it("shows My Resources at once when the user comes back to it, and asks the api again behind it", async () => {
     let requests = 0;
     const counts = { llmclients_qty: 3, pending_deployments: 2, llmclients_url: "/workbench/" };
     // the first matching handler wins: this one, rather than the dashboard's own.
@@ -40,8 +40,8 @@ describe("the dashboard", () => {
     expect(await screen.findByRole("row", { name: /first_example/ })).toBeInTheDocument();
     await user.click(sidebar.getByRole("link", { name: "Dashboard" }));
 
-    // from the cache, before any request could answer.
+    // from the cache, before any request could answer, and then asked for again.
     expect(screen.getByRole("link", { name: "2 pending" })).toBeInTheDocument();
-    expect(requests).toBe(1);
+    await waitFor(() => expect(requests).toBe(2));
   });
 });

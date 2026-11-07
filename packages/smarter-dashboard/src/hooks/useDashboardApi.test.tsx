@@ -59,7 +59,7 @@ describe("useDashboardApi", () => {
     expect(result.current).toMatchObject({ data: null, isLoading: false });
   });
 
-  it("shows the response at once when the dashboard opens again, without a request while it is fresh", async () => {
+  it("shows the response at once when the dashboard opens again, and requests it again behind it", async () => {
     const counter = countingHandler();
     const client = createSmarterQueryClient();
     const view = renderWith(client);
@@ -68,7 +68,8 @@ describe("useDashboardApi", () => {
 
     const { result: secondVisit } = renderWith(client);
     expect(secondVisit.current).toMatchObject({ data: { answer: 1 }, isLoading: false });
-    expect(counter.requests).toBe(1);
+    await waitFor(() => expect(secondVisit.current.data).toEqual({ answer: 2 }));
+    expect(counter.requests).toBe(2);
   });
 
   it("shows a stale response at once, and requests it again", async () => {

@@ -12,8 +12,12 @@
 import { QueryClient, QueryClientContext, QueryClientProvider } from "@tanstack/react-query";
 import { useContext, useEffect, useState, type ReactNode } from "react";
 
-/** How long a response is fresh: a page opened again within it shows the response without asking the api again. */
-export const QUERY_STALE_TIME_MS = 30 * 1000;
+/**
+ * How long a response is fresh. None: a page that opens again shows its cached response at once, and always asks
+ * the api again behind it (stale-while-revalidate), so that it shows what changed elsewhere, e.g. in the manifest
+ * editor, the workbench, the CLI or another tab. An unchanged response doesn't render again.
+ */
+export const QUERY_STALE_TIME_MS = 0;
 
 /** How long a response that no page shows is kept, for a page that opens again later. */
 export const QUERY_GC_TIME_MS = 30 * 60 * 1000;

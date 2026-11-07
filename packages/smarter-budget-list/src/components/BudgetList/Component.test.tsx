@@ -158,10 +158,11 @@ describe("BudgetList", () => {
     view.unmount();
     render(page);
     expect(screen.getByRole("row", { name: /daily_token_budget/ })).toBeInTheDocument();
-    expect(requests).toBe(1);
+    // and asks again behind it, for what changed since.
+    await vi.waitFor(() => expect(requests).toBe(2));
   });
 
-  it("shows a resource's chart again without loading its series again", async () => {
+  it("shows a resource's chart again at once, from the cache", async () => {
     let seriesRequests = 0;
     server.use(
       http.post(SERIES_URL, () => {
@@ -175,10 +176,15 @@ describe("BudgetList", () => {
     const row = await screen.findByRole("row", { name: /monthly_llm_budget/ });
     await user.click(within(row).getByRole("button", { name: "Show resources" }));
     await user.click(screen.getByRole("button", { name: "Chart" }));
-    await user.click(await screen.findByRole("button", { name: "Hide" }));
+    // the chart, once its series has loaded.
+    await vi.waitFor(() => expect(seriesRequests).toBe(1));
+    await vi.waitFor(() => expect(screen.queryByText("Loading…")).not.toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "Hide" }));
     await user.click(screen.getByRole("button", { name: "Chart" }));
     expect(await screen.findByRole("button", { name: "Hide" })).toBeInTheDocument();
-    expect(seriesRequests).toBe(1);
+    // the cached series, with no Loading…, while it is asked for again.
+    expect(screen.queryByText("Loading…")).not.toBeInTheDocument();
+    await vi.waitFor(() => expect(seriesRequests).toBe(2));
   });
 
   it("shows and hides a resource's chart", async () => {

@@ -107,6 +107,7 @@ describe("MyResources", () => {
     view.unmount();
     render(widget);
     expect(screen.getByRole("link", { name: "2 pending" })).toBeInTheDocument();
-    expect(requests).toBe(1);
+    // and asks again behind it, for what changed since.
+    await vi.waitFor(() => expect(requests).toBe(2));
   });
 });

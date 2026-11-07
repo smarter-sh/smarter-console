@@ -7,8 +7,8 @@
  * Each response is a query of the console's cache (TanStack Query, see
  * @smarter/common's lib/query), keyed by the url and the request's body. So
  * a dashboard opened again, e.g. after visiting a list, shows its widgets at
- * once: a response younger than the cache's stale time without a request, and
- * an older one while it is requested again.
+ * once, while each is requested again behind them. A widget that polls is
+ * fresh until its next poll, and isn't requested again before then.
  *
  * - ``body`` is the request's body, e.g. a chart's ``{ periodicity }``. A new
  *   body is a new request, and the previous response stays shown until it

@@ -147,7 +147,7 @@ describe("TabbedListView", () => {
     expect(screen.queryByRole("status", { name: "Refreshing" })).not.toBeInTheDocument();
   });
 
-  it("shows a page seen before at once, when paging back to it, without asking again while it is fresh", async () => {
+  it("shows a page seen before at once, when paging back to it, and asks the list api again behind it", async () => {
     const pages: string[] = [];
     server.use(
       http.post(`${API_URL}:tab/`, async ({ request }) => {
@@ -162,13 +162,14 @@ describe("TabbedListView", () => {
     expect(await screen.findByText("example_11")).toBeInTheDocument();
     const requested = pages.length;
     await user.click(screen.getByRole("button", { name: "Previous page" }));
-    // from the cache, with no request.
+    // from the cache, before the 200 ms response, while the page is asked for again.
     expect(screen.getByText("example_1")).toBeInTheDocument();
-    expect(screen.queryByRole("status", { name: "Refreshing" })).not.toBeInTheDocument();
-    expect(pages).toHaveLength(requested);
+    expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument();
+    await waitFor(() => expect(pages).toHaveLength(requested + 1));
+    expect(pages.at(-1)).toBe("1");
   });
 
-  it("shows a list at once when it opens again, e.g. after the console's navigation", async () => {
+  it("shows a list at once when it opens again, e.g. after the console's navigation, and asks again behind it", async () => {
     const requests: string[] = [];
     server.use(
       http.post(`${API_URL}:tab/`, ({ request }) => {
@@ -188,7 +189,8 @@ describe("TabbedListView", () => {
     setup(client);
     expect(screen.getByText("first_example")).toBeInTheDocument();
     expect(screen.queryByText(/^Loading/)).not.toBeInTheDocument();
-    expect(requests).toHaveLength(requested);
+    // what changed elsewhere since, e.g. in the manifest editor or the CLI, shows once the list api answers.
+    await waitFor(() => expect(requests.length).toBeGreaterThan(requested));
   });
 
   it("queries again, invalidating the backend's cache", async () => {
@@ -350,8 +352,8 @@ describe("TabbedListView", () => {
     expect(await screen.findByText("example_2")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("example_1");
     expect(screen.getByRole("columnheader", { name: "Name" })).toHaveAttribute("aria-sort", "none");
-    // the first page in the default order, which the list showed first, is still fresh in the cache: no request.
-    expect(requests.filter((request) => /^owned:1:$/.test(request))).toHaveLength(1);
+    // the first page in the default order, which the list showed first, is shown from the cache, and asked for again.
+    await waitFor(() => expect(requests.filter((request) => /^owned:1:$/.test(request))).toHaveLength(2));
   });
 
   it("caches a sorted page apart from the default order, and queries again in the same order", async () => {
