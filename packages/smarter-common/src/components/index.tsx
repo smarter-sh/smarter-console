@@ -16,6 +16,7 @@ import {
   prettyJson,
   ResourceMetadataSection,
 } from "./ResourceDetail";
+import ResourceToolbar from "./ResourceToolbar";
 import ResourceTree from "./ResourceTree";
 import {
   branchIds,
@@ -61,6 +62,7 @@ export {
   ResourceCard,
   ResourceDetail,
   ResourceMetadataSection,
+  ResourceToolbar,
   ResourceTree,
   ROOT_ID,
   SortableHeader,
@@ -86,3 +88,4 @@ export type {
   ResourceMetadataSectionProps,
 } from "./ResourceDetail";
 export type { KindInfo, NodeId, ResourceTreeNode, ResourceTreeProps, Tone } from "./ResourceTree";
+export type { ToolbarMessages, ToolbarResource } from "./ResourceToolbar";

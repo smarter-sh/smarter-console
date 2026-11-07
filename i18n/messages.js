@@ -59,13 +59,21 @@ gettext("Subdomain: example.com");
 // Translators: used in packages/smarter-authtoken-list/src/components/StatusBar/Component.tsx, packages/smarter-connection-list/src/components/StatusBar/Component.tsx, packages/smarter-guardrail-list/src/components/StatusBar/Component.tsx, packages/smarter-llmhost-list/src/components/StatusBar/Component.tsx, packages/smarter-llmtool-list/src/components/StatusBar/Component.tsx, packages/smarter-mcpclient-list/src/components/StatusBar/Component.tsx, packages/smarter-orchestrator-list/src/components/StatusBar/Component.tsx, packages/smarter-provider-list/src/components/StatusBar/Component.tsx, packages/smarter-secret-list/src/components/StatusBar/Component.tsx, packages/smarter-vectorsearch-list/src/components/StatusBar/Component.tsx
 gettext("Custom domain: example.com");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this authtoken resource");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this authtoken resource to a new resource owned by you");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this authtoken resource");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this authtoken resource");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this authtoken, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Clone AuthToken");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Clone authtoken %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned authtoken.");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Enter new authtoken name");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Rename AuthToken");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
@@ -73,21 +81,13 @@ gettext("Rename authtoken %(name)s.");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the authtoken.");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
+gettext("Enter new authtoken name");
+// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Delete AuthToken");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Are you sure you want to delete authtoken %(name)s?");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Data is not recoverable.");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("❌ Error");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("An error occurred while performing the operation on authtoken %(name)s.");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("An unknown error occurred.");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("✅ Success");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Operation completed successfully.");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Failed to clone authtoken (%(status)s): %(error)s");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
@@ -100,18 +100,6 @@ gettext("Successfully renamed authtoken");
 gettext("Failed to delete authtoken (%(status)s): %(error)s");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted authtoken");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Actions");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this authtoken resource");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this authtoken resource to a new resource owned by you");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this authtoken resource");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this authtoken, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this authtoken resource");
 // Translators: used in packages/smarter-budget-list/src/App.tsx, packages/smarter-console/src/lib/sidebar.ts, packages/smarter-llmclient-deployment/src/components/Hero.tsx, packages/smarter-llmclient-deployment/src/components/SecureUrl.tsx
 gettext("Budgets");
 // Translators: used in packages/smarter-budget-list/src/App.tsx
@@ -281,6 +269,18 @@ gettext("Nothing depends on it, so deleting it breaks nothing.");
 ngettext("%(count)s resource uses %(name)s. It can't be deleted until that resource stops using it.", "%(count)s resources use %(name)s. It can't be deleted until they stop using it.", 1);
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/tabs.tsx
 gettext("What uses %(name)s");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("Actions");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("Data is not recoverable.");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("❌ Error");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("An unknown error occurred.");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("✅ Success");
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+gettext("Operation completed successfully.");
 // Translators: used in packages/smarter-common/src/components/ResourceTree/Component.tsx
 gettext("Hide what %(name)s uses");
 // Translators: used in packages/smarter-common/src/components/ResourceTree/Component.tsx
@@ -427,19 +427,29 @@ gettext("Deployed: Connection is deployed");
 // Translators: used in packages/smarter-connection-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this connection");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this connection resource");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this connection resource to a new resource owned by you");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this connection resource");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this connection resource");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this connection, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Clone Connection");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Clone connection %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned connection.");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Enter new connection name");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Rename Connection");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Rename connection %(name)s.");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the connection.");
+// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
+gettext("Enter new connection name");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Delete Connection");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
@@ -458,16 +468,6 @@ gettext("Successfully renamed connection");
 gettext("Failed to delete connection (%(status)s): %(error)s");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted connection");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this connection resource");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this connection resource to a new resource owned by you");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this connection resource");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this connection, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this connection resource");
 // Translators: used in packages/smarter-console/src/App.tsx
 gettext("The console couldn't reach the server.");
 // Translators: used in packages/smarter-console/src/components/AuthCard.tsx, packages/smarter-doodle/src/App.tsx
@@ -1489,19 +1489,29 @@ gettext("Deployed: Guardrail is deployed");
 // Translators: used in packages/smarter-guardrail-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this guardrail");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this guardrail resource");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this guardrail resource to a new resource owned by you");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this guardrail resource");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this guardrail resource");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this guardrail, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Clone Guardrail");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Clone guardrail %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned guardrail.");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Enter new guardrail name");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Rename Guardrail");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Rename guardrail %(name)s.");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the guardrail.");
+// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
+gettext("Enter new guardrail name");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Delete Guardrail");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
@@ -1520,16 +1530,6 @@ gettext("Successfully renamed guardrail");
 gettext("Failed to delete guardrail (%(status)s): %(error)s");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted guardrail");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this guardrail resource");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this guardrail resource to a new resource owned by you");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this guardrail resource");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this guardrail, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this guardrail resource");
 // Translators: used in packages/smarter-infrastructure-resource-list/src/App.tsx
 gettext("The ledger of the cloud resources that the platform has created, whichever cloud provider created them: DNS zones and records, TLS certificates, and billable Kubernetes resources, such as volumes and load balancers. Billable resources cost money for as long as they exist. The platform records each resource when it creates or destroys it, so this list is read-only.");
 // Translators: used in packages/smarter-infrastructure-resource-list/src/components/InfrastructureResourceList/Component.tsx
@@ -2211,19 +2211,29 @@ gettext("Subdomain: %(subdomain)s");
 // Translators: used in packages/smarter-llmclient-list/src/components/StatusBar/Component.tsx
 gettext("Custom domain: %(customDomain)s");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this llmclient resource");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this llmclient resource to a new resource owned by you");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this llmclient resource");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this llmclient resource");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this llmclient, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Clone LLMClient");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Clone llmclient %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned llmclient.");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Enter new llmclient name");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Rename LLMClient");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Rename llmclient %(name)s.");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the llmclient.");
+// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
+gettext("Enter new llmclient name");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Delete LLMClient");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
@@ -2244,16 +2254,6 @@ gettext("Failed to delete llmclient (%(status)s): %(error)s");
 gettext("Successfully deleted llmclient");
 // Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
 gettext("Chat: Open the prompt workbench");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this llmclient resource");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this llmclient resource to a new resource owned by you");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this llmclient resource");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this llmclient, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this llmclient resource");
 // Translators: used in packages/smarter-llmclient-list/src/components/WeatherHint/Component.tsx
 gettext("Start with the weather LLMClient");
 // Translators: used in packages/smarter-llmclient-list/src/components/WeatherHint/Component.tsx
@@ -2480,19 +2480,29 @@ gettext("Deployed: LLMHost is deployed");
 // Translators: used in packages/smarter-llmhost-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this llmhost");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this llmhost resource");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this llmhost resource to a new resource owned by you");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this llmhost resource");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this llmhost resource");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this llmhost, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Clone LLMHost");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Clone llmhost %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned llmhost.");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Enter new llmhost name");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Rename LLMHost");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Rename llmhost %(name)s.");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the llmhost.");
+// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
+gettext("Enter new llmhost name");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Delete LLMHost");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
@@ -2511,16 +2521,6 @@ gettext("Successfully renamed llmhost");
 gettext("Failed to delete llmhost (%(status)s): %(error)s");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted llmhost");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this llmhost resource");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this llmhost resource to a new resource owned by you");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this llmhost resource");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this llmhost, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this llmhost resource");
 // Translators: used in packages/smarter-llmtool-list/src/App.tsx
 gettext("Your Tool Plugins");
 // Translators: used in packages/smarter-llmtool-list/src/App.tsx
@@ -2612,19 +2612,29 @@ gettext("Deployed: LLMTool is deployed");
 // Translators: used in packages/smarter-llmtool-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this LLMTool");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this LLMTool resource");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this LLMTool resource to a new resource owned by you");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this LLMTool resource");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this LLMTool resource");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this LLMTool, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Clone LLMTool");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Clone LLMTool %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned LLMTool.");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Enter new LLMTool name");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Rename LLMTool");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Rename LLMTool %(name)s.");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the LLMTool.");
+// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
+gettext("Enter new LLMTool name");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Delete LLMTool");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
@@ -2643,16 +2653,6 @@ gettext("Successfully renamed LLMTool");
 gettext("Failed to delete LLMTool (%(status)s): %(error)s");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted LLMTool");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this LLMTool resource");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this LLMTool resource to a new resource owned by you");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this LLMTool resource");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this LLMTool, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this LLMTool resource");
 // Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
 gettext("Manifest is not a valid object");
 // Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
@@ -2876,19 +2876,29 @@ gettext("Deployed: MCPClient is deployed");
 // Translators: used in packages/smarter-mcpclient-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this mcpclient");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this mcpclient resource");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this mcpclient resource to a new resource owned by you");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this mcpclient resource");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this mcpclient resource");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this mcpclient, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Clone MCPClient");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Clone mcpclient %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned mcpclient.");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Enter new mcpclient name");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Rename MCPClient");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Rename mcpclient %(name)s.");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the mcpclient.");
+// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
+gettext("Enter new mcpclient name");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Delete MCPClient");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
@@ -2907,16 +2917,6 @@ gettext("Successfully renamed mcpclient");
 gettext("Failed to delete mcpclient (%(status)s): %(error)s");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted mcpclient");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this mcpclient resource");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this mcpclient resource to a new resource owned by you");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this mcpclient resource");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this mcpclient, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this mcpclient resource");
 // Translators: used in packages/smarter-onboarding/src/components/Spotlight/Component.tsx
 gettext("Got it");
 // Translators: used in packages/smarter-onboarding/src/components/Tour/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
@@ -2960,19 +2960,29 @@ gettext("Deployed: Orchestrator is deployed");
 // Translators: used in packages/smarter-orchestrator-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this orchestrator");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this orchestrator resource");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this orchestrator resource to a new resource owned by you");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this orchestrator resource");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this orchestrator resource");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this orchestrator, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Clone Orchestrator");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Clone orchestrator %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned orchestrator.");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Enter new orchestrator name");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Rename Orchestrator");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Rename orchestrator %(name)s.");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the orchestrator.");
+// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
+gettext("Enter new orchestrator name");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Delete Orchestrator");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
@@ -2991,16 +3001,6 @@ gettext("Successfully renamed orchestrator");
 gettext("Failed to delete orchestrator (%(status)s): %(error)s");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted orchestrator");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this orchestrator resource");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this orchestrator resource to a new resource owned by you");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this orchestrator resource");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this orchestrator, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this orchestrator resource");
 // Translators: used in packages/smarter-prompt-passthrough/src/components/EditorViewToolbar/Component.tsx, packages/smarter-serverlogs/src/components/ServerLogs.tsx
 gettext("Wrap lines");
 // Translators: used in packages/smarter-prompt-passthrough/src/components/EditorViewToolbar/Component.tsx
@@ -3190,19 +3190,29 @@ gettext("Deployed: Provider is deployed");
 // Translators: used in packages/smarter-provider-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this provider");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this provider resource");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this provider resource to a new resource owned by you");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this provider resource");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this provider resource");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this provider, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Clone Provider");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Clone provider %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned provider.");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Enter new provider name");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Rename Provider");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Rename provider %(name)s.");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the provider.");
+// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
+gettext("Enter new provider name");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Delete Provider");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
@@ -3221,16 +3231,6 @@ gettext("Successfully renamed provider");
 gettext("Failed to delete provider (%(status)s): %(error)s");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted provider");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this provider resource");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this provider resource to a new resource owned by you");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this provider resource");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this provider, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this provider resource");
 // Translators: used in packages/smarter-proxy-list/src/App.tsx
 gettext("Your Proxies");
 // Translators: used in packages/smarter-proxy-list/src/App.tsx
@@ -3360,19 +3360,29 @@ gettext("Deployed: Secret is deployed");
 // Translators: used in packages/smarter-secret-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this secret");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this secret resource");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this secret resource to a new resource owned by you");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this secret resource");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this secret resource");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this secret, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Clone Secret");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Clone secret %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned secret.");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Enter new secret name");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Rename Secret");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Rename secret %(name)s.");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the secret.");
+// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
+gettext("Enter new secret name");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Delete Secret");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
@@ -3391,16 +3401,6 @@ gettext("Successfully renamed secret");
 gettext("Failed to delete secret (%(status)s): %(error)s");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted secret");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this secret resource");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this secret resource to a new resource owned by you");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this secret resource");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this secret, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this secret resource");
 // Translators: used in packages/smarter-serverlogs/src/components/ServerLogs.tsx
 gettext("Top");
 // Translators: used in packages/smarter-serverlogs/src/components/ServerLogs.tsx
@@ -3586,19 +3586,29 @@ gettext("Deployed: Vectorsearch is deployed");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/StatusBar/Component.tsx
 gettext("Authentication required to access this vectorsearch");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this vectorsearch resource");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this vectorsearch resource to a new resource owned by you");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this vectorsearch resource");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this vectorsearch resource");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this vectorsearch, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Clone Vectorsearch");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Clone vectorsearch %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned vectorsearch.");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Enter new vectorsearch name");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Rename Vectorsearch");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Rename vectorsearch %(name)s.");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the vectorsearch.");
+// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
+gettext("Enter new vectorsearch name");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Delete Vectorsearch");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
@@ -3617,16 +3627,6 @@ gettext("Successfully renamed vectorsearch");
 gettext("Failed to delete vectorsearch (%(status)s): %(error)s");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted vectorsearch");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this vectorsearch resource");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this vectorsearch resource to a new resource owned by you");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this vectorsearch resource");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this vectorsearch, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this vectorsearch resource");
 // Translators: used in packages/smarter-vectorstore-list/src/App.tsx
 gettext("Your Vectorstores");
 // Translators: used in packages/smarter-vectorstore-list/src/App.tsx
@@ -3688,19 +3688,29 @@ gettext("Scheduled snapshots: %(snapshotCount)s kept, the last at %(lastSnapshot
 // Translators: used in packages/smarter-vectorstore-list/src/components/StatusBar/Component.tsx
 gettext("Scheduled snapshots: %(snapshotCount)s kept.");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Edit: Open the YAML manifest that defines this vectorstore resource");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Clone: Clone this vectorstore resource to a new resource owned by you");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Rename: Rename this vectorstore resource");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Delete: Delete this vectorstore resource");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Delete: You can't delete this vectorstore, because other resources depend on it, or you don't have permission to delete it");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Clone Vectorstore");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Clone vectorstore %(name)s to a new resource owned by you.");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the cloned vectorstore.");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Enter new vectorstore name");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Rename Vectorstore");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Rename vectorstore %(name)s.");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Provide the new name for the vectorstore.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
+gettext("Enter new vectorstore name");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Delete Vectorstore");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
@@ -3721,16 +3731,6 @@ gettext("Successfully renamed vectorstore");
 gettext("Failed to delete vectorstore (%(status)s): %(error)s");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted vectorstore");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Edit: Open the YAML manifest that defines this vectorstore resource");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Clone: Clone this vectorstore resource to a new resource owned by you");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Rename: Rename this vectorstore resource");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Delete: You can't delete this vectorstore, because other resources depend on it, or you don't have permission to delete it");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Delete: Delete this vectorstore resource");
 // Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
 gettext("Self-hosted");
 // Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx

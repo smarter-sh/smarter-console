@@ -1,176 +1,49 @@
 /**
  * Toolbar React Component
  *
- * This component provides a toolbar for managing connection resources, used in the ListView, and in the DetailView of the detail that opens when a row is chosen.
- * It offers actions for opening, editing, cloning, renaming, and deleting a connection, with modal dialogs for confirmation and error handling.
- *
- * Features:
- * - Action buttons for: Open (chat), Edit (YAML manifest), Clone, Rename, and Delete connection resources.
- * - Modal dialogs for clone, rename, delete, error, and confirmation workflows.
- * - Ensures only one modal is open at a time for clear user interaction.
- * - Handles API calls for clone, rename, and delete operations, with feedback on success or failure,
- *   including the server's error message.
- * - Accessible with ARIA labels and keyboard navigation.
- *
- * The modals are defined outside of Toolbar, so that React does not recreate, and reset, them
- * each time Toolbar renders.
+ * The toolbar of a connection, in each row of the ListView and in its DetailView: @smarter/common's ResourceToolbar,
+ * with this list's messages. Edit opens the connection's manifest page, and Clone, Rename and Delete use the list api's
+ * actions, with a dialog that asks, and one that reports the result.
  *
  * Props:
  * - sessionContext (SessionContext): Contains authentication and API information for backend operations.
  * - connection (Connection): The connection resource to manage.
+ * - onRequery: Queries the list again, after an action succeeded.
  *
  * Usage:
  * <Toolbar sessionContext={sessionContext} connection={connection} onRequery={onRequery} />
- *
- * This component is intended to be embedded in each connection row of the ListView, and in its DetailView.
  */
-import { useState } from "react";
-import type { SessionContext } from "@smarter/common";
-import { actionUrl, fetchDjangoUrl, gettext, interpolate, interpolateNodes, Modal } from "@smarter/common";
+import type { SessionContext, ToolbarMessages } from "@smarter/common";
+import { gettext, ResourceToolbar } from "@smarter/common";
 
-import { loggerPrefix } from "../../lib/const";
 import type { Connection } from "../../lib/Types";
-import "./styles.css";
 
-type ModalType = null | "clone" | "rename" | "delete" | "confirmation" | "error";
-
-interface NameModalProps {
-  connection: Connection | null;
-  onOk: (newName: string) => void;
-  onCancel: () => void;
-}
-
-/** Asks for the name of the clone. It is mounted only while open, so it starts empty. */
-const ModalClone = ({ connection, onOk, onCancel }: NameModalProps) => {
-  const [inputValue, setInputValue] = useState("");
-  return (
-    <Modal show title={gettext("Clone Connection")} onOk={() => onOk(inputValue)} onCancel={onCancel}>
-      <p>
-        {interpolateNodes(gettext("Clone connection %(name)s to a new resource owned by you."), {
-          name: <strong>{connection?.name}</strong>,
-        })}
-      </p>
-      <p>
-        <em>{gettext("Provide the new name for the cloned connection.")}</em>
-      </p>
-      <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder={gettext("Enter new connection name")}
-      />
-    </Modal>
-  );
-};
-
-/** Asks for the new name. It is mounted only while open, so it starts with the current name. */
-const ModalRename = ({ connection, onOk, onCancel }: NameModalProps) => {
-  const [inputValue, setInputValue] = useState(connection?.name || "");
-  return (
-    <Modal show title={gettext("Rename Connection")} onOk={() => onOk(inputValue)} onCancel={onCancel}>
-      <p>{interpolateNodes(gettext("Rename connection %(name)s."), { name: <strong>{connection?.name}</strong> })}</p>
-      <p>
-        <em>{gettext("Provide the new name for the connection.")}</em>
-      </p>
-      <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder={gettext("Enter new connection name")}
-      />
-    </Modal>
-  );
-};
-
-/** Confirms the deletion. */
-const ModalDelete = ({
-  show,
-  connection,
-  onOk,
-  onCancel,
-}: {
-  show: boolean;
-  connection: Connection | null;
-  onOk: () => void;
-  onCancel: () => void;
-}) => (
-  <Modal show={show} title={gettext("Delete Connection")} onOk={onOk} onCancel={onCancel}>
-    <p>
-      {interpolateNodes(gettext("Are you sure you want to delete connection %(name)s?"), {
-        name: <strong>{connection?.name}</strong>,
-      })}
-    </p>
-    <p>
-      <em>{gettext("Data is not recoverable.")}</em>
-    </p>
-  </Modal>
-);
-
-/** Shows the error message. */
-const ModalError = ({
-  show,
-  connection,
-  message,
-  onClose,
-}: {
-  show: boolean;
-  connection: Connection | null;
-  message: string;
-  onClose: () => void;
-}) => (
-  <Modal show={show} title={gettext("❌ Error")} onClose={onClose}>
-    <p>
-      {interpolateNodes(gettext("An error occurred while performing the operation on connection %(name)s."), {
-        name: <strong>{connection?.name}</strong>,
-      })}
-    </p>
-    <p>{message ? <span className="text-danger">{message}</span> : <em>{gettext("An unknown error occurred.")}</em>}</p>
-  </Modal>
-);
-
-/** Confirms that the operation succeeded. */
-const ModalConfirmation = ({
-  show,
-  connection,
-  message,
-  onClose,
-}: {
-  show: boolean;
-  connection: Connection | null;
-  message: string;
-  onClose: () => void;
-}) => (
-  <Modal show={show} title={gettext("✅ Success")} onClose={onClose}>
-    <p>
-      {message} <strong>{connection?.name}</strong>.
-    </p>
-    <p>
-      <em>{gettext("Operation completed successfully.")}</em>
-    </p>
-  </Modal>
-);
-
-/**
- * The messages that report the result of an action. Each is a whole sentence, so that it can be
- * translated.
- */
-const actionMessages = (verb: string) => {
-  switch (verb) {
-    case "clone":
-      return {
-        failed: gettext("Failed to clone connection (%(status)s): %(error)s"),
-        succeeded: gettext("Successfully cloned connection"),
-      };
-    case "rename":
-      return {
-        failed: gettext("Failed to rename connection (%(status)s): %(error)s"),
-        succeeded: gettext("Successfully renamed connection"),
-      };
-    default:
-      return {
-        failed: gettext("Failed to delete connection (%(status)s): %(error)s"),
-        succeeded: gettext("Successfully deleted connection"),
-      };
-  }
-};
+/** The toolbar's messages about connections: whole sentences, so that they translate well. */
+const messages = (): ToolbarMessages => ({
+  editTitle: gettext("Edit: Open the YAML manifest that defines this connection resource"),
+  cloneTitle: gettext("Clone: Clone this connection resource to a new resource owned by you"),
+  renameTitle: gettext("Rename: Rename this connection resource"),
+  deleteTitle: gettext("Delete: Delete this connection resource"),
+  deleteForbiddenTitle: gettext(
+    "Delete: You can't delete this connection, because other resources depend on it, or you don't have permission to delete it",
+  ),
+  cloneDialogTitle: gettext("Clone Connection"),
+  cloneDialogText: gettext("Clone connection %(name)s to a new resource owned by you."),
+  cloneDialogHint: gettext("Provide the new name for the cloned connection."),
+  renameDialogTitle: gettext("Rename Connection"),
+  renameDialogText: gettext("Rename connection %(name)s."),
+  renameDialogHint: gettext("Provide the new name for the connection."),
+  namePlaceholder: gettext("Enter new connection name"),
+  deleteDialogTitle: gettext("Delete Connection"),
+  deleteDialogText: gettext("Are you sure you want to delete connection %(name)s?"),
+  errorText: gettext("An error occurred while performing the operation on connection %(name)s."),
+  cloneFailed: gettext("Failed to clone connection (%(status)s): %(error)s"),
+  cloneSucceeded: gettext("Successfully cloned connection"),
+  renameFailed: gettext("Failed to rename connection (%(status)s): %(error)s"),
+  renameSucceeded: gettext("Successfully renamed connection"),
+  deleteFailed: gettext("Failed to delete connection (%(status)s): %(error)s"),
+  deleteSucceeded: gettext("Successfully deleted connection"),
+});
 
 interface ToolbarProps {
   sessionContext: SessionContext;
@@ -178,138 +51,6 @@ interface ToolbarProps {
   onRequery: () => void;
 }
 
-export const Toolbar = ({ sessionContext, connection, onRequery }: ToolbarProps) => {
-  // this is a single way to control which and whether a modal is open.
-  // it ensures that only one modal can be open at a time.
-  const [modal, setModal] = useState<{ type: ModalType; connection: Connection | null }>({
-    type: null,
-    connection: null,
-  });
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-
-  const handleCloseModal = () => {
-    setModal({ type: null, connection: null });
-  };
-  const handleCloseModalWithRequery = () => {
-    setModal({ type: null, connection: null });
-    onRequery();
-  };
-
-  /**
-   * POST to one of the list API's actions, e.g. clone/12/new_name/, and show the result: the
-   * confirmation modal on success, else the error modal with the server's error message.
-   * See actionUrl() in @smarter/common for how the action's URL is built.
-   */
-  const runAction = (target: Connection, path: string, verb: "clone" | "rename" | "delete") => {
-    handleCloseModal();
-    fetchDjangoUrl(sessionContext, actionUrl(sessionContext, path), JSON.stringify({}))
-      .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(
-            interpolate(actionMessages(verb).failed, {
-              status: response.status,
-              error: data.error || response.statusText,
-            }),
-          );
-        }
-        return data;
-      })
-      .then((data) => {
-        console.debug(loggerPrefix, `Successfully ${verb}d connection:`, data);
-        setSuccessMessage(actionMessages(verb).succeeded);
-        // clone and rename return the resulting connection; delete returns a message.
-        setModal({ type: "confirmation", connection: data && data.id ? (data as Connection) : target });
-      })
-      .catch((error) => {
-        console.error(loggerPrefix, `Error trying to ${verb} connection:`, error);
-        setErrMessage(error.message);
-        setModal({ type: "error", connection: target });
-      });
-  };
-
-  return (
-    <>
-      <div className="toolbar btn-group pe-2" role="group" aria-label={gettext("Actions")}>
-        <a
-          href={connection.manifestUrl}
-          className="btn btn-icon btn-sm border"
-          title={gettext("Edit: Open the YAML manifest that defines this connection resource")}
-          tabIndex={0}
-        >
-          <i className="bi bi-pencil-square md-blue" />
-        </a>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm border"
-          title={gettext("Clone: Clone this connection resource to a new resource owned by you")}
-          onClick={() => setModal({ type: "clone", connection })}
-          tabIndex={0}
-        >
-          <i className="bi bi-files md-green" />
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm border"
-          title={gettext("Rename: Rename this connection resource")}
-          onClick={() => setModal({ type: "rename", connection })}
-          tabIndex={0}
-        >
-          <i className="bi bi-pencil md-blue" />
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm border"
-          title={
-            connection.canDelete === false
-              ? gettext(
-                  "Delete: You can't delete this connection, because other resources depend on it, or you don't have permission to delete it",
-                )
-              : gettext("Delete: Delete this connection resource")
-          }
-          onClick={() => setModal({ type: "delete", connection })}
-          disabled={connection.canDelete === false}
-          tabIndex={0}
-        >
-          <i className="bi bi-trash md-red" />
-        </button>
-      </div>
-
-      <div>
-        {modal.type === "clone" && (
-          <ModalClone
-            connection={modal.connection}
-            onOk={(newName) => runAction(modal.connection!, `clone/${modal.connection!.id}/${newName}/`, "clone")}
-            onCancel={handleCloseModal}
-          />
-        )}
-        {modal.type === "rename" && (
-          <ModalRename
-            connection={modal.connection}
-            onOk={(newName) => runAction(modal.connection!, `rename/${modal.connection!.id}/${newName}/`, "rename")}
-            onCancel={handleCloseModal}
-          />
-        )}
-        <ModalDelete
-          show={modal.type === "delete"}
-          connection={modal.connection}
-          onOk={() => runAction(modal.connection!, `delete/${modal.connection!.id}/`, "delete")}
-          onCancel={handleCloseModal}
-        />
-        <ModalError
-          show={modal.type === "error"}
-          connection={modal.connection}
-          message={errMessage}
-          onClose={handleCloseModal}
-        />
-        <ModalConfirmation
-          show={modal.type === "confirmation"}
-          connection={modal.connection}
-          message={successMessage}
-          onClose={handleCloseModalWithRequery}
-        />
-      </div>
-    </>
-  );
-};
+export const Toolbar = ({ sessionContext, connection, onRequery }: ToolbarProps) => (
+  <ResourceToolbar sessionContext={sessionContext} resource={connection} messages={messages()} onRequery={onRequery} />
+);

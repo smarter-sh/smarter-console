@@ -4,6 +4,7 @@
  */
 import { AnnotationChips, TagChips } from "../components/MetadataChips";
 import { DetailField, DetailSection, ResourceMetadataSection } from "../components/ResourceDetail/DetailFields";
+import type { ToolbarMessages } from "../components/ResourceToolbar";
 import SortableHeader from "../components/SortableHeader";
 import type { DetailViewBaseProps, Filtering, SessionContext, Sorting, TabbedViewContext, TabKey } from "../lib/Types";
 
@@ -160,4 +161,29 @@ export const exampleContextWithOtherTab: TabbedViewContext<Example> = {
     ...exampleContext.tabs,
     { key: "others", label: "Others", objectTypeName: "other", ListView: OtherListView, DetailView: OtherDetailView },
   ],
+};
+
+/** ResourceToolbar's messages about the example kind. */
+export const exampleToolbarMessages: ToolbarMessages = {
+  editTitle: "Edit: Open the example's manifest",
+  cloneTitle: "Clone: Clone this example",
+  renameTitle: "Rename: Rename this example",
+  deleteTitle: "Delete: Delete this example",
+  deleteForbiddenTitle: "Delete: You can't delete this example",
+  cloneDialogTitle: "Clone Example",
+  cloneDialogText: "Clone example %(name)s to a new resource owned by you.",
+  cloneDialogHint: "Provide the new name for the cloned example.",
+  renameDialogTitle: "Rename Example",
+  renameDialogText: "Rename example %(name)s.",
+  renameDialogHint: "Provide the new name for the example.",
+  namePlaceholder: "Enter new example name",
+  deleteDialogTitle: "Delete Example",
+  deleteDialogText: "Are you sure you want to delete example %(name)s?",
+  errorText: "An error occurred while performing the operation on example %(name)s.",
+  cloneFailed: "Failed to clone example (%(status)s): %(error)s",
+  cloneSucceeded: "Successfully cloned example",
+  renameFailed: "Failed to rename example (%(status)s): %(error)s",
+  renameSucceeded: "Successfully renamed example",
+  deleteFailed: "Failed to delete example (%(status)s): %(error)s",
+  deleteSucceeded: "Successfully deleted example",
 };

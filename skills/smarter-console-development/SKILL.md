@@ -114,11 +114,22 @@ HTTP, and through the console's build, which the backend serves (ADR-035).
   `listview_registry()`, which pairs it with the `<Kind>ListView` page of the same
   urlconf: keep that naming, or `test_every_list_api_has_its_page` fails. Set
   `listview_label` when the model's plural verbose name is a poor label.
+- **A list's `Toolbar` is `ResourceToolbar`** (`@smarter/common`): Edit (the
+  manifest page), and Clone, Rename and Delete through the list api's actions,
+  as a TanStack Query mutation, with its dialogs. The package's
+  `Toolbar/Component.tsx` only passes it the resource and the kind's
+  `ToolbarMessages`: whole sentences with `gettext()`, e.g.
+  `gettext("Rename guardrail %(name)s.")`, never assembled from the kind's name.
+  `links` adds the list's own links before Edit (the LLMClient's workbench), and
+  `messages.deleteWarning` says what a deletion destroys (Vector Stores). Copy
+  `smarter-guardrail-list/src/components/Toolbar/Component.tsx`; never copy the
+  toolbar's code. The custom domain and LLM Host Compute lists, whose actions
+  differ, keep toolbars of their own.
 - The list API's serializer sends `can_delete`, which arrives camel-cased as
-  `canDelete`. The Toolbar disables its Delete button when `canDelete === false`,
-  with a title that explains why (see
-  `smarter-guardrail-list/src/components/Toolbar/Component.tsx`). The server
-  still enforces deletion, so show its error message when a delete fails.
+  `canDelete`. `ResourceToolbar` disables its Delete button when
+  `canDelete === false`, with the title `deleteForbiddenTitle`, which explains
+  why. The server still enforces deletion, and the toolbar shows its error
+  message when a delete fails.
   Budgets aren't owned resources: their list shows Delete only when the API
   reports `isSuperuser`.
 - The API camel-cases every field (`manifest_url` → `manifestUrl`). Search the
