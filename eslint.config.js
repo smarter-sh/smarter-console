@@ -66,6 +66,7 @@ export default defineConfig([
       "storybook/*.ts",
       "vitest.shared.ts",
       "i18n/*.ts",
+      "bundle/*.ts",
       "e2e/**/*.ts",
     ],
     languageOptions: {

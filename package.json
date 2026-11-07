@@ -15,7 +15,8 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e && tsc -p bundle",
+    "bundle:report": "node bundle/report.ts",
     "e2e": "playwright test --config e2e/playwright.config.ts",
     "i18n:extract": "node i18n/extract.ts",
     "build-storybook": "npm run build-storybook --workspaces --if-present"

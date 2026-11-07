@@ -6,7 +6,7 @@ PYTHON ?= python3
 VENV := venv
 VENV_BIN := $(VENV)/bin
 
-.PHONY: init venv install test e2e lint analyze format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
+.PHONY: init venv install test e2e lint analyze bundle-report format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
 
@@ -46,6 +46,14 @@ lint:
 analyze:
 	@command -v cloc > /dev/null || { echo >&2 "cloc is not installed: brew install cloc, or see https://github.com/AlDanial/cloc"; exit 1; }
 	cloc . --exclude-ext=svg,zip --fullpath --vcs=git
+
+# The console build's size: what a browser loads first, the pages and packages that load later, and the largest
+# files. It fails when the first load, gzipped, is over BUNDLE_MAX_INITIAL_KB: a library that only some pages need
+# belongs in a lazily loaded chunk. See bundle/report.ts.
+BUNDLE_MAX_INITIAL_KB ?= 175
+bundle-report:
+	npm run build:deps && NODE_ENV=production npm run build -w @smarter/console
+	npm run bundle:report -- --max-initial-kb $(BUNDLE_MAX_INITIAL_KB)
 
 # Fix formatting and auto-fixable lint.
 format:
@@ -121,6 +129,7 @@ help:
 	@echo 'e2e              - Run the end-to-end tests, against a Smarter backend on :9357 (its make run)'
 	@echo 'lint             - Check formatting, lint and types, as CI does'
 	@echo 'analyze          - Count the lines of code, by language, with cloc'
+	@echo 'bundle-report    - Build the console, and report its size and the first load'"'"'s budget'
 	@echo 'format           - Fix formatting and auto-fixable lint'
 	@echo 'typecheck        - Check types'
 	@echo 'build            - Build the production bundles into dist/react/'

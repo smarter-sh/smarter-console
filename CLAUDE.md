@@ -58,6 +58,7 @@ npx vitest run packages/<name>     # one package
 make e2e                           # end-to-end tests: Playwright, against a backend on :9357 (smarter's make run)
 make lint                          # formatting, lint and types, as CI does
 make analyze                       # lines of code, by language, with cloc
+make bundle-report                 # the console build's size, and its first load's budget (175 kB gzipped)
 make build                         # production builds into dist/react/<package>/
 make contracts                     # the backend's api contracts, from ../smarter, and their types
 make dev                           # the console on :5173, against a Smarter dev server on :9357

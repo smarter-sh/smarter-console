@@ -29,6 +29,7 @@ make init             # once: a Python venv with pre-commit, npm install, and th
 make test             # every package's tests, with a coverage report in coverage/
 make lint             # formatting, lint and types, as CI checks them
 make analyze          # lines of code, by language, with cloc (brew install cloc)
+make bundle-report    # the console build's size: its first load, against its budget, and what loads later
 make build            # the production builds, into dist/react/<package>/
 ```
 
