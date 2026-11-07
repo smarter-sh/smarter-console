@@ -1,5 +1,16 @@
 # Smarter Web Console
 
+[![Tests](https://github.com/smarter-sh/smarter-console/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/smarter-sh/smarter-console/actions/workflows/test.yml)
+[![Release](https://github.com/smarter-sh/smarter-console/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/smarter-sh/smarter-console/actions/workflows/release.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/smarter-sh/smarter-console/main?flag=react&label=coverage&logo=codecov)](https://codecov.io/gh/smarter-sh/smarter-console)
+[![Latest Release](https://img.shields.io/github/v/release/smarter-sh/smarter-console?label=release)](https://github.com/smarter-sh/smarter-console/releases)
+[![npm @smarter.sh/ui-chat](https://img.shields.io/npm/v/@smarter.sh/ui-chat?label=%40smarter.sh%2Fui-chat&logo=npm)](https://www.npmjs.com/package/@smarter.sh/ui-chat)
+[![npm @smarter.sh/ui-widgets](https://img.shields.io/npm/v/@smarter.sh/ui-widgets?label=%40smarter.sh%2Fui-widgets&logo=npm)](https://www.npmjs.com/package/@smarter.sh/ui-widgets)
+[![Docs](https://img.shields.io/badge/Read%20the%20Docs-smarter.sh-blue?logo=readthedocs)](https://docs.smarter.sh/)
+[![Website](https://img.shields.io/badge/official%20web%20site-smarter.sh-blue?logo=google-chrome)](https://smarter.sh)
+[![License: GNU AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Slack](https://img.shields.io/badge/Slack-The%20Smarter%20Project-4A154B?logo=slack&logoColor=white)](https://join.slack.com/t/thesmarterproject/shared_invite/zt-4f0t6v46q-e2c5Of4hS4fBr_XwfQARCw)
+
 The web console of [Smarter](https://github.com/smarter-sh/smarter), the open source platform for building and
 running LLM applications: a single-page React app, `@smarter/console`, and the packages it is built from, as one npm
 workspace. Smarter Chat, the chat UI that the console's workbench uses and that any web page can embed, is here too,
