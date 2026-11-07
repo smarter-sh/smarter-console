@@ -1,9 +1,14 @@
 name: Tests
 
 #------------------------------------------------------------------------------
-# Every pull request to main, and every push to main and alpha, checks the
-# workspace: formatting, lint, types, the published ui-widgets package, and
+# Every pull request to main, and every push to main, alpha and beta, checks
+# the workspace: formatting, lint, types, the published ui-widgets package, and
 # the unit tests with coverage. A new push cancels the run in progress.
+#
+# The checks run only when testable code changed (see the changes job): a
+# commit of docs, skills or release configuration alone, or semantic-release's
+# own chore(release) commit, skips them. The workflow still runs, and succeeds,
+# so release.yml, which starts when it completes, still releases.
 #------------------------------------------------------------------------------
 on:
   pull_request:
@@ -13,6 +18,7 @@ on:
     branches:
       - main
       - alpha
+      - beta
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +29,61 @@ permissions:
   contents: read
 
 jobs:
+  #----------------------------------------------------------------------------
+  # Whether the commits changed testable code: the packages, i18n, test,
+  # storybook, scripts, the root npm and tool configuration, or this workflow.
+  # Markdown doesn't count: pre-commit formats it. A run by hand, a new branch,
+  # or a push whose previous commit can't be found tests everything.
+  #----------------------------------------------------------------------------
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      testable: ${{ steps.diff.outputs.testable }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Changed files
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_MESSAGE: ${{ github.event.head_commit.message }}
+        shell: bash
+        run: |
+          testable_paths='^(packages|i18n|test|storybook|scripts)/|^(package\.json|package-lock\.json|\.npmrc|eslint\.config\.js|\.prettierrc\.json|\.prettierignore|vitest\.(config|shared)\.ts|tsconfig[^/]*\.json|\.github/workflows/test\.yml)$'
+          testable=true
+          if [ "$EVENT" = "push" ] && [[ "$PUSH_MESSAGE" == "chore(release):"* ]]; then
+            testable=false
+            echo "semantic-release's own commit: nothing to test."
+          else
+            range=""
+            if [ "$EVENT" = "pull_request" ]; then
+              range="$PR_BASE...$PR_HEAD"
+            elif [ "$EVENT" = "push" ] && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+              range="$PUSH_BEFORE..$GITHUB_SHA"
+            fi
+            if [ -n "$range" ]; then
+              changed=$(git diff --name-only "$range")
+              echo "Changed files:"
+              echo "$changed"
+              if ! echo "$changed" | grep -vE '\.md$' | grep -qE "$testable_paths"; then
+                testable=false
+              fi
+            fi
+          fi
+          echo "testable=$testable" >> "$GITHUB_OUTPUT"
+          echo "Testable code changed: $testable"
+
   react:
+    needs: changes
+    if: needs.changes.outputs.testable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
