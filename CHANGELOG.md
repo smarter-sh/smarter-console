@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.15](https://github.com/smarter-sh/smarter-console/compare/v1.0.14...v1.0.15) (2026-11-07)
+
+### Bug Fixes
+
+* **dashboard:** render the dashboard faster on slow networks ([15e5f3e](https://github.com/smarter-sh/smarter-console/commit/15e5f3e9198a6a0039a8de11f0c4f42d738b0796))
+
 ## [1.0.14](https://github.com/smarter-sh/smarter-console/compare/v1.0.13...v1.0.14) (2026-11-07)
 
 ### Bug Fixes
