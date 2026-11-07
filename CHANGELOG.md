@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.11](https://github.com/smarter-sh/smarter-console/compare/v1.0.10...v1.0.11) (2026-11-07)
+
+### Bug Fixes
+
+* **dashboard:** show skeletons while the dashboard's widgets load ([a8c48f2](https://github.com/smarter-sh/smarter-console/commit/a8c48f2b7622b24feb18595ac0b2218b4b3a6176))
+
 ## [1.0.10](https://github.com/smarter-sh/smarter-console/compare/v1.0.9...v1.0.10) (2026-11-07)
 
 ### Bug Fixes
