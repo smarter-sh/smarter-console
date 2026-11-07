@@ -109,7 +109,10 @@ the theme, or to upgrade it:
 | [@smarter.sh/ui-chat](https://www.npmjs.com/package/@smarter.sh/ui-chat)       | `packages/smarter.sh-chat`    |
 | [@smarter.sh/ui-widgets](https://www.npmjs.com/package/@smarter.sh/ui-widgets) | `packages/smarter.sh-widgets` |
 
-Every other package is named `@smarter/<name>` and sets `"private": true`, so npm refuses to publish it.
+`.github/workflows/uiChatRelease.yml` and `uiWidgetsRelease.yml` publish them when a release of this repository
+changes them, with the release's version (1.x; the 0.x versions were the platform's, published from smarter-sh/smarter),
+using npm's trusted publishing. Every other package is named `@smarter/<name>` and sets `"private": true`, so npm
+refuses to publish it.
 
 ### Build order
 
