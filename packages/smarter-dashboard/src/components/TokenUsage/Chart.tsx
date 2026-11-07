@@ -6,13 +6,15 @@
  * TokenUsageSeries (see ``smarter.apps.dashboard.views.views.api.charges``). Charges are aggregated
  * by the hour, so the shortest window is 12 hours.
  */
-import { useEffect, useState } from "react";
-import { fetchDjangoUrl, gettext, interpolate } from "@smarter/common";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { fetchDjangoUrl, gettext, interpolate, useSmarterQueryClient } from "@smarter/common";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 import { formatPeriod } from "../BudgetVsActual/format";
 import type { TokenUsageChartProps, TokenUsagePoint, TokenUsageSeries } from "./types";
 import { loggerPrefix } from "../../const";
+import { dashboardQueryKey } from "../../hooks/useDashboardApi";
 
 const AREAS: { key: keyof TokenUsagePoint; label: string; color: string }[] = [
   { key: "prompt_tokens", label: gettext("Request"), color: "#ff5733" },
@@ -58,59 +60,67 @@ async function errorOf(response: Response): Promise<string> {
   return typeof error === "string" ? error : response.statusText;
 }
 
+/**
+ * Fetches the token usage of a period.
+ *
+ * @param sessionContext - The request's authentication and headers.
+ * @param apiUrl - The token usage api's url.
+ * @param periodicity - The period, e.g. 24_hours.
+ * @param signal - Aborts the request, when TanStack Query no longer needs it.
+ * @returns The series.
+ * @throws Error - With the status and error of a failed response, or of a response that isn't JSON.
+ */
+async function fetchTokenUsage(
+  sessionContext: TokenUsageChartProps["sessionContext"],
+  apiUrl: string,
+  periodicity: string,
+  signal: AbortSignal,
+): Promise<TokenUsageSeries> {
+  try {
+    const response = await fetchDjangoUrl(sessionContext, apiUrl, JSON.stringify({ periodicity }), signal);
+    if (!response.ok) {
+      throw new Error(
+        interpolate(gettext("Failed to load token usage (%(status)s): %(error)s"), {
+          status: response.status,
+          error: await errorOf(response),
+        }),
+      );
+    }
+    // an html page, e.g. a login page after a redirect, or an error page, is not a series.
+    if (!(response.headers.get("Content-Type") ?? "").includes("application/json")) {
+      throw new Error(
+        interpolate(gettext("Failed to load token usage (%(status)s): %(error)s"), {
+          status: response.status,
+          error: gettext("the server didn't answer with JSON"),
+        }),
+      );
+    }
+    const data = (await response.json()) as TokenUsageSeries;
+    console.debug(loggerPrefix, "Successfully fetched token usage:", data);
+    return data;
+  } catch (error) {
+    console.error(loggerPrefix, "Error fetching token usage:", error);
+    throw error;
+  }
+}
+
 export default function TokenUsageChart({ sessionContext, apiUrl, height = 400 }: TokenUsageChartProps) {
-  const [series, setSeries] = useState<TokenUsageSeries | null>(null);
   const [periodicity, setPeriodicity] = useState(DEFAULT_PERIODICITY);
-  const [errMessage, setErrMessage] = useState<string>("");
-  // loading until the first fetch completes, and again whenever the periodicity changes.
-  const [isLoading, setIsLoading] = useState(true);
-
-  const handlePeriodicityChange = (value: string) => {
-    setPeriodicity(value);
-    setIsLoading(true);
-    setErrMessage("");
-  };
-
-  useEffect(() => {
-    // a response to an earlier periodicity must not replace that of the current one.
-    let cancelled = false;
-    fetchDjangoUrl(sessionContext, apiUrl, JSON.stringify({ periodicity }))
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(
-            interpolate(gettext("Failed to load token usage (%(status)s): %(error)s"), {
-              status: response.status,
-              error: await errorOf(response),
-            }),
-          );
-        }
-        // an html page, e.g. a login page after a redirect, or an error page, is not a series.
-        if (!(response.headers.get("Content-Type") ?? "").includes("application/json")) {
-          throw new Error(
-            interpolate(gettext("Failed to load token usage (%(status)s): %(error)s"), {
-              status: response.status,
-              error: gettext("the server didn't answer with JSON"),
-            }),
-          );
-        }
-        return (await response.json()) as TokenUsageSeries;
-      })
-      .then((data) => {
-        console.debug(loggerPrefix, "Successfully fetched token usage:", data);
-        if (!cancelled) setSeries(data);
-      })
-      .catch((error: Error) => {
-        console.error(loggerPrefix, "Error fetching token usage:", error);
-        if (!cancelled) setErrMessage(error.message);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionContext, apiUrl, periodicity]);
+  // each period's series is a query of the console's cache, which shows it at once when the dashboard opens again.
+  // While another period loads, the chart keeps showing the previous one.
+  const queryClient = useSmarterQueryClient();
+  const query = useQuery(
+    {
+      queryKey: dashboardQueryKey(apiUrl, { periodicity }),
+      queryFn: ({ signal }) => fetchTokenUsage(sessionContext, apiUrl, periodicity, signal),
+      placeholderData: keepPreviousData,
+    },
+    queryClient,
+  );
+  const series = query.data ?? null;
+  const errMessage = query.isError && !query.isFetching ? query.error.message : "";
+  // loading until the period's series arrives: the first, and each period chosen.
+  const isLoading = query.isFetching && (query.data === undefined || query.isPlaceholderData);
 
   const rows = (series?.points ?? []).map((point) => ({
     ...point,
@@ -121,7 +131,7 @@ export default function TokenUsageChart({ sessionContext, apiUrl, height = 400 }
   return (
     <div>
       <div style={{ marginBottom: "1rem" }}>
-        <ChargesPeriodicityDropdown value={periodicity} onChange={handlePeriodicityChange} />
+        <ChargesPeriodicityDropdown value={periodicity} onChange={setPeriodicity} />
       </div>
 
       {errMessage && <div style={{ color: "#b91c1c", marginBottom: "0.5rem", fontSize: "0.9rem" }}>{errMessage}</div>}

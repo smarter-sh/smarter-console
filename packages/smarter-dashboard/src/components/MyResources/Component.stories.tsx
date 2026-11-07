@@ -9,7 +9,7 @@ import MyResources from "@/components/MyResources/Component";
 const meta = {
   title: "Dashboard/MyResources",
   component: MyResources,
-  args: { apiUrl: appContext.myResourcesApiUrl },
+  args: { sessionContext: appContext.sessionContext, apiUrl: appContext.myResourcesApiUrl },
   parameters: { msw: { handlers: [myResourcesHandler] } },
 } satisfies Meta<typeof MyResources>;
 

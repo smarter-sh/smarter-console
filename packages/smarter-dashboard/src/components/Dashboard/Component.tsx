@@ -47,7 +47,7 @@ import RecentActivity from "../RecentActivity/Component";
 import BudgetAlerts from "../BudgetAlerts/Component";
 import UserCharges from "../TokenUsage";
 import BudgetVsActual from "../BudgetVsActual";
-import { gettext } from "@smarter/common";
+import { gettext, SmarterQueryProvider } from "@smarter/common";
 import {
   Cli,
   Contribute,
@@ -61,9 +61,10 @@ import {
   WhatsNew,
 } from "@smarter.sh/ui-widgets";
 
+/** The dashboard, with the console's QueryClient, or one of its own outside the console. See SmarterQueryProvider. */
 function Dashboard({ appContext }: { appContext: AppContextInterface }) {
   return (
-    <>
+    <SmarterQueryProvider>
       {/* the console's layout gives the page the theme's app-content and app-container. */}
       <section aria-label={gettext("Dashboard")}>
         <div>
@@ -78,7 +79,7 @@ function Dashboard({ appContext }: { appContext: AppContextInterface }) {
           )}
 
           <div className="row g-5 g-xl-10 mt-3">
-            <MyResources apiUrl={appContext.myResourcesApiUrl} />
+            <MyResources sessionContext={appContext.sessionContext} apiUrl={appContext.myResourcesApiUrl} />
             <div className="col-xl-8 mb-5 mb-xl-10">
               <div className="row g-5 g-xl-10">
                 <ServiceHealth sessionContext={appContext.sessionContext} apiUrl={appContext.serviceHealthApiUrl} />
@@ -144,7 +145,7 @@ function Dashboard({ appContext }: { appContext: AppContextInterface }) {
           </div>
         </div>
       </section>
-    </>
+    </SmarterQueryProvider>
   );
 }
 

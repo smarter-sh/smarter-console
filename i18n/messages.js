@@ -383,9 +383,9 @@ gettext("never");
 // Translators: used in packages/smarter-common/src/lib/load.tsx
 gettext("Failed to load objects (%(status)s)");
 // Translators: used in packages/smarter-common/src/lib/load.tsx
-gettext("Invalid response payload: expected objects array.");
-// Translators: used in packages/smarter-common/src/lib/load.tsx
 gettext("Unable to load objects.");
+// Translators: used in packages/smarter-common/src/lib/load.tsx
+gettext("Invalid response payload: expected objects array.");
 // Translators: used in packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-llmclient-deployment/src/components/NextSteps.tsx
 gettext("OK");
 // Translators: used in packages/smarter-common/src/lib/modalDialogue.tsx
@@ -880,7 +880,7 @@ gettext("All %(length)s steps done. Nice work!");
 gettext("%(doneCount)s of %(length)s steps done");
 // Translators: used in packages/smarter-dashboard/src/components/GettingStarted/Component.tsx
 gettext("to do");
-// Translators: used in packages/smarter-dashboard/src/components/GlobalSearch/Component.tsx, packages/smarter-dashboard/src/components/MyResources/Component.tsx, packages/smarter-dashboard/src/hooks/useDashboardApi.tsx, packages/smarter-dashboard-user-menu/src/lib/api.ts, packages/smarter-welcome/src/App.tsx
+// Translators: used in packages/smarter-dashboard/src/components/GlobalSearch/Component.tsx, packages/smarter-dashboard/src/hooks/useDashboardApi.tsx, packages/smarter-dashboard-user-menu/src/lib/api.ts, packages/smarter-welcome/src/App.tsx
 gettext("Request failed: %(status)s");
 // Translators: used in packages/smarter-dashboard/src/components/GlobalSearch/Component.tsx
 gettext("Search every resource by name, description, tag or annotation");
@@ -901,8 +901,6 @@ gettext("See all %(count)s in %(list)s");
 gettext("VectorStores");
 // Translators: used in packages/smarter-dashboard/src/components/MyResources/Component.tsx, packages/smarter-llmhost-compute-list/src/components/DetailView/Component.tsx
 gettext("LLMHosts");
-// Translators: used in packages/smarter-dashboard/src/components/MyResources/Component.tsx, packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Unknown error");
 // Translators: used in packages/smarter-dashboard/src/components/MyResources/Component.tsx
 gettext("Failed to load resources: %(error)s");
 // Translators: used in packages/smarter-dashboard/src/components/MyResources/Component.tsx
@@ -2679,6 +2677,8 @@ gettext("Manifest apply failed (%(status)s)");
 gettext("Manifest Applied");
 // Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
 gettext("Manifest Apply Failed");
+// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
+gettext("Unknown error");
 // Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
 gettext("Apply Smarter YAML Manifest");
 // Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx

@@ -99,7 +99,7 @@ const CHECKS: Record<string, CheckInfo> = {
 const FALLBACK_ICON = "ki-abstract-26";
 
 /**
- * How long a response is reused across page loads, and how often an open page asks again. The checks
+ * How long a response is reused when the dashboard opens again, and how often an open page asks again. The checks
  * don't change from second to second, and the api caches them for a minute.
  */
 const REFRESH_MS = 5 * 60 * 1000;
@@ -184,7 +184,6 @@ function RuntimeVersions({ data }: { data: ServiceHealthData }) {
 
 function ServiceHealth({ sessionContext, apiUrl }: ServiceHealthProps) {
   const { data, error, refresh, refreshing } = useDashboardApi<ServiceHealthData>(sessionContext, apiUrl, {
-    maxAgeMs: REFRESH_MS,
     refreshMs: REFRESH_MS,
   });
   const checks = data?.health_checks ?? [];

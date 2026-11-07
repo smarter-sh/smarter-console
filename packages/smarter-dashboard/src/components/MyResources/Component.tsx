@@ -8,6 +8,7 @@
  * them in a dashboard card layout. A kind whose url is null, because the
  * platform has turned it off, is not shown.
  *
+ * :param sessionContext: The requests' authentication and headers.
  * :param apiUrl: Endpoint used to request My Resources data.
  * :type apiUrl: str
  *
@@ -17,15 +18,17 @@
  *
  * :example:
  *
- *     <MyResources apiUrl="https://customer.smarter.sh/api/web/dashboard/my-resources" />
+ *     <MyResources sessionContext={sessionContext} apiUrl="/api/web/dashboard/my-resources/" />
  */
-import { useEffect, useState } from "react";
-import { gettext, interpolate, interpolateNodes, Loading } from "@smarter/common";
-import { loggerPrefix } from "../../const";
+import { gettext, interpolateNodes, Loading } from "@smarter/common";
+import type { SessionContext } from "@smarter/common";
+
+import useDashboardApi from "../../hooks/useDashboardApi";
 
 import "./styles.css";
 
 interface MyResourcesProps {
+  sessionContext: SessionContext;
   apiUrl: string;
 }
 
@@ -65,45 +68,9 @@ const MORE_RESOURCES: [string, string, keyof MyResourcesData, keyof MyResourcesD
   [gettext("Extensions"), "ki-element-plus", "extensions_qty", "extensions_url"],
 ];
 
-function MyResources({ apiUrl }: MyResourcesProps) {
-  const [data, setData] = useState<MyResourcesData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch(apiUrl, {
-          method: "POST",
-          credentials: "same-origin",
-          signal: controller.signal,
-          headers: { Accept: "application/json" },
-        });
-
-        if (!res.ok) {
-          throw new Error(interpolate(gettext("Request failed: %(status)s"), { status: res.status }));
-        }
-
-        const json = (await res.json()) as MyResourcesData;
-        console.debug(loggerPrefix, "fetched My Resources data:", json);
-        setData(json);
-      } catch (err) {
-        console.error(loggerPrefix, "Error loading My Resources:", err);
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setError(err instanceof Error ? err.message : gettext("Unknown error"));
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
-    return () => controller.abort();
-  }, [apiUrl]);
+function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
+  // the console's cache: the counts show at once when the dashboard opens again.
+  const { data, error, isLoading: loading } = useDashboardApi<MyResourcesData>(sessionContext, apiUrl);
 
   const my_resources_pending_deployments = data?.pending_deployments ?? 0;
   const my_resources_llmclients = data?.llmclients_qty ?? 0;

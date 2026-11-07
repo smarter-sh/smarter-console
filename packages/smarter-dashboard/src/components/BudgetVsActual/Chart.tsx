@@ -4,26 +4,33 @@
  * Lets the user choose one of the budgets that apply to them, or to the resources they may see,
  * and charts its budget versus the actual spending of the last 12 billing periods.
  */
-import { useEffect, useMemo, useState } from "react";
-import { fetchDjangoUrl, gettext, interpolate, interpolateNodes } from "@smarter/common";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { fetchDjangoUrl, gettext, interpolate, interpolateNodes, useSmarterQueryClient } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import BudgetChart from "./BudgetChart";
 import { formatAmount } from "./format";
 import type { BudgetSeries, BudgetStatus } from "./types";
 import { loggerPrefix } from "../../const";
+import { dashboardQueryKey } from "../../hooks/useDashboardApi";
 
 const PERIODS = 12;
 
 const keyOf = (status: BudgetStatus) => `${status.budget}|${status.resource_locator}`;
 
-async function postJson<T>(sessionContext: SessionContext, url: string): Promise<T> {
-  const response = await fetchDjangoUrl(sessionContext, url, JSON.stringify({}));
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    throw new Error(`(${response.status}) ${body?.error || response.statusText}`);
+async function postJson<T>(sessionContext: SessionContext, url: string, signal: AbortSignal, what: string): Promise<T> {
+  try {
+    const response = await fetchDjangoUrl(sessionContext, url, JSON.stringify({}), signal);
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(`(${response.status}) ${body?.error || response.statusText}`);
+    }
+    return (await response.json()) as T;
+  } catch (error) {
+    console.error(loggerPrefix, `Error fetching ${what}:`, error);
+    throw error;
   }
-  return response.json() as Promise<T>;
 }
 
 function Usage({
@@ -60,36 +67,35 @@ export default function BudgetVsActualChart({
   sessionContext: SessionContext;
   apiUrl: string;
 }) {
-  const [statuses, setStatuses] = useState<BudgetStatus[] | null>(null);
-  const [selected, setSelected] = useState<string>("");
-  const [series, setSeries] = useState<BudgetSeries | null>(null);
-  const [errMessage, setErrMessage] = useState<string>("");
-
-  useEffect(() => {
-    postJson<BudgetStatus[]>(sessionContext, apiUrl)
-      .then((data) => {
-        setStatuses(data);
-        if (data.length > 0) setSelected(keyOf(data[0]));
-      })
-      .catch((error: Error) => {
-        console.error(loggerPrefix, "Error fetching budgets:", error);
-        setErrMessage(error.message);
-      });
-  }, [sessionContext, apiUrl]);
-
+  // the budgets, and the chosen budget's series, are queries of the console's cache, which shows them at once when
+  // the dashboard opens again. The budgets are the same response as BudgetAlerts', with the same key.
+  const queryClient = useSmarterQueryClient();
+  const statusesQuery = useQuery(
+    {
+      queryKey: dashboardQueryKey(apiUrl),
+      queryFn: ({ signal }) => postJson<BudgetStatus[]>(sessionContext, apiUrl, signal, "budgets"),
+    },
+    queryClient,
+  );
+  const statuses = statusesQuery.data ?? null;
+  // the budget that the user chose, or the first.
+  const [chosen, setSelected] = useState<string>("");
+  const selected = chosen || (statuses && statuses.length > 0 ? keyOf(statuses[0]) : "");
   const status = useMemo(() => statuses?.find((s) => keyOf(s) === selected) ?? null, [statuses, selected]);
 
-  useEffect(() => {
-    if (!status) return;
-    const base = apiUrl.endsWith("/") ? apiUrl : `${apiUrl}/`;
-    const url = `${base}${encodeURIComponent(status.resource_locator)}/series/?periods=${PERIODS}`;
-    postJson<BudgetSeries[]>(sessionContext, url)
-      .then((data) => setSeries(data.find((s) => s.status.budget === status.budget) ?? null))
-      .catch((error: Error) => {
-        console.error(loggerPrefix, "Error fetching budget series:", error);
-        setErrMessage(error.message);
-      });
-  }, [sessionContext, apiUrl, status]);
+  const base = apiUrl.endsWith("/") ? apiUrl : `${apiUrl}/`;
+  const seriesUrl = status ? `${base}${encodeURIComponent(status.resource_locator)}/series/?periods=${PERIODS}` : "";
+  const seriesQuery = useQuery(
+    {
+      queryKey: dashboardQueryKey(seriesUrl),
+      queryFn: ({ signal }) => postJson<BudgetSeries[]>(sessionContext, seriesUrl, signal, "budget series"),
+      enabled: !!status,
+    },
+    queryClient,
+  );
+  const series = (status && seriesQuery.data?.find((s) => s.status.budget === status.budget)) ?? null;
+  const failed = [statusesQuery, seriesQuery].find((query) => query.isError);
+  const errMessage = failed?.error?.message ?? "";
 
   if (statuses === null && !errMessage)
     return <div style={{ fontSize: "0.85rem", opacity: 0.6 }}>{gettext("Loading…")}</div>;

@@ -1,3 +1,5 @@
+import { createSmarterQueryClient } from "@smarter/common";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -167,7 +169,7 @@ describe("ServiceHealth", () => {
     await vi.waitFor(() => expect(ring).toHaveTextContent("75%"), { timeout: 3000 });
   });
 
-  it("shows the last response on the next page load, without asking again or animating", async () => {
+  it("shows the last response when the dashboard opens again, without asking again or animating", async () => {
     let requests = 0;
     server.use(
       http.post(apiUrl, () => {
@@ -175,12 +177,19 @@ describe("ServiceHealth", () => {
         return HttpResponse.json(serviceHealth);
       }),
     );
-    const { unmount } = render(<ServiceHealth sessionContext={appContext.sessionContext} apiUrl={apiUrl} />);
+    // the console's cache, which the dashboard keeps while the user visits other pages.
+    const client = createSmarterQueryClient();
+    const widget = (
+      <QueryClientProvider client={client}>
+        <ServiceHealth sessionContext={appContext.sessionContext} apiUrl={apiUrl} />
+      </QueryClientProvider>
+    );
+    const { unmount } = render(widget);
     await screen.findByRole("list", { name: "Backend services" });
     unmount();
 
     const frame = vi.spyOn(window, "requestAnimationFrame");
-    render(<ServiceHealth sessionContext={appContext.sessionContext} apiUrl={apiUrl} />);
+    render(widget);
     expect(screen.getByRole("img", { name: "Service health 75 percent" })).toHaveTextContent("75%");
     expect(frame).not.toHaveBeenCalled();
     expect(requests).toBe(1);
