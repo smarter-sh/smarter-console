@@ -48,8 +48,11 @@ describe("index.html", () => {
       expect(link).toContain("data-smarter-style");
       expect(link).toContain("this.dataset.loaded = '1'");
     }
-    // the tagline waits 1.5 seconds, after a fast network's splash has gone.
+    // the tagline, and the light that sweeps across the splash, wait 1.5 seconds, after a fast network's splash has
+    // gone; with reduced motion, nothing sweeps.
     expect(html).toContain("animation: smarter-splash-reveal 500ms ease 1500ms forwards;");
+    expect(html).toContain("animation: smarter-splash-sweep 2.4s ease-in-out 1500ms infinite;");
+    expect(html).toMatch(/prefers-reduced-motion: reduce[\s\S]*#smarter-splash::before \{\s*animation: none;/);
     // the translations' script is deferred, so it doesn't either.
     expect(html).toContain('<script defer src="/jsi18n/"></script>');
   });
