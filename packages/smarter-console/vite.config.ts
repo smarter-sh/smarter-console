@@ -14,7 +14,7 @@
  * - The built scripts and styles load their chunks, fonts and images relative to themselves, so that they follow
  *   them to the CDN while the backend serves the page with its CDN's STATIC_URL (SMARTER_STATIC_FILES_ON_CDN).
  */
-import { defineConfig, type ConfigEnv, type ProxyOptions } from "vite";
+import { defineConfig, type ConfigEnv, type Plugin, type ProxyOptions } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import packageJson from "./package.json" with { type: "json" };
@@ -41,8 +41,33 @@ function backendProxy(): Record<string, ProxyOptions> {
   return proxy;
 }
 
+/** A stylesheet link that Vite writes into the built index.html. */
+const VITE_STYLESHEET = /<link rel="stylesheet" crossorigin href="([^"]+)">/g;
+
+/**
+ * The console's own stylesheet, which Vite links in the built index.html, loads without holding back the splash's
+ * first paint, as the theme's stylesheets do (see index.html, and src/lib/splash.ts, which waits for it). On the dev
+ * server, Vite injects the styles from the console's script instead.
+ */
+export function nonBlockingStylesheets(): Plugin {
+  return {
+    name: "smarter-non-blocking-stylesheets",
+    apply: "build",
+    transformIndexHtml: {
+      order: "post",
+      handler: (html: string) =>
+        html.replace(
+          VITE_STYLESHEET,
+          (_link, href: string) =>
+            `<link rel="stylesheet" crossorigin href="${href}" media="print" data-smarter-style ` +
+            `onload="this.media = 'all'; this.dataset.loaded = '1'" onerror="this.dataset.loaded = '1'">`,
+        ),
+    },
+  };
+}
+
 export default defineConfig(({ command }: ConfigEnv) => ({
-  plugins: [react()],
+  plugins: [react(), nonBlockingStylesheets()],
   base: command === "serve" ? "/" : `/static/react/${packageName}/`,
   resolve: {
     alias: {

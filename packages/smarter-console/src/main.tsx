@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 
 import App from "@/App";
+import { hideSplashWhenReady } from "@/lib/splash";
 import { reloadOnce } from "@/lib/staleRelease";
 import { routes } from "@/router";
 
@@ -17,6 +18,9 @@ const router = createBrowserRouter(routes);
 window.addEventListener("vite:preloadError", (event) => {
   if (reloadOnce()) event.preventDefault();
 });
+
+// index.html's splash fades out once the console has its session, and its stylesheets have loaded.
+void hideSplashWhenReady();
 
 createRoot(rootElement).render(
   <StrictMode>

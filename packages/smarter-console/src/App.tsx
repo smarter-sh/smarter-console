@@ -6,11 +6,12 @@
  */
 import { gettext } from "@smarter/common";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { RouterProvider, type createBrowserRouter } from "react-router";
 
 import { useInPlaceLinks } from "@/lib/inPlaceLinks";
 import { useSessionQueryClient } from "@/lib/queryCache";
+import { splashAppReady } from "@/lib/splash";
 import { SessionProvider } from "@/session/SessionProvider";
 import { useConsoleSession } from "@/session/context";
 
@@ -31,6 +32,10 @@ function SessionGate({ router }: { router: Router }) {
   const queryClient = useSessionQueryClient(session);
   // the packages' plain links to the console's pages open in place, as the sidebar's do.
   useInPlaceLinks(router);
+  // index.html's splash may go: the console has its session, or knows that it can't get it.
+  useEffect(() => {
+    if (session || error) splashAppReady();
+  }, [session, error]);
   if (error && !session) {
     return (
       <div role="alert" className="text-center py-10">

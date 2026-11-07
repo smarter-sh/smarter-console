@@ -7,6 +7,8 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { nonBlockingStylesheets } from "../vite.config";
+
 const html = fs.readFileSync(path.resolve(import.meta.dirname, "..", "index.html"), "utf-8");
 
 describe("index.html", () => {
@@ -31,6 +33,33 @@ describe("index.html", () => {
     expect(html).toContain('<link rel="icon" href="/static/images/logo/favicon.ico" />');
     expect(html).toContain('href="/static/images/logo/apple-touch-icon.png"');
     expect(html).toContain('<link rel="manifest" href="/static/site.webmanifest" />');
+  });
+
+  it("paints a splash from the page alone, before anything else loads", () => {
+    // the splash comes first in the body, and its style is inline: no image, font or script of its own.
+    const body = html.slice(html.indexOf("<body>"));
+    expect(body.indexOf('id="smarter-splash"')).toBeLessThan(body.indexOf('id="smarter-console-root"'));
+    expect(html).toContain("#smarter-splash {");
+    // no stylesheet holds back the first paint: each loads as print, then all, and src/lib/splash.ts waits for it.
+    const stylesheets = html.match(/<link[^>]*rel="stylesheet"[^>]*>/gs) ?? [];
+    expect(stylesheets).toHaveLength(3);
+    for (const link of stylesheets) {
+      expect(link).toContain('media="print"');
+      expect(link).toContain("data-smarter-style");
+      expect(link).toContain("this.dataset.loaded = '1'");
+    }
+    // the tagline waits 1.5 seconds, after a fast network's splash has gone.
+    expect(html).toContain("animation: smarter-splash-reveal 500ms ease 1500ms forwards;");
+    // the translations' script is deferred, so it doesn't either.
+    expect(html).toContain('<script defer src="/jsi18n/"></script>');
+  });
+
+  it("makes the build's own stylesheet load without holding back the splash", () => {
+    const plugin = nonBlockingStylesheets();
+    const transform = plugin.transformIndexHtml as { handler: (html: string) => string };
+    const built = transform.handler('<link rel="stylesheet" crossorigin href="/static/assets/index-abc.css">');
+    expect(built).toContain('href="/static/assets/index-abc.css" media="print" data-smarter-style');
+    expect(built).toContain("onload=\"this.media = 'all'; this.dataset.loaded = '1'\"");
   });
 
   it("has the root element that main.tsx mounts the console in", () => {
