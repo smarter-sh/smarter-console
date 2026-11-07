@@ -9,6 +9,7 @@ import {
   SPLASH_FADE_MS,
   SPLASH_ID,
   SPLASH_MIN_MS,
+  SPLASH_SILENT_CLASS,
   FONTS_WAIT_MS,
   fontsLoaded,
   TEXT_FONTS,
@@ -126,6 +127,17 @@ describe("hideSplashWhenReady()", () => {
     // and the frame that applies the stylesheets: the fake timers render one every 16 ms.
     await vi.advanceTimersByTimeAsync(32);
     await hiding;
+    expect(element).toHaveClass(SPLASH_DONE_CLASS);
+  });
+
+  it("has no minimum time on a sign-in page, whose splash is silent", async () => {
+    const element = splash();
+    element.classList.add(SPLASH_SILENT_CLASS);
+    stylesheet(true);
+    splashAppReady();
+    // ready 200 ms after the request, long before SPLASH_MIN_MS.
+    vi.spyOn(performance, "now").mockReturnValue(200);
+    await hideSplashWhenReady();
     expect(element).toHaveClass(SPLASH_DONE_CLASS);
   });
 

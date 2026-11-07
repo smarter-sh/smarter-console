@@ -8,8 +8,16 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { fontPreloads, nonBlockingStylesheets } from "../vite.config";
+import { INACTIVE_PATH, LOGIN_PATH } from "@/lib/const";
 
 const html = fs.readFileSync(path.resolve(import.meta.dirname, "..", "index.html"), "utf-8");
+
+/** The pattern of the sign-in pages' paths, from index.html's inline script, which silences their splash. */
+function signInPattern(): RegExp {
+  const literal = /var signIn =\s*\/(.+)\/;/.exec(html);
+  if (!literal) throw new Error("index.html's inline script has no signIn pattern.");
+  return new RegExp(literal[1]);
+}
 
 describe("index.html", () => {
   it("loads the translation catalog before the console's own script", () => {
@@ -94,6 +102,29 @@ describe("index.html", () => {
     // without the font in the build, e.g. on the dev server, the preload is removed rather than left to fail.
     expect(transform.handler(page, {})).toBe("");
   });
+
+  it("hides a silent splash", () => {
+    expect(html).toMatch(/#smarter-splash\.smarter-splash-silent \{\s*visibility: hidden;/);
+  });
+
+  it.each([
+    LOGIN_PATH,
+    "/register",
+    "/password-reset-request",
+    "/password-reset-link/MQ/abc-123/",
+    "/account/activate/MQ/abc-123/",
+    INACTIVE_PATH,
+    "/account/already-associated",
+  ])("silences the splash on the sign-in page %s", (page) => {
+    expect(signInPattern().test(page)).toBe(true);
+  });
+
+  it.each(["/", "/dashboard", "/login-history", "/registered", "/docs/manifests", "/account/profile"])(
+    "shows the splash on %s",
+    (page) => {
+      expect(signInPattern().test(page)).toBe(false);
+    },
+  );
 
   it("has the root element that main.tsx mounts the console in", () => {
     expect(html).toContain('id="smarter-console-root"');

@@ -10,7 +10,8 @@
  * unstyled, and the console has its session, or knows that it can't get it (see App's SessionGate), and then its
  * fonts, so that the text doesn't re-flow, and move the page, once it shows. On a fast
  * network that takes a moment, so the splash stays at least SPLASH_MIN_MS from the page's request, long enough to
- * be seen and read; on a slow one, it has been up longer than that, and fades out at once.
+ * be seen and read; on a slow one, it has been up longer than that, and fades out at once. A sign-in page shows
+ * without it: index.html marks its splash silent (SPLASH_SILENT_CLASS), which hides it and skips the minimum.
  */
 
 /** The splash's element in index.html. */
@@ -18,6 +19,12 @@ export const SPLASH_ID = "smarter-splash";
 
 /** The class that fades the splash out. index.html's inline style defines it. */
 export const SPLASH_DONE_CLASS = "smarter-splash-done";
+
+/**
+ * The class of a splash that isn't shown: index.html's inline script adds it on a sign-in page, which shows as
+ * soon as it's ready, without the splash.
+ */
+export const SPLASH_SILENT_CLASS = "smarter-splash-silent";
 
 /** How long the splash stays, at least, in milliseconds from the page's request: performance.now(). */
 export const SPLASH_MIN_MS = 1200;
@@ -110,12 +117,14 @@ export async function hideSplashWhenReady(doc: Document = document): Promise<voi
   await Promise.all([stylesheetsLoaded(doc), ready]);
   // the console has rendered, so the fonts that it uses have been asked for.
   await fontsLoaded(doc);
+  const splash = doc.getElementById(SPLASH_ID);
+  // a silent splash, a sign-in page's, isn't seen, so it has no minimum time.
+  const silent = splash?.classList.contains(SPLASH_SILENT_CLASS) ?? false;
   const remaining = SPLASH_MIN_MS - performance.now();
-  if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
+  if (!silent && remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
   // a frame with the stylesheets applied, before the console shows: its layout settles while index.html still holds
   // back its transitions, e.g. the sidebar's margin, which would otherwise slide into place in view.
   await afterNextFrame();
-  const splash = doc.getElementById(SPLASH_ID);
   if (!splash) return;
   splash.classList.add(SPLASH_DONE_CLASS);
   window.setTimeout(() => splash.remove(), SPLASH_FADE_MS);

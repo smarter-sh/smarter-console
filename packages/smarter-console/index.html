@@ -79,6 +79,10 @@
         opacity: 0;
         pointer-events: none;
       }
+      /* on a sign-in page, the splash isn't shown: the page shows as soon as its stylesheets have loaded. */
+      #smarter-splash.smarter-splash-silent {
+        visibility: hidden;
+      }
       .smarter-splash-title {
         padding: 0 16px;
         text-align: center;
@@ -250,6 +254,17 @@
       </div>
       <div class="smarter-splash-spinner"></div>
     </div>
+    <script>
+      // the sign-in pages (src/router.tsx) show without the splash, before the first paint. The console stays hidden
+      // until its stylesheets have loaded, as on every page, so the form never shows unstyled.
+      (function () {
+        var signIn =
+          /^\/(login|register|password-reset-request|password-reset-link|account\/(activate|inactive|already-associated))(\/|$)/;
+        if (signIn.test(window.location.pathname)) {
+          document.getElementById("smarter-splash").classList.add("smarter-splash-silent");
+        }
+      })();
+    </script>
     <div id="smarter-console-root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
