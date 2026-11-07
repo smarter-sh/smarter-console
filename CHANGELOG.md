@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.4](https://github.com/smarter-sh/smarter-console/compare/v1.0.3...v1.0.4) (2026-11-07)
+
+### Bug Fixes
+
+* **budget-list:** keep budgets and charts in the console's cache ([b548d0e](https://github.com/smarter-sh/smarter-console/commit/b548d0e32d03603b48f3bab44bfa6346206d9ecb))
+* **console:** link the platform's favicon and icons from index.html ([c927c92](https://github.com/smarter-sh/smarter-console/commit/c927c92a616c66d00313783baddb272ffa1843d5))
+* **console:** open links in place, and cache lists with TanStack Query ([968002e](https://github.com/smarter-sh/smarter-console/commit/968002ef85c96e13e1dc1ab62518dbe0e8e99572))
+* **console:** show the product's name above the Did you know? tip ([832340a](https://github.com/smarter-sh/smarter-console/commit/832340a4e50f15e2eba6e6b0c53c100d4c1e4f87))
+* **dashboard:** keep the widgets' responses in the console's cache ([d722381](https://github.com/smarter-sh/smarter-console/commit/d7223819a18bd2f0d0ef8376d26edc7c90e6f004))
+* **llmclient-list:** open the workbench on the console's own origin ([0d95de9](https://github.com/smarter-sh/smarter-console/commit/0d95de965b9b191af6ed1983f1844c54001bd1dc))
+
 ## [1.0.3](https://github.com/smarter-sh/smarter-console/compare/v1.0.2...v1.0.3) (2026-11-07)
 
 ### Bug Fixes
