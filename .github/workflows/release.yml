@@ -1,0 +1,80 @@
+name: Release
+
+#------------------------------------------------------------------------------
+# After the Tests workflow passes on a push to main, alpha or beta,
+# semantic-release decides from the commits whether there is a release. If
+# there is, it builds the console, packs dist/react/ as
+# smarter-console-<version>.tar.gz, attaches it to the GitHub release, and
+# commits the changelog and the console's version. See release.config.js.
+#
+# The smarter repository pins a release, and its Docker build downloads that
+# release's tarball.
+#
+# A PAT secret, when the repository has one, lets semantic-release push its
+# commit to a protected branch; otherwise the workflow's own token is used.
+# semantic-release's own commit, chore(release): <version>, releases nothing.
+#------------------------------------------------------------------------------
+on:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main, alpha, beta]
+
+concurrency:
+  group: release-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push'
+      && !startsWith(github.event.workflow_run.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: npm ci
+        run: npm ci --include=dev
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@ba330626c4750c19d8299de843f05c7aa5574f62 # v5.0.2
+        id: semantic
+        with:
+          extra_plugins: |
+            conventional-changelog-conventionalcommits
+            @semantic-release/changelog
+            @semantic-release/exec
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+
+      - name: Summary
+        run: |
+          {
+            echo "### Release"
+            echo "- Branch: ${{ github.event.workflow_run.head_branch }}"
+            echo "- Last release: ${{ steps.semantic.outputs.last_release_version || 'none' }}"
+            echo "- New release: ${{ steps.semantic.outputs.new_release_version || 'none' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
