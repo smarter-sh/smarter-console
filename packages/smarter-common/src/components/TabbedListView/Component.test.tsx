@@ -1,3 +1,4 @@
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { delay, http, HttpResponse } from "msw";
@@ -5,7 +6,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { server } from "@test/server";
 
-import { makeCacheKey, readCache, sessionScope, writeCache } from "../../lib/cache";
+import { createSmarterQueryClient, listQueryKey } from "../../lib/query";
+import type { ListPage } from "../../lib/Types";
 import {
   API_URL,
   exampleContext,
@@ -38,14 +40,30 @@ function rowNames() {
   return rows().map((row) => (row as HTMLTableRowElement).cells[0].textContent);
 }
 
-/** The cache key of a page of a tab, as the list writes it. */
-function key(tab: string, query: { page?: number; ordering?: string; filter?: string } = {}) {
-  return makeCacheKey(API_URL, tab, query, sessionScope(sessionContext));
+/** The query key of a page of a tab, as the list keys it. */
+function key(
+  tab: string,
+  query: { page?: number; search?: string; ordering?: string; filter?: string; tags?: string[] } = {},
+) {
+  const page = { page: 1, search: "", ordering: "", filter: "", tags: [], annotations: [], ...query };
+  return [...listQueryKey(API_URL), tab, page];
 }
 
-function setup() {
-  render(<TabbedListView sessionContext={sessionContext} tabbedListViewContext={exampleContext} />);
+/** The names of a page that the client's cache holds. */
+function cachedNames(client: QueryClient, queryKey: unknown[]) {
+  return client.getQueryData<ListPage<{ name: string }>>(queryKey)?.objects.map((object) => object.name);
+}
+
+/** The list, with its own cache, or the client's, as the console gives it one. */
+function setup(client?: QueryClient) {
+  const list = <TabbedListView sessionContext={sessionContext} tabbedListViewContext={exampleContext} />;
+  render(client ? <QueryClientProvider client={client}>{list}</QueryClientProvider> : list);
   return userEvent.setup();
+}
+
+/** A page, in the client's cache, received long enough ago that it is stale. */
+function seed(client: QueryClient, queryKey: unknown[], objects: { id: number; name: string }[]) {
+  client.setQueryData(queryKey, { objects, pagination: null }, { updatedAt: 1 });
 }
 
 describe("TabbedListView", () => {
@@ -82,17 +100,15 @@ describe("TabbedListView", () => {
     server.use(
       http.post(`${API_URL}:tab/`, ({ request }) => HttpResponse.json(examplePage(manyExamples(4), request.url))),
     );
-    writeCache(key("owned"), [{ id: 9, name: "cached_example" }]);
+    const client = createSmarterQueryClient();
+    seed(client, key("owned"), [{ id: 9, name: "cached_example" }]);
     window.history.replaceState(null, "", "/?filter=even");
-    setup();
+    setup(client);
     expect(screen.queryByText("cached_example")).not.toBeInTheDocument();
     expect(await screen.findByText("example_2")).toBeInTheDocument();
-    expect(readCache(key("owned"))?.objects).toEqual([{ id: 9, name: "cached_example" }]);
+    expect(cachedNames(client, key("owned"))).toEqual(["cached_example"]);
     await vi.waitFor(() =>
-      expect(readCache<{ name: string }>(key("owned", { filter: "even" }))?.objects.map((o) => o.name)).toEqual([
-        "example_2",
-        "example_4",
-      ]),
+      expect(cachedNames(client, key("owned", { filter: "even" }))).toEqual(["example_2", "example_4"]),
     );
   });
 
@@ -121,8 +137,9 @@ describe("TabbedListView", () => {
 
   it("shows cached objects at once, refreshing them", async () => {
     server.use(...listHandlers());
-    writeCache(key("owned"), [{ id: 9, name: "cached_example" }]);
-    setup();
+    const client = createSmarterQueryClient();
+    seed(client, key("owned"), [{ id: 9, name: "cached_example" }]);
+    setup(client);
     expect(screen.getByText("cached_example")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument();
     expect(await screen.findByText("first_example")).toBeInTheDocument();
@@ -130,22 +147,48 @@ describe("TabbedListView", () => {
     expect(screen.queryByRole("status", { name: "Refreshing" })).not.toBeInTheDocument();
   });
 
-  it("shows a page seen before at once, when paging back to it", async () => {
+  it("shows a page seen before at once, when paging back to it, without asking again while it is fresh", async () => {
+    const pages: string[] = [];
     server.use(
       http.post(`${API_URL}:tab/`, async ({ request }) => {
+        pages.push(new URL(request.url).searchParams.get("page") ?? "");
         await delay(200);
         return HttpResponse.json(examplePage(manyExamples(12), request.url, 10));
       }),
     );
     const user = setup();
     expect(await screen.findByText("example_1")).toBeInTheDocument();
-    await vi.waitFor(() => expect(readCache(key("owned"))).not.toBeNull());
     await user.click(screen.getByRole("button", { name: "Next page" }));
     expect(await screen.findByText("example_11")).toBeInTheDocument();
+    const requested = pages.length;
     await user.click(screen.getByRole("button", { name: "Previous page" }));
-    // from the cache, before the 200 ms response.
+    // from the cache, with no request.
     expect(screen.getByText("example_1")).toBeInTheDocument();
-    expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Refreshing" })).not.toBeInTheDocument();
+    expect(pages).toHaveLength(requested);
+  });
+
+  it("shows a list at once when it opens again, e.g. after the console's navigation", async () => {
+    const requests: string[] = [];
+    server.use(
+      http.post(`${API_URL}:tab/`, ({ request }) => {
+        requests.push(request.url);
+        return HttpResponse.json({ objects: [{ id: 1, name: "first_example" }] });
+      }),
+    );
+    const client = createSmarterQueryClient();
+    const view = render(
+      <QueryClientProvider client={client}>
+        <TabbedListView sessionContext={sessionContext} tabbedListViewContext={exampleContext} />
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByText("first_example")).toBeInTheDocument();
+    const requested = requests.length;
+    view.unmount();
+    setup(client);
+    expect(screen.getByText("first_example")).toBeInTheDocument();
+    expect(screen.queryByText(/^Loading/)).not.toBeInTheDocument();
+    expect(requests).toHaveLength(requested);
   });
 
   it("queries again, invalidating the backend's cache", async () => {
@@ -307,7 +350,8 @@ describe("TabbedListView", () => {
     expect(await screen.findByText("example_2")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("example_1");
     expect(screen.getByRole("columnheader", { name: "Name" })).toHaveAttribute("aria-sort", "none");
-    expect(requests.at(-1)).toMatch(/:1:$/);
+    // the first page in the default order, which the list showed first, is still fresh in the cache: no request.
+    expect(requests.filter((request) => /^owned:1:$/.test(request))).toHaveLength(1);
   });
 
   it("caches a sorted page apart from the default order, and queries again in the same order", async () => {
@@ -318,16 +362,15 @@ describe("TabbedListView", () => {
         return HttpResponse.json(examplePage(manyExamples(12), request.url, 10));
       }),
     );
-    const user = setup();
+    const client = createSmarterQueryClient();
+    const user = setup(client);
     await screen.findByText("example_1");
     await user.click(screen.getByRole("button", { name: "Name" }));
     await user.click(await screen.findByRole("button", { name: "Name" }));
     expect(await screen.findByText("example_9")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("example_9");
-    expect(readCache<{ name: string }>(key("owned"))?.objects[0].name).toBe("example_1");
-    await vi.waitFor(() =>
-      expect(readCache<{ name: string }>(key("owned", { ordering: "-name" }))?.objects[0].name).toBe("example_9"),
-    );
+    expect(cachedNames(client, key("owned"))?.[0]).toBe("example_1");
+    await vi.waitFor(() => expect(cachedNames(client, key("owned", { ordering: "-name" }))?.[0]).toBe("example_9"));
 
     await vi.waitFor(() => expect(orderings.filter((ordering) => ordering === "-name")).toHaveLength(2));
     orderings.length = 0;
@@ -335,13 +378,15 @@ describe("TabbedListView", () => {
     await vi.waitFor(() => expect(orderings).toEqual(["-name", "-name"]));
   });
 
-  it("does not cache a page of a search", async () => {
+  it("caches a page of a search apart from the unsearched page", async () => {
     server.use(...listHandlers(manyExamples(30), [], 10));
-    const user = setup();
+    const client = createSmarterQueryClient();
+    const user = setup(client);
     await screen.findByText("example_1");
     await user.type(screen.getByRole("searchbox", { name: "Search" }), "example_3");
     expect(await screen.findByText("Showing 1–2 of 2")).toBeInTheDocument();
-    expect(readCache(key("owned"))?.objects).toHaveLength(10);
+    expect(cachedNames(client, key("owned"))).toHaveLength(10);
+    expect(cachedNames(client, key("owned", { search: "example_3" }))).toHaveLength(2);
   });
 
   it("shows only the latest search, when an earlier one responds later", async () => {
@@ -526,12 +571,13 @@ describe("TabbedListView narrowing by tags and annotations", () => {
   it("caches a narrowed page under its own key", async () => {
     recordRequests();
     window.history.replaceState(null, "", "/examples/?tag=blue");
-    setup();
+    const client = createSmarterQueryClient();
+    setup(client);
     await waitFor(() => expect(names()).toEqual(["second_example"]));
-    expect(
-      readCache(makeCacheKey(API_URL, "owned", { tags: ["blue"] }, sessionScope(sessionContext)))?.objects,
-    ).toEqual([ownedExamples[1]]);
-    expect(readCache(key("owned"))).toBeNull();
+    expect(client.getQueryData<ListPage<unknown>>(key("owned", { tags: ["blue"] }))?.objects).toEqual([
+      ownedExamples[1],
+    ]);
+    expect(client.getQueryData(key("owned"))).toBeUndefined();
   });
 });
 

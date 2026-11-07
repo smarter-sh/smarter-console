@@ -65,47 +65,49 @@ const getErrorMessage = (status: number, responseBody: unknown): string => {
 /**
  * Loads a page of a list api's objects from the backend.
  *
+ * It is the query function of TabbedListView's pages (see ./query): it throws on failure, so that the cache keeps
+ * no failed page, and the list shows the error.
+ *
  * @param sessionContext - Authentication and API context used for the request.
  * @param invalidateCacheFlag - If true, forces the backend to invalidate its cache.
  * @param urlSlug - The API slug for the API group (e.g., "owned" or "shared").
- * @param onError - Called with null before the request, and with the error message if it fails.
  * @param query - The page, page size, search, ordering, named filter, tags and annotation selector to request. The api's defaults apply to those omitted.
- * @returns The page's objects and its pagination, or no objects if the request fails.
+ * @param signal - Aborts the request, e.g. when TanStack Query no longer needs the page.
+ * @returns The page's objects and its pagination.
+ * @throws Error - With the api's error message, or one that describes the failure.
  */
 export const load = async <TObject,>(
   sessionContext: SessionContext,
   invalidateCacheFlag: boolean,
   urlSlug: string,
-  onError: (error: string | null) => void,
   query: ListQuery = {},
+  signal?: AbortSignal,
 ): Promise<ListPage<TObject>> => {
-  onError(null);
-
+  const url = buildLoadUrl(sessionContext.ApiUrl, urlSlug, invalidateCacheFlag, query);
+  let response: Response;
   try {
-    const url = buildLoadUrl(sessionContext.ApiUrl, urlSlug, invalidateCacheFlag, query);
-    const response = await fetchDjangoUrl(sessionContext, url, JSON.stringify({}));
-
-    const responseBody = await readJsonSafely(response);
-
-    if (!response.ok) {
-      throw new Error(getErrorMessage(response.status, responseBody));
-    }
-
-    if (
-      typeof responseBody !== "object" ||
-      responseBody === null ||
-      !("objects" in responseBody) ||
-      !Array.isArray(responseBody.objects)
-    ) {
-      throw new Error(gettext("Invalid response payload: expected objects array."));
-    }
-
-    const payload = responseBody as LoadApiResponse<TObject>;
-    setCookieForUrl(sessionContext.ApiUrl + urlSlug + "/", payload.objects.length, 7);
-    return { objects: payload.objects, pagination: payload.pagination ?? null };
+    response = await fetchDjangoUrl(sessionContext, url, JSON.stringify({}), signal);
   } catch (error) {
     console.error(loggerPrefix, "load(): Error loading objects:", error);
-    onError(error instanceof Error ? error.message : gettext("Unable to load objects."));
-    return { objects: [], pagination: null };
+    throw error instanceof Error ? error : new Error(gettext("Unable to load objects."));
   }
+
+  const responseBody = await readJsonSafely(response);
+
+  if (!response.ok) {
+    throw new Error(getErrorMessage(response.status, responseBody));
+  }
+
+  if (
+    typeof responseBody !== "object" ||
+    responseBody === null ||
+    !("objects" in responseBody) ||
+    !Array.isArray(responseBody.objects)
+  ) {
+    throw new Error(gettext("Invalid response payload: expected objects array."));
+  }
+
+  const payload = responseBody as LoadApiResponse<TObject>;
+  setCookieForUrl(sessionContext.ApiUrl + urlSlug + "/", payload.objects.length, 7);
+  return { objects: payload.objects, pagination: payload.pagination ?? null };
 };

@@ -4,13 +4,19 @@
  * @param requestJson - The JSON string body to send in the request.
  * @param url - The URL to send the POST request to.
  * @param sessionContext - The session context containing API URL, CSRF token, and session cookie information.
+ * @param signal - Aborts the request, e.g. when TanStack Query no longer needs its answer.
  * @returns A `Promise<Response>` from the Fetch API.
  */
 import { loggerPrefix } from "./const";
 import { getCookie } from "./cookie";
 import type { SessionContext } from "./Types";
 
-export default async function fetchDjangoUrl(sessionContext: SessionContext, url: string, requestJson: string) {
+export default async function fetchDjangoUrl(
+  sessionContext: SessionContext,
+  url: string,
+  requestJson: string,
+  signal?: AbortSignal,
+) {
   const applicationJson = "application/json";
   const csrftokenValue = getCookie({ name: sessionContext.csrfCookieName, domain: sessionContext.cookieDomain });
   const capabilities = sessionContext.smarterCapabilities
@@ -51,6 +57,7 @@ export default async function fetchDjangoUrl(sessionContext: SessionContext, url
     credentials: "include",
     headers: requestHeaders,
     body: requestJson,
+    signal,
   });
 
   console.debug(`${loggerPrefix} fetchDjangoUrl() Received response from ${url}:`, res);

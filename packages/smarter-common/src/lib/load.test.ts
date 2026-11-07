@@ -27,9 +27,7 @@ describe("load", () => {
         return HttpResponse.json({ objects: [{ id: 1 }, { id: 2 }] });
       }),
     );
-    const onError = vi.fn();
-
-    expect(await load(sessionContext, true, "owned", onError)).toEqual({
+    expect(await load(sessionContext, true, "owned")).toEqual({
       objects: [{ id: 1 }, { id: 2 }],
       pagination: null,
     });
@@ -41,7 +39,6 @@ describe("load", () => {
       null,
       null,
     ]);
-    expect(onError).toHaveBeenCalledWith(null);
     expect(getCookieForUrl("/api/listview/owned/")).toBe(2);
   });
 
@@ -62,7 +59,7 @@ describe("load", () => {
         return HttpResponse.json({ objects: [{ id: 11 }], pagination });
       }),
     );
-    const result = await load(sessionContext, false, "shared", vi.fn(), {
+    const result = await load(sessionContext, false, "shared", {
       page: 2,
       pageSize: 10,
       search: "  bot ",
@@ -86,29 +83,33 @@ describe("load", () => {
         return HttpResponse.json({ objects: [] });
       }),
     );
-    await load(sessionContext, false, "owned", vi.fn(), { search: "   ", ordering: "" });
+    await load(sessionContext, false, "owned", { search: "   ", ordering: "" });
     expect(new URL(url).searchParams.has("search")).toBe(false);
     expect(new URL(url).searchParams.has("ordering")).toBe(false);
   });
 
-  it("reports the api's error message", async () => {
+  it("throws the api's error message", async () => {
     server.use(http.post("/api/listview/owned/", () => HttpResponse.json({ error: "Not allowed" }, { status: 403 })));
-    const onError = vi.fn();
-    expect(await load(sessionContext, false, "owned", onError)).toEqual({ objects: [], pagination: null });
-    expect(onError).toHaveBeenLastCalledWith("Not allowed");
+    await expect(load(sessionContext, false, "owned")).rejects.toThrow("Not allowed");
   });
 
-  it("reports the status of an error without a message", async () => {
+  it("throws the status of an error without a message", async () => {
     server.use(http.post("/api/listview/owned/", () => new HttpResponse("oops", { status: 502 })));
-    const onError = vi.fn();
-    await load(sessionContext, false, "owned", onError);
-    expect(onError).toHaveBeenLastCalledWith("Failed to load objects (502)");
+    await expect(load(sessionContext, false, "owned")).rejects.toThrow("Failed to load objects (502)");
   });
 
   it("rejects a response without an objects array", async () => {
     server.use(http.post("/api/listview/owned/", () => HttpResponse.json({ items: [] })));
-    const onError = vi.fn();
-    await load(sessionContext, false, "owned", onError);
-    expect(onError).toHaveBeenLastCalledWith("Invalid response payload: expected objects array.");
+    await expect(load(sessionContext, false, "owned")).rejects.toThrow(
+      "Invalid response payload: expected objects array.",
+    );
+  });
+
+  it("throws when the request fails, and stops when it is aborted", async () => {
+    server.use(http.post("/api/listview/owned/", () => HttpResponse.error()));
+    await expect(load(sessionContext, false, "owned")).rejects.toThrow();
+    const aborted = new AbortController();
+    aborted.abort();
+    await expect(load(sessionContext, false, "owned", {}, aborted.signal)).rejects.toThrow();
   });
 });

@@ -41,8 +41,9 @@
  *   removes it, and the page's url follows them, so that it can be bookmarked or shared. The list
  *   api reports an invalid selector, which is shown under the box, and not applied.
  * - Opens searching, when the page is opened with ?search=<text>, which also follows the search.
- * - Shows a page from the cache at once, when it holds it, while the page is fetched again, with a
- *   small spinner that says it is refreshing.
+ * - Shows a page from the console's cache (TanStack Query, see ../../lib/query) at once, when it holds it,
+ *   while the page is fetched again, with a small spinner that says it is refreshing. While a new page,
+ *   search, sort or narrowing loads, the tab keeps showing the page that it showed.
  * - Shows loading and error states during fetches.
  * - Uses cookie-backed counts (owned/shared) to size loading skeleton rows.
  * - Supports requery with cache invalidation, from the Refresh button at the top of the list, and
@@ -52,38 +53,39 @@
  * - sessionContext (SessionContext): Authentication and API context used for requests.
  *
  * State:
- * - lists: Each tab's objects, loading state, and pagination, as the list api last described it.
- * - pages: Each tab's requested page.
+ * - pages: Each tab's requested page. Each tab's objects, loading state and pagination are its page's query.
  * - searchInput: The search as typed; search: the search requested, once typing pauses.
  * - ordering: The column that sorts both tabs, e.g. "name", or "-name" in descending order. Empty for the default order.
- * - errorMessage: Error text for failed requests.
  * - activeTab: Current tab, the key of one of the tabbedListViewContext's tabs, e.g. "owned".
  * - selection: The row whose detail is open, by its tab and index on the tab's page, or null. While the detail
  *   moves to another page, pending says whether it shows that page's first or last row, once it loads.
  *
  * Internal Helpers:
  * - getCookie: Reads cookie values used for skeleton sizing.
- * - load (from ./load): Fetches llmclient data and updates state via setters.
+ * - load (from ../../lib/load): The query function that fetches a page of a tab.
  *
  * Page Rendering Performance and Caching behavior:
- * - Improves the perceived load time by rendering cached results immediately when
- *   available while a fresh backend fetch is still in flight (stale-while-revalidate). The list
- *   api caches its pages too (smarter.lib.django.listview), so the fresh fetch is usually quick.
- * - Reads each page from localStorage, keyed by the session, the API URL, the tab, and the page's
- *   page number, ordering and filter, on mount and whenever the page, ordering or filter changes.
- * - Writes every successful fetch without a search back to the cache, with its pagination, so that
- *   a return visit, a new browser tab, or paging back shows recent data without waiting on the network.
+ * - Each page is a query of TanStack Query, keyed by listQueryKey(api url), the tab, and the page's page number,
+ *   search, ordering and narrowing. A page shown within QUERY_STALE_TIME_MS is shown again without a request;
+ *   an older one is shown at once, and fetched again (stale-while-revalidate). The list api caches its pages too
+ *   (smarter.lib.django.listview), so the fresh fetch is usually quick.
+ * - The Refresh button, and a clone, rename or delete, mark every page of the list stale, and fetch each tab's
+ *   page again with ?invalidate_cache=true, so that the list api rebuilds its own cache.
+ * - The cache lives in memory, in the console's QueryClient, or in one of the list's own outside the console
+ *   (see SmarterQueryProvider).
  *
  * Usage:
  * <TabbedListView sessionContext={sessionContext} />
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { keepPreviousData, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
 
 import type {
   DetailObject,
   DetailViewBaseProps,
   Filtering,
+  ListQuery,
   ListViewBaseProps,
   Pagination,
   SessionContext,
@@ -93,7 +95,7 @@ import type {
 } from "../../lib/Types";
 import { load } from "../../lib/load";
 import { loggerPrefix } from "../../lib/const";
-import { makeCacheKey, readCache, sessionScope, writeCache } from "../../lib/cache";
+import { listQueryKey, SmarterQueryProvider } from "../../lib/query";
 
 import ResourceDetail from "../ResourceDetail";
 
@@ -115,7 +117,7 @@ type TabbedListViewProps<TObject> = {
 type TabList = {
   objects: unknown[];
   isLoading: boolean;
-  /** Whether the objects shown are cached ones, while the list api is asked for fresh ones. */
+  /** Whether the objects shown are cached ones, or another page's, while the list api is asked for fresh ones. */
   isRefreshing: boolean;
   pagination: Pagination | null;
 };
@@ -190,50 +192,44 @@ export const SEARCH_DELAY_MS = 300;
 // throttle duration for requerying to prevent excessive backend requests
 const REQUERY_THROTTLE_MS = 2000;
 
-export default function TabbedListView<TObject>({
-  sessionContext,
-  tabbedListViewContext,
-}: TabbedListViewProps<TObject>) {
+/** Whether a requery comes too soon after the last one, which the ref holds the time of. Otherwise it records it. */
+function throttled(last: { current: number | null }): boolean {
+  const now = Date.now();
+  if (last.current && now - last.current < REQUERY_THROTTLE_MS) return true;
+  last.current = now;
+  return false;
+}
+
+/** The query of a page of a tab: what load() requests. */
+function pageQuery(page: number, search: string, ordering: string, narrowing: Narrowing): ListQuery {
+  return { page, search, ordering, ...narrowing };
+}
+
+/**
+ * The tabbed list, with the console's QueryClient, or one of its own outside the console. See SmarterQueryProvider.
+ */
+export default function TabbedListView<TObject>(props: TabbedListViewProps<TObject>) {
+  return (
+    <SmarterQueryProvider>
+      <TabbedList {...props} />
+    </SmarterQueryProvider>
+  );
+}
+
+function TabbedList<TObject>({ sessionContext, tabbedListViewContext }: TabbedListViewProps<TObject>) {
   const tabs = tabbedListViewContext.tabs;
   const tabKeys = useMemo(() => tabs.map((tab) => tab.key), [tabs]);
+  const queryClient = useQueryClient();
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // list state management for owned/shared object lists.
-  //
-  // We'll be optimistic, and hope that cached data is available to populate
-  // these before the async load completes. If not, then we'll show loading
-  // skeletons until the load finishes and populates these states. Note that
-  // the skeletons make use of cookie-backed counts to size themselves to whatever
-  // they'd most recently been, which should help prevent jarring resizing when
-  // the real data loads.
-  // A list is loading until the first load completes, unless its cache already has its objects.
-  // The cache holds every page, ordering and filter that the list showed, but no search, in
-  // localStorage, scoped by the session, so that a list paints at once on a return visit, in a new
-  // browser tab, and when paging back. See ../../lib/cache.
+  // a tab shows its loading skeleton until its first page arrives, unless the cache already holds it. The
+  // skeletons use cookie-backed counts to size themselves to whatever they'd most recently been, which should help
+  // prevent jarring resizing when the real data loads.
   // the named filter of both tabs, from the page's url.
   const [filter, setFilter] = useState(filterOfPageUrl);
   // the tags and annotation selector of both tabs, from the page's url, then from the chips and the selector box.
   const [tags, setTags] = useState(() => valuesOfPageUrl("tag"));
   const [annotations, setAnnotations] = useState(() => valuesOfPageUrl("annotation"));
   const narrowing = useMemo<Narrowing>(() => ({ filter, tags, annotations }), [filter, tags, annotations]);
-  const scope = useMemo(() => sessionScope(sessionContext), [sessionContext]);
-  const cacheKey = useCallback(
-    (tab: TabKey, page: number, tabOrdering: string, tabNarrowing: Narrowing) =>
-      makeCacheKey(sessionContext.ApiUrl, tab, { page, ordering: tabOrdering, ...tabNarrowing }, scope),
-    [sessionContext, scope],
-  );
-  const [lists, setLists] = useState<TabRecord<TabList>>(() =>
-    tabRecord(tabKeys, (tab) => {
-      const cached = readCache<unknown>(cacheKey(tab, 1, "", narrowing));
-      return {
-        objects: cached?.objects ?? [],
-        isLoading: cached === null,
-        isRefreshing: cached !== null,
-        pagination: cached?.pagination ?? null,
-      };
-    }),
-  );
 
   // each tab's requested page, and the search of both tabs. searchInput is the search as it is
   // typed, and search follows it once typing pauses, so that every keystroke is not a request.
@@ -248,10 +244,6 @@ export default function TabbedListView<TObject>({
     const locator = valuesOfPageUrl("detail")[0];
     return locator ? { locator, shown: shownOf(searchInput.trim(), "", { filter, tags, annotations }) } : null;
   });
-
-  // only the latest request of a tab is shown, when several are in flight, e.g. when the user
-  // pages quickly, or a requery and a page change overlap.
-  const latestRequest = useRef<TabRecord<number>>(tabRecord(tabKeys, () => 0));
 
   // for sizing the skeleton loaders that are rendered if no cached data is available
   const maxGhostRows = 25;
@@ -270,51 +262,36 @@ export default function TabbedListView<TObject>({
 
   const requeryRef = useRef<number | null>(null);
 
-  // load a page of a tab's objects that match the search, in the ordering.
-  // invalidateCache: whether the backend (Django-Redis) cache should be invalidated, e.g. after a
-  // clone, rename or delete. It is a parameter, rather than state, so that a requery's load sees it.
-  // isActive: whether the results are still wanted; a load that a newer one replaced, or that
-  // finishes after the component unmounts, is ignored.
-  const loadTab = useCallback(
-    (
-      tab: TabKey,
-      page: number,
-      tabSearch: string,
-      tabOrdering: string,
-      tabNarrowing: Narrowing,
-      invalidateCache: boolean,
-      isActive: () => boolean = () => true,
-    ): Promise<void> => {
-      const request = (latestRequest.current[tab] ?? 0) + 1;
-      latestRequest.current[tab] = request;
-      // show the page from the cache at once, if it holds it, and its loading skeleton otherwise.
-      const key = cacheKey(tab, page, tabOrdering, tabNarrowing);
-      const cached = tabSearch ? null : readCache<unknown>(key);
-      setLists((prev) => ({
-        ...prev,
-        [tab]: cached
-          ? { objects: cached.objects, pagination: cached.pagination, isLoading: false, isRefreshing: true }
-          : { ...prev[tab], isLoading: true, isRefreshing: false },
-      }));
-      console.debug(
-        `${loggerPrefix} loadTab() Loading ${tab} objects, page=${page}, search="${tabSearch}", ordering="${tabOrdering}", narrowing=${JSON.stringify(tabNarrowing)}, invalidateCache=${invalidateCache}`,
-      );
-      return load<unknown>(sessionContext, invalidateCache, tab, setErrorMessage, {
-        page,
-        search: tabSearch,
-        ordering: tabOrdering,
-        ...tabNarrowing,
-      }).then(({ objects, pagination }) => {
-        if (!isActive() || request !== latestRequest.current[tab]) return;
-        console.debug(`${loggerPrefix} loadTab() received ${tab} objects:`, objects, pagination);
-        setLists((prev) => ({ ...prev, [tab]: { objects, isLoading: false, isRefreshing: false, pagination } }));
-        if (!tabSearch && pagination) {
-          writeCache(key, objects, pagination);
-        }
-      });
-    },
-    [sessionContext, cacheKey],
-  );
+  // each tab's page: a query, keyed by the list, the tab and what the page shows. TanStack Query shows the cached
+  // page at once, fetches it again when it is stale, and keeps showing the tab's previous page while a new one
+  // loads. Only the latest page of a tab is shown, and a fetch that is no longer needed is aborted.
+  const listKey = useMemo(() => listQueryKey(sessionContext.ApiUrl), [sessionContext.ApiUrl]);
+  const pageKey = (tab: TabKey, query: ListQuery) => [...listKey, tab, query];
+  const results = useQueries({
+    queries: tabKeys.map((tab) => {
+      const query = pageQuery(pages[tab] ?? 1, search, ordering, narrowing);
+      return {
+        queryKey: pageKey(tab, query),
+        queryFn: ({ signal }: { signal: AbortSignal }) => {
+          console.debug(`${loggerPrefix} loading the ${tab} objects:`, query);
+          return load<unknown>(sessionContext, false, tab, query, signal);
+        },
+        placeholderData: keepPreviousData,
+      };
+    }),
+  });
+  const lists: TabRecord<TabList> = tabRecord(tabKeys, (tab) => {
+    const result = results[tabKeys.indexOf(tab)];
+    return {
+      objects: result.data?.objects ?? [],
+      isLoading: result.data === undefined,
+      isRefreshing: result.isFetching && result.data !== undefined,
+      pagination: result.data?.pagination ?? null,
+    };
+  });
+  // a tab's failed request, until it is requested again.
+  const failed = results.find((result) => result.isError && !result.isFetching);
+  const errorMessage = failed?.error?.message ?? null;
 
   const onPage = (page: number) => {
     console.debug(`${loggerPrefix} onPage() going to page ${page} of the ${activeTab} objects`);
@@ -387,45 +364,29 @@ export default function TabbedListView<TObject>({
       return;
     }
     // throttle to prevent excessive requerying if user clicks multiple times in a short span
-    const now = Date.now();
-    if (requeryRef.current && now - requeryRef.current < REQUERY_THROTTLE_MS) {
+    if (throttled(requeryRef)) {
       return;
     }
-    requeryRef.current = now;
-    tabKeys.forEach((tab) => void loadTab(tab, pages[tab], search, ordering, narrowing, true));
-  };
-
-  // whether the component is mounted: the results of a load that finishes after it unmounts are ignored.
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  // each tab's last requested page, search and ordering, and the loadTab that requested them, so
-  // that a tab is loaded again only when its own request changes, or the session context does.
-  const requested = useRef<{ loadTab: typeof loadTab | null; params: Partial<Record<TabKey, string>> }>({
-    loadTab: null,
-    params: {},
-  });
-
-  // load each tab on mount, whenever the session context changes, and whenever its page, the
-  // search or the ordering changes. The cached objects, if any, are shown at once (see the state initializers
-  // above), and replaced by the freshly loaded ones.
-  useEffect(() => {
-    if (requested.current.loadTab !== loadTab) {
-      requested.current = { loadTab, params: {} };
-    }
+    // every page of the list is stale, and is fetched again when it is shown. Each tab's page is fetched now, and
+    // asks the list api to rebuild its own cache (Django-Redis), e.g. after a clone, rename or delete.
+    void queryClient.invalidateQueries({ queryKey: listKey, refetchType: "none" });
     tabKeys.forEach((tab) => {
-      const page = pages[tab] ?? 1;
-      const params = JSON.stringify([page, search, ordering, narrowing]);
-      if (requested.current.params[tab] === params) return;
-      requested.current.params[tab] = params;
-      void loadTab(tab, page, search, ordering, narrowing, false, () => mounted.current);
+      const query = pageQuery(pages[tab] ?? 1, search, ordering, narrowing);
+      const queryKey = pageKey(tab, query);
+      void queryClient
+        .cancelQueries({ queryKey, exact: true })
+        .then(() =>
+          queryClient.fetchQuery({
+            queryKey,
+            queryFn: ({ signal }) => load<unknown>(sessionContext, true, tab, query, signal),
+            staleTime: 0,
+          }),
+        )
+        .catch((error: unknown) =>
+          console.error(`${loggerPrefix} onRequery() could not reload the ${tab} objects:`, error),
+        );
     });
-  }, [loadTab, tabKeys, pages, search, ordering, narrowing]);
+  };
 
   // the detail that is open. It closes when what the list shows changes: its search, its sort, or what narrows it.
   const shown = shownOf(search, ordering, narrowing);
