@@ -57,12 +57,16 @@ jobs:
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@ba330626c4750c19d8299de843f05c7aa5574f62 # v5.0.2
         id: semantic
+        # The plugins' majors are the smarter repository's (its package.json). The
+        # latest conventional-changelog-conventionalcommits needs a newer
+        # conventional-changelog-writer than the action's semantic-release
+        # bundles, and fails with Missing helper.
         with:
           extra_plugins: |
-            conventional-changelog-conventionalcommits
-            @semantic-release/changelog
-            @semantic-release/exec
-            @semantic-release/git
+            conventional-changelog-conventionalcommits@9
+            @semantic-release/changelog@7
+            @semantic-release/exec@7
+            @semantic-release/git@11
         env:
           GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           GIT_COMMITTER_NAME: github-actions[bot]
