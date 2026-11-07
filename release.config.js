@@ -63,6 +63,11 @@ export default {
     [
       "@semantic-release/github",
       {
+        // No comments or labels on the issues and pull requests that released commits mention: the history imported
+        // from the smarter repository mentions that repository's numbers, which don't exist here, and the first
+        // release failed in its success step on #923.
+        successComment: false,
+        releasedLabels: false,
         assets: [
           {
             path: "release/smarter-console-*.tar.gz",
