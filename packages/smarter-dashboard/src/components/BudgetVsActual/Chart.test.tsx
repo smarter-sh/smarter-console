@@ -21,7 +21,7 @@ describe("BudgetVsActualChart", () => {
   it("charts the first budget, with its usage", async () => {
     server.use(...budgetsHandlers);
     renderChart();
-    expect(screen.getByText("Loading…")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument();
     expect(await screen.findByText("This month: $42.50 of $100.00 (43%)")).toBeInTheDocument();
     expect(await screen.findByText("Apr 2026")).toBeInTheDocument();
   });

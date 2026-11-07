@@ -29,7 +29,7 @@ import {
   ResourceCard,
   ROOT_ID,
 } from "./ResourceTree";
-import { Skeleton, SkeletonRegion, SkeletonRows, SkeletonText } from "./Skeleton";
+import { Skeleton, SkeletonChart, SkeletonRegion, SkeletonRows, SkeletonText } from "./Skeleton";
 import SortableHeader from "./SortableHeader";
 import TabbedListView from "./TabbedListView";
 import { getCookieForUrl, setCookieForUrl } from "./TabbedListView";
@@ -67,6 +67,7 @@ export {
   ResourceTree,
   ROOT_ID,
   Skeleton,
+  SkeletonChart,
   SkeletonRegion,
   SkeletonRows,
   SkeletonText,

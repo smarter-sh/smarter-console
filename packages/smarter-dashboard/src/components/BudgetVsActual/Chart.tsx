@@ -6,7 +6,14 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { fetchDjangoUrl, gettext, interpolate, interpolateNodes, useSmarterQueryClient } from "@smarter/common";
+import {
+  fetchDjangoUrl,
+  gettext,
+  interpolate,
+  interpolateNodes,
+  SkeletonChart,
+  useSmarterQueryClient,
+} from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import BudgetChart from "./BudgetChart";
@@ -97,8 +104,7 @@ export default function BudgetVsActualChart({
   const failed = [statusesQuery, seriesQuery].find((query) => query.isError);
   const errMessage = failed?.error?.message ?? "";
 
-  if (statuses === null && !errMessage)
-    return <div style={{ fontSize: "0.85rem", opacity: 0.6 }}>{gettext("Loading…")}</div>;
+  if (statuses === null && !errMessage) return <SkeletonChart height={320} controls />;
   if (statuses !== null && statuses.length === 0) {
     return <div className="text-muted">{gettext("No budgets apply to you, or to your resources.")}</div>;
   }
@@ -145,6 +151,8 @@ export default function BudgetVsActualChart({
           )}
         </div>
       )}
+      {/* the chosen budget's series, or its skeleton while it loads. */}
+      {status && !series && !errMessage && <SkeletonChart height={320} />}
       {status && series && (
         <BudgetChart
           series={series.series}

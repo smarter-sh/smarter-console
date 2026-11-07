@@ -17,8 +17,8 @@
  *
  *     <RecentActivity sessionContext={sessionContext} apiUrl="/api/web/dashboard/activity/" />
  */
-import type { SessionContext } from "@smarter/common";
-import { gettext, interpolate, interpolateNodes, Loading } from "@smarter/common";
+import { gettext, interpolate, interpolateNodes, SkeletonRows } from "@smarter/common";
+import type { SessionContext, SkeletonColumn } from "@smarter/common";
 
 import useDashboardApi from "../../hooks/useDashboardApi";
 import "./styles.css";
@@ -57,6 +57,12 @@ function ActivityRow({ item }: { item: ActivityItem }) {
   );
 }
 
+/** How many rows the skeleton shows, of the few latest commands that the api sends. */
+const SKELETON_ROWS = 5;
+
+/** The columns of the skeleton rows, ActivityRow's: the date, the command, the resource and the message. */
+const SKELETON_COLUMNS: SkeletonColumn[] = ["text-nowrap", "", "", ""];
+
 function RecentActivity({ sessionContext, apiUrl }: RecentActivityProps) {
   const { data, error } = useDashboardApi<ActivityData>(sessionContext, apiUrl);
 
@@ -68,7 +74,16 @@ function RecentActivity({ sessionContext, apiUrl }: RecentActivityProps) {
       </div>
     );
   } else if (!data) {
-    body = <Loading />;
+    // the table, with skeleton rows of its own columns: the date, the command, the resource and the message.
+    body = (
+      <div className="table-responsive">
+        <table className="table table-row-dashed align-middle gs-0 gy-2 mb-0">
+          <tbody>
+            <SkeletonRows count={SKELETON_ROWS} columns={SKELETON_COLUMNS} />
+          </tbody>
+        </table>
+      </div>
+    );
   } else if (data.items.length === 0) {
     body = (
       <div className="text-muted fs-7">

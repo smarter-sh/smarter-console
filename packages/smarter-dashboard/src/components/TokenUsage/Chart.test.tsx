@@ -23,10 +23,10 @@ describe("TokenUsageChart", () => {
     );
     const user = userEvent.setup();
     render(<TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} height={300} />);
-    expect(screen.getByText("Loading…")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument();
     // the y axis's ticks are formatted numbers: the stacked peak is 2,400 + 1,600.
     expect(await screen.findByText("4,000")).toBeInTheDocument();
-    expect(screen.queryByText("Loading…")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument();
     expect(screen.queryByText("No token usage in this period.")).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Time period" })).toHaveValue("24_hours");
 

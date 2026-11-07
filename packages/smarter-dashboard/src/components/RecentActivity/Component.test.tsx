@@ -10,6 +10,13 @@ import RecentActivity from "@/components/RecentActivity/Component";
 const apiUrl = appContext.activityApiUrl;
 
 describe("RecentActivity", () => {
+  it("shows skeleton rows while the activity loads, and says Loading... once", () => {
+    server.use(http.post(apiUrl, () => new Promise<Response>(() => {})));
+    render(<RecentActivity sessionContext={sessionContext} apiUrl={apiUrl} />);
+    expect(screen.getAllByRole("row")).toHaveLength(5);
+    expect(screen.getAllByText("Loading...")).toHaveLength(1);
+  });
+
   it.each([
     [true, "No recent activity. Apply, deploy or delete a manifest and it will show here."],
     [false, "Activity journaling is turned off (waffle switch enable_journal)."],

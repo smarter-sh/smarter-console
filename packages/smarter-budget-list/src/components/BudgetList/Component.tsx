@@ -20,12 +20,13 @@ import {
   interpolate,
   interpolateNodes,
   listQueryKey,
-  Loading,
   ngettext,
+  SkeletonChart,
+  SkeletonRows,
   SmarterQueryProvider,
   useSmarterQueryClient,
 } from "@smarter/common";
-import type { SessionContext } from "@smarter/common";
+import type { SessionContext, SkeletonColumn } from "@smarter/common";
 
 import { formatAmount } from "./format";
 import type { Budget, BudgetListResponse, BudgetResourceStatus } from "../../lib/Types";
@@ -122,7 +123,7 @@ function ResourceStatusRow({
       {showChart && (
         <tr>
           <td colSpan={5}>
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<SkeletonChart height={260} />}>
               <ResourceChart sessionContext={sessionContext} status={status} />
             </Suspense>
           </td>
@@ -216,6 +217,21 @@ const BudgetRow = React.memo(function BudgetRow({
     </>
   );
 });
+
+/**
+ * The columns of the table's skeleton rows, while the budgets load: the name, with its description below it; the
+ * limits, the action, the resources, the blocked and the updated date; and the superuser's Delete, left empty.
+ * See SkeletonRows in @smarter/common.
+ */
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  { shape: "paragraph" }, // Name
+  "", // Limits
+  "", // Action
+  "", // Resources
+  "", // Blocked
+  "d-none d-lg-table-cell", // Updated
+  { className: "text-end", shape: "empty" }, // Delete
+];
 
 /**
  * Loads the budgets that the user may see.
@@ -327,7 +343,6 @@ function Budgets({ sessionContext }: { sessionContext: SessionContext }) {
             {errMessage}
           </div>
         )}
-        {data === null && !errMessage && <Loading />}
         {data && data.objects.length === 0 && (
           <div className="text-muted p-4">
             {data.isSuperuser
@@ -335,7 +350,8 @@ function Budgets({ sessionContext }: { sessionContext: SessionContext }) {
               : gettext("No budgets apply to you, or to your resources.")}
           </div>
         )}
-        {data && data.objects.length > 0 && (
+        {/* the table, with skeleton rows while the budgets load. */}
+        {((data === null && !errMessage) || (data && data.objects.length > 0)) && (
           <div className="table-responsive">
             <table className="table table-striped table-hover align-middle border">
               <thead className="table-light">
@@ -350,7 +366,8 @@ function Budgets({ sessionContext }: { sessionContext: SessionContext }) {
                 </tr>
               </thead>
               <tbody>
-                {data.objects.map((budget) => (
+                {data === null && <SkeletonRows count={4} columns={SKELETON_COLUMNS} />}
+                {data?.objects.map((budget) => (
                   <BudgetRow
                     key={budget.id}
                     sessionContext={sessionContext}

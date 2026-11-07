@@ -20,14 +20,14 @@ describe("ResourceChart", () => {
       ),
     );
     render(<ResourceChart sessionContext={sessionContext} status={makeResourceStatus()} />);
-    expect(screen.getByText("Loading…")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument();
     expect(await screen.findByText("Apr 2026")).toBeInTheDocument();
   });
 
   it("charts no periods when the series has none for its budget", async () => {
     server.use(http.post(SERIES_URL, () => HttpResponse.json([])));
     render(<ResourceChart sessionContext={sessionContext} status={makeResourceStatus()} />);
-    await vi.waitFor(() => expect(screen.queryByText("Loading…")).not.toBeInTheDocument());
+    await vi.waitFor(() => expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument());
     expect(screen.queryByText(/failed/i)).not.toBeInTheDocument();
   });
 

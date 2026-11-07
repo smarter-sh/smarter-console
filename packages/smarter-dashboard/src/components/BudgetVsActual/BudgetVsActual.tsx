@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import type { SessionContext } from "@smarter/common";
 
 import "./styles.css";
-import { gettext } from "@smarter/common";
+import { gettext, SkeletonChart } from "@smarter/common";
 
 // recharts is a large dependency, so the chart is loaded in its own chunk.
 const BudgetVsActualChart = lazy(() => import("./Chart"));
@@ -28,7 +28,8 @@ function BudgetVsActual({ sessionContext, apiUrl, className = "col-xl-12" }: Bud
           </h3>
         </div>
         <div className="card-body d-flex flex-column pt-3">
-          <Suspense fallback={null}>
+          {/* the chart's skeleton while its code, with recharts, loads. */}
+          <Suspense fallback={<SkeletonChart height={320} controls />}>
             <BudgetVsActualChart sessionContext={sessionContext} apiUrl={apiUrl} />
           </Suspense>
         </div>

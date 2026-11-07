@@ -12,6 +12,15 @@ import { server } from "@test/server";
 import BudgetList from "@/components/BudgetList/Component";
 
 describe("BudgetList", () => {
+  it("shows its table, with skeleton rows, while the budgets load", () => {
+    server.use(http.post(sessionContext.ApiUrl, () => new Promise<Response>(() => {})));
+    render(<BudgetList sessionContext={sessionContext} />);
+    // the header, and four skeleton rows.
+    expect(screen.getAllByRole("row")).toHaveLength(1 + 4);
+    expect(screen.getByRole("columnheader", { name: "Limits" })).toBeInTheDocument();
+    expect(screen.getAllByText("Loading...")).toHaveLength(1);
+  });
+
   it("lists the budgets, with their limits and blocked resources", async () => {
     server.use(...listHandlers());
     render(<BudgetList sessionContext={sessionContext} />);
@@ -178,12 +187,12 @@ describe("BudgetList", () => {
     await user.click(screen.getByRole("button", { name: "Chart" }));
     // the chart, once its series has loaded.
     await vi.waitFor(() => expect(seriesRequests).toBe(1));
-    await vi.waitFor(() => expect(screen.queryByText("Loading…")).not.toBeInTheDocument());
+    await vi.waitFor(() => expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: "Hide" }));
     await user.click(screen.getByRole("button", { name: "Chart" }));
     expect(await screen.findByRole("button", { name: "Hide" })).toBeInTheDocument();
-    // the cached series, with no Loading…, while it is asked for again.
-    expect(screen.queryByText("Loading…")).not.toBeInTheDocument();
+    // the cached series, with no skeleton, while it is asked for again.
+    expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument();
     await vi.waitFor(() => expect(seriesRequests).toBe(2));
   });
 

@@ -9,6 +9,7 @@
  * - SkeletonRegion: a region of skeletons, which screen readers announce once, as loading, and whose shapes they
  *   skip.
  * - SkeletonRows: a list's table rows, one shape per column (see SkeletonRows' columns).
+ * - SkeletonChart: a chart, with the control that chooses what it shows, e.g. a period.
  */
 import type { CSSProperties, ReactNode } from "react";
 
@@ -85,6 +86,22 @@ export function SkeletonRegion({
     <div role="status" aria-busy="true" aria-label={label ?? gettext("Loading")} className={className}>
       {children}
     </div>
+  );
+}
+
+/**
+ * A chart while it loads: the control above it, e.g. a period's select, when it has one, and a block of the
+ * chart's height. Screen readers hear Loading… once.
+ *
+ * @param height - The chart's height, in pixels.
+ * @param controls - Whether the chart has a control above it.
+ */
+export function SkeletonChart({ height, controls = false }: { height: number; controls?: boolean }) {
+  return (
+    <SkeletonRegion label={gettext("Loading…")}>
+      {controls && <Skeleton shape="block" width={8} height={2.1} className="d-block mb-4" />}
+      <Skeleton shape="block" height={`${height}px`} className="d-block" />
+    </SkeletonRegion>
   );
 }
 

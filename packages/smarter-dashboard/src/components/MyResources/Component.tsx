@@ -20,7 +20,7 @@
  *
  *     <MyResources sessionContext={sessionContext} apiUrl="/api/web/dashboard/my-resources/" />
  */
-import { gettext, interpolateNodes, Loading } from "@smarter/common";
+import { gettext, interpolateNodes, Skeleton } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import useDashboardApi from "../../hooks/useDashboardApi";
@@ -68,6 +68,29 @@ const MORE_RESOURCES: [string, string, keyof MyResourcesData, keyof MyResourcesD
   [gettext("Extensions"), "ki-element-plus", "extensions_qty", "extensions_url"],
 ];
 
+/** A tile's count, or, while the counts load, a block the size of its number. */
+function Count({ loading, value }: { loading: boolean; value: number }) {
+  if (loading) return <Skeleton shape="block" width={3} height={2.25} className="d-block mb-1" />;
+  return <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">{value}</span>;
+}
+
+/** The compact grid's skeleton, while the counts load: an icon, a count and a label, for each kind. */
+function MoreSkeleton() {
+  return (
+    <ul className="my-resources-more" aria-hidden="true">
+      {MORE_RESOURCES.map(([label]) => (
+        <li key={label}>
+          <span className="my-resources-more-item">
+            <Skeleton shape="block" width={1.25} height={1.25} />
+            <Skeleton width={1.75} height={1.1} className="mt-2" />
+            <Skeleton width={4.5} height={0.7} className="mt-2" />
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
   // the console's cache: the counts show at once when the dashboard opens again.
   const { data, error, isLoading: loading } = useDashboardApi<MyResourcesData>(sessionContext, apiUrl);
@@ -83,7 +106,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
   return (
     <>
       {/* begin::Col */}
-      <section id="my-resources" aria-label={gettext("My Resources")} className="col-xl-4 mb-xl-10">
+      <section id="my-resources" aria-label={gettext("My Resources")} aria-busy={loading} className="col-xl-4 mb-xl-10">
         {/* begin::Lists Widget 19 */}
         <div className="card card-flush h-xl-100">
           {/* begin::Heading */}
@@ -108,18 +131,14 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
                   <>
                     <span className="opacity-75">{gettext("You have")}</span>{" "}
                     <span className="position-relative d-inline-block">
-                      {loading ? (
-                        <Loading />
-                      ) : (
-                        <a
-                          href={data?.pending_deployments_url ?? data?.llmclients_url}
-                          className="link-white opacity-75-hover fw-bold d-block mb-1"
-                        >
-                          {interpolateNodes(gettext("%(my_resources_pending_deployments)s pending"), {
-                            my_resources_pending_deployments,
-                          })}
-                        </a>
-                      )}
+                      <a
+                        href={data?.pending_deployments_url ?? data?.llmclients_url}
+                        className="link-white opacity-75-hover fw-bold d-block mb-1"
+                      >
+                        {interpolateNodes(gettext("%(my_resources_pending_deployments)s pending"), {
+                          my_resources_pending_deployments,
+                        })}
+                      </a>
                       <span className="position-absolute opacity-50 bottom-0 start-0 border-2 border-body border-bottom w-100"></span>
                     </span>
                     <span className="opacity-75">
@@ -157,13 +176,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
                       {/* begin::Workbench */}
                       <div className="m-0">
                         {/* begin::Number */}
-                        {loading ? (
-                          <Loading />
-                        ) : (
-                          <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                            {my_resources_llmclients}
-                          </span>
-                        )}
+                        <Count loading={loading} value={my_resources_llmclients} />
                         {/* end::Number */}
                         <span className="text-gray-500 fw-semibold fs-6">{gettext("LLM Clients")}</span>
                       </div>
@@ -192,13 +205,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
                     <a href={data?.plugins_url}>
                       <div className="m-0">
                         {/* begin::Number */}
-                        {loading ? (
-                          <Loading />
-                        ) : (
-                          <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                            {my_resources_plugins}
-                          </span>
-                        )}
+                        <Count loading={loading} value={my_resources_plugins} />
                         {/* end::Number */}
                         {/* begin::Desc */}
                         <span className="text-gray-500 fw-semibold fs-6">{gettext("Tools")}</span>
@@ -229,13 +236,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
                     <a className="menu-link" href={data?.mcpclients_url} target="_self">
                       <div className="m-0">
                         {/* begin::Number */}
-                        {loading ? (
-                          <Loading />
-                        ) : (
-                          <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                            {my_resources_mcpclients}
-                          </span>
-                        )}
+                        <Count loading={loading} value={my_resources_mcpclients} />
                         {/* end::Number */}
                         {/* begin::Desc */}
                         <span className="text-gray-500 fw-semibold fs-6">{gettext("MCPClients")}</span>
@@ -266,13 +267,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
                     <a className="menu-link" href={data?.providers_url} target="_self">
                       <div className="m-0">
                         {/* begin::Number */}
-                        {loading ? (
-                          <Loading />
-                        ) : (
-                          <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                            {my_resources_providers}
-                          </span>
-                        )}
+                        <Count loading={loading} value={my_resources_providers} />
                         {/* end::Number */}
                         {/* begin::Desc */}
                         <span className="text-gray-500 fw-semibold fs-6">{gettext("LLM Providers")}</span>
@@ -287,6 +282,7 @@ function MyResources({ sessionContext, apiUrl }: MyResourcesProps) {
               </div>
               {/* end::Row */}
               {/* begin::More */}
+              {loading && <MoreSkeleton />}
               {data && (
                 <ul className="my-resources-more" aria-label={gettext("More resources")}>
                   {MORE_RESOURCES.filter(([, , , urlKey]) => data[urlKey]).map(([label, icon, qtyKey, urlKey]) => {

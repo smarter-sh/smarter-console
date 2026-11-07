@@ -19,7 +19,7 @@
  *     <QuickActions sessionContext={sessionContext} apiUrl="/api/web/dashboard/quick-actions/" />
  */
 import type { SessionContext } from "@smarter/common";
-import { gettext, interpolateNodes, Loading } from "@smarter/common";
+import { gettext, interpolateNodes, Skeleton, SkeletonRegion } from "@smarter/common";
 
 import useDashboardApi from "../../hooks/useDashboardApi";
 import "./styles.css";
@@ -34,6 +34,25 @@ interface QuickAction {
 interface QuickActionsProps {
   sessionContext: SessionContext;
   apiUrl: string;
+}
+
+/** How many action tiles the skeleton shows: the platform's quick actions are about this many. */
+const SKELETON_TILES = 6;
+
+/** The actions' skeleton, while they load: tiles of an icon and a name, two to a row, as the actions are. */
+function QuickActionsSkeleton() {
+  return (
+    <SkeletonRegion className="row g-2">
+      {Array.from({ length: SKELETON_TILES }, (_, tile) => (
+        <div key={tile} className="col-6">
+          <span className="d-flex align-items-center bg-gray-100 bg-opacity-70 rounded-2 px-3 py-2">
+            <Skeleton shape="block" width={1.5} height={1.5} className="me-2 flex-shrink-0" />
+            <Skeleton width="60%" height={0.8} />
+          </span>
+        </div>
+      ))}
+    </SkeletonRegion>
+  );
 }
 
 function QuickActions({ sessionContext, apiUrl }: QuickActionsProps) {
@@ -51,7 +70,7 @@ function QuickActions({ sessionContext, apiUrl }: QuickActionsProps) {
               {interpolateNodes(gettext("Failed to load quick actions: %(error)s"), { error })}
             </div>
           )}
-          {!data && !error && <Loading />}
+          {!data && !error && <QuickActionsSkeleton />}
           {data && (
             <div className="row g-2">
               {data.map((action) => {

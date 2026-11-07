@@ -10,6 +10,13 @@ import QuickActions from "@/components/QuickActions/Component";
 const apiUrl = appContext.quickActionsApiUrl;
 
 describe("QuickActions", () => {
+  it("shows tiles' skeletons while the actions load", () => {
+    server.use(http.post(apiUrl, () => new Promise<Response>(() => {})));
+    render(<QuickActions sessionContext={appContext.sessionContext} apiUrl={apiUrl} />);
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+
   it("links each action, with its description as its tooltip", async () => {
     server.use(http.post(apiUrl, () => HttpResponse.json(quickActions)));
     render(<QuickActions sessionContext={appContext.sessionContext} apiUrl={apiUrl} />);

@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import type { SessionContext } from "@smarter/common";
 
 import "./styles.css";
-import { gettext } from "@smarter/common";
+import { gettext, SkeletonChart } from "@smarter/common";
 
 // recharts is a large dependency and is only needed for this chart, so it's
 // loaded in its own chunk instead of bloating the main app bundle.
@@ -34,7 +34,8 @@ function UserCharges({ sessionContext, apiUrl, className = "col-xl-12" }: UserUs
           {/* end::Header */}
           {/* begin::Body */}
           <div className="card-body d-flex flex-column pt-3">
-            <Suspense fallback={null}>
+            {/* the chart's skeleton while its code, with recharts, loads. */}
+            <Suspense fallback={<SkeletonChart height={400} controls />}>
               <TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} />
             </Suspense>
           </div>

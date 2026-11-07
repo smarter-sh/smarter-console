@@ -13,6 +13,17 @@ const apiUrl = appContext.myResourcesApiUrl;
 const sessionContext = appContext.sessionContext;
 
 describe("MyResources", () => {
+  it("shows its tiles' and its grid's skeletons while the counts load", () => {
+    server.use(http.post(apiUrl, () => new Promise<Response>(() => {})));
+    render(<MyResources sessionContext={sessionContext} apiUrl={apiUrl} />);
+    const region = screen.getByRole("region", { name: "My Resources" });
+    expect(region).toHaveAttribute("aria-busy", "true");
+    // the tiles' labels show; their counts, and the grid's items, are skeletons, which screen readers skip.
+    expect(within(region).getByText("LLM Clients")).toBeInTheDocument();
+    expect(within(region).queryByRole("list", { name: "More resources" })).not.toBeInTheDocument();
+    expect(within(region).queryByText(/pending/)).not.toBeInTheDocument();
+  });
+
   it("links pending deployments to the unfiltered list from an api without a pending link", async () => {
     const { pending_deployments_url: _, ...older } = myResources;
     server.use(http.post(apiUrl, () => HttpResponse.json(older)));

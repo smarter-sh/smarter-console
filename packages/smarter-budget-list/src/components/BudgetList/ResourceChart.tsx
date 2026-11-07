@@ -5,7 +5,7 @@
  * with recharts. The series is a query of the console's cache (TanStack Query).
  */
 import { useQuery } from "@tanstack/react-query";
-import { fetchDjangoUrl, gettext, interpolate, useSmarterQueryClient } from "@smarter/common";
+import { fetchDjangoUrl, gettext, interpolate, SkeletonChart, useSmarterQueryClient } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
 import BudgetChart from "./BudgetChart";
@@ -70,7 +70,7 @@ export default function ResourceChart({
   const errMessage = query.isError ? query.error.message : "";
 
   if (errMessage) return <div className="text-danger fs-7">{errMessage}</div>;
-  if (series === null) return <div className="text-muted fs-7">{gettext("Loading…")}</div>;
+  if (series === null) return <SkeletonChart height={260} />;
   return (
     <BudgetChart
       series={series}

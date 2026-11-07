@@ -8,7 +8,7 @@
  */
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { fetchDjangoUrl, gettext, interpolate, useSmarterQueryClient } from "@smarter/common";
+import { fetchDjangoUrl, gettext, interpolate, SkeletonChart, useSmarterQueryClient } from "@smarter/common";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 import { formatPeriod } from "../BudgetVsActual/format";
@@ -121,6 +121,8 @@ export default function TokenUsageChart({ sessionContext, apiUrl, height = 400 }
   const errMessage = query.isError && !query.isFetching ? query.error.message : "";
   // loading until the period's series arrives: the first, and each period chosen.
   const isLoading = query.isFetching && (query.data === undefined || query.isPlaceholderData);
+  // the first series hasn't arrived: the chart's skeleton stands in for it.
+  const firstLoad = query.data === undefined && !errMessage;
 
   const rows = (series?.points ?? []).map((point) => ({
     ...point,
@@ -137,35 +139,41 @@ export default function TokenUsageChart({ sessionContext, apiUrl, height = 400 }
       {errMessage && <div style={{ color: "#b91c1c", marginBottom: "0.5rem", fontSize: "0.9rem" }}>{errMessage}</div>}
       {empty && <div className="text-muted fs-7 mb-2">{gettext("No token usage in this period.")}</div>}
 
-      <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={rows}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" />
-          <YAxis tickFormatter={(value: number) => value.toLocaleString()} />
-          <Tooltip
-            formatter={(value) => {
-              if (typeof value === "number") {
-                return value.toLocaleString();
-              }
-              return value ?? "";
-            }}
-          />
-          <Legend />
-          {AREAS.map((area) => (
-            <Area
-              key={area.key}
-              type="monotone"
-              dataKey={area.key}
-              name={area.label}
-              stackId="usage"
-              fill={area.color}
-              stroke={area.color}
+      {firstLoad && <SkeletonChart height={height} />}
+      {!firstLoad && (
+        <ResponsiveContainer width="100%" height={height}>
+          <AreaChart data={rows}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="label" />
+            <YAxis tickFormatter={(value: number) => value.toLocaleString()} />
+            <Tooltip
+              formatter={(value) => {
+                if (typeof value === "number") {
+                  return value.toLocaleString();
+                }
+                return value ?? "";
+              }}
             />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
+            <Legend />
+            {AREAS.map((area) => (
+              <Area
+                key={area.key}
+                type="monotone"
+                dataKey={area.key}
+                name={area.label}
+                stackId="usage"
+                fill={area.color}
+                stroke={area.color}
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
 
-      {isLoading && <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", opacity: 0.6 }}>{gettext("Loading…")}</div>}
+      {/* another period's series, while the chart still shows the previous one. */}
+      {isLoading && !firstLoad && (
+        <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", opacity: 0.6 }}>{gettext("Loading…")}</div>
+      )}
     </div>
   );
 }
