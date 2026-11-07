@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.16](https://github.com/smarter-sh/smarter-console/compare/v1.0.15...v1.0.16) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** serve Inter from the console's build, not Google Fonts ([bebdaa8](https://github.com/smarter-sh/smarter-console/commit/bebdaa8b7047b092c13ac38be0c78bf884fd560f))
+
 ## [1.0.15](https://github.com/smarter-sh/smarter-console/compare/v1.0.14...v1.0.15) (2026-11-07)
 
 ### Bug Fixes
