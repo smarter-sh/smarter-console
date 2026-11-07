@@ -30,6 +30,9 @@ export default defineConfig([
     "**/storybook-static",
     "**/coverage",
     "**/node_modules",
+    // Playwright's reports.
+    "e2e/test-results",
+    "e2e/playwright-report",
     "storybook/public",
     "**/.storybook/public",
     "i18n/messages.js",
@@ -56,8 +59,15 @@ export default defineConfig([
     },
   },
   {
-    // configuration files run in Node.
-    files: ["**/*.config.{js,ts}", "**/.storybook/*.ts", "storybook/*.ts", "vitest.shared.ts", "i18n/*.ts"],
+    // configuration files, and the end-to-end tests, which Playwright runs, run in Node.
+    files: [
+      "**/*.config.{js,ts}",
+      "**/.storybook/*.ts",
+      "storybook/*.ts",
+      "vitest.shared.ts",
+      "i18n/*.ts",
+      "e2e/**/*.ts",
+    ],
     languageOptions: {
       globals: globals.node,
     },

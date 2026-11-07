@@ -174,6 +174,28 @@ The packages are tested with [Vitest](https://vitest.dev/) and
 - The shared setup, [vitest.shared.ts](./vitest.shared.ts) and [test/](./test/), pins `NODE_ENV`, the time zone and
   the locale, so tests behave the same on every machine and in CI.
 
+### End-to-end tests
+
+A handful of smoke tests in [e2e/](./e2e/) drive the console in a real browser, with
+[Playwright](https://playwright.dev/), against a real Smarter backend rather than mocks: signing in and out, the
+dashboard, a list opened in place and a resource's detail, a manifest page, and an LLMClient's workbench.
+
+```console
+npx playwright install chromium    # once: the browser
+make run                           # in the smarter repository: the backend on :9357
+make e2e                           # here
+```
+
+- `make e2e` starts the console on Vite's dev server (:5173), or uses the one that `make dev` runs.
+- Before the tests, it creates a throwaway user, in an account of its own, in the backend's `smarter-api`
+  container, and deletes the user, their profile and their account after. The user's password is random, and lives
+  only in `e2e/.auth/`, which git ignores, while the tests run.
+- The user owns nothing, so the tests open the platform's examples, which every platform loads and shares with
+  every user.
+- A failed test keeps its trace and screenshot in `e2e/test-results/`; `npx playwright show-report e2e/playwright-report`
+  opens the report.
+- CI doesn't run them: they need the backend's whole stack.
+
 ## Code Quality
 
 - [Prettier](https://prettier.io/) (`npm run format`), [ESLint](https://eslint.org/) (`npm run lint`), with

@@ -139,3 +139,25 @@ the run.
 about when enough is enough. Large blocks of coverage misses in a module are
 frowned upon. Individual tsx files with coverage ratios far below the 95% target
 are also frowned upon. (see `smarter-console-development`).
+
+## End-to-end tests
+
+`e2e/` holds Playwright smoke tests of the console in Chromium, against a real
+backend: the smarter repository's `make run` on :9357, and the console on
+Vite's dev server on :5173, which Playwright starts unless `make dev` runs it.
+`make e2e` runs them; `npx playwright install chromium` downloads the browser
+once.
+
+- `global-setup.ts` creates a throwaway user, in an account of its own, with
+  `e2e/backend/create_user.py`, run by `manage.py shell` in the `smarter-api`
+  container (`backend.ts`), and `global-teardown.ts` deletes exactly those
+  rows. Don't use the backend's `create_user` command, which sends email, or
+  `factory_account_teardown()`, which deletes every test account, including
+  those of a backend test run.
+- The user owns nothing: open the platform's shared examples (a list's Shared
+  tab), which every platform loads. Never create resources, least of all an
+  LLMClient, whose save can deploy it to real infrastructure.
+- Keep them a handful of smoke tests of what mocks can't catch: the console
+  meeting the real backend. Behavior belongs in Vitest tests.
+- CI doesn't run them; run them after a change to the console's frame, its
+  routes, sign-in, or how it calls the backend.

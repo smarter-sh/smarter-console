@@ -11,6 +11,11 @@ storybook-static/
 # test output
 coverage/
 
+# the end-to-end tests' throwaway user, while they run, and Playwright's results and report: make e2e
+e2e/.auth/
+e2e/test-results/
+e2e/playwright-report/
+
 # editors and operating systems
 .DS_Store
 .idea/

@@ -6,7 +6,7 @@ PYTHON ?= python3
 VENV := venv
 VENV_BIN := $(VENV)/bin
 
-.PHONY: init venv install test lint analyze format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
+.PHONY: init venv install test e2e lint analyze format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
 
@@ -29,6 +29,12 @@ install:
 # Every package's tests, with a coverage report in coverage/.
 test:
 	npm run build:deps && npm run coverage
+
+# The end-to-end tests: a real browser (Chromium, which npx playwright install chromium downloads once) against
+# the console on Vite's dev server, and a Smarter backend: the smarter repository's make run. They create a
+# throwaway user in the backend, and delete it after. See e2e/ and README.md, End-to-end tests.
+e2e:
+	npm run e2e
 
 # What CI checks: formatting, lint and types.
 lint:
@@ -112,6 +118,7 @@ help:
 	@echo 'venv             - (Re)create the Python virtual environment of the development tools'
 	@echo 'install          - Install the workspace'"'"'s dependencies'
 	@echo 'test             - Run every package'"'"'s tests, with coverage'
+	@echo 'e2e              - Run the end-to-end tests, against a Smarter backend on :9357 (its make run)'
 	@echo 'lint             - Check formatting, lint and types, as CI does'
 	@echo 'analyze          - Count the lines of code, by language, with cloc'
 	@echo 'format           - Fix formatting and auto-fixable lint'

@@ -55,6 +55,7 @@ make init                          # once: venv with pre-commit, npm install, th
 make install                       # npm install
 make test                          # every package's tests, with coverage
 npx vitest run packages/<name>     # one package
+make e2e                           # end-to-end tests: Playwright, against a backend on :9357 (smarter's make run)
 make lint                          # formatting, lint and types, as CI does
 make analyze                       # lines of code, by language, with cloc
 make build                         # production builds into dist/react/<package>/
