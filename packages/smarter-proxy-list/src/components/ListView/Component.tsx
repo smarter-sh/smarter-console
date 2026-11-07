@@ -28,8 +28,8 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { gettext, Loading, SortableHeader } from "@smarter/common";
-import type { SessionContext, Sorting } from "@smarter/common";
+import { gettext, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SessionContext, SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { Proxy, ProxyListViewProps } from "../../lib/Types";
 import { Toolbar } from "../Toolbar";
@@ -38,15 +38,6 @@ import { loggerPrefix } from "../../lib/const";
 import { formatApiKey, upstreamHost } from "../../lib/format";
 
 import "./styles.css";
-
-/**
- * LoadingText
- *
- * Displays a muted "Loading..." text, typically used in skeleton or ghost rows to indicate loading state.
- */
-const LoadingText = () => {
-  return <span className="text-muted fw-semibold">{gettext("Loading...")}</span>;
-};
 
 /**
  * TableHeader
@@ -121,52 +112,17 @@ const ProxyRow = React.memo(function ProxyRow({
 });
 
 /**
- * ProxyRowGhost
- *
- * A skeleton row component to display while proxy data is loading.
- * It has the same columns as ProxyRow, with placeholder content.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const ProxyRowGhost = React.memo(function ProxyRowGhost() {
-  console.debug(`${loggerPrefix} Rendering ProxyRowGhost`);
-  return (
-    <tr className="ghost">
-      {/* Name */}
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      {/* Provider */}
-      <td className="">
-        <LoadingText />
-      </td>
-      {/* Provider API */}
-      <td className="d-none d-lg-table-cell"></td>
-      {/* API Key */}
-      <td className="d-none d-lg-table-cell"></td>
-      {/* Status */}
-      <td className="d-none d-md-table-cell "></td>
-      {/* Actions */}
-      <td className="text-end "></td>
-    </tr>
-  );
-});
-
-/**
- * ProxyRowGhosts
- *
- * Renders a specified number of skeleton (ghost) rows to indicate loading state in the proxy list.
- *
- * @param count - Number of skeleton rows to render.
- */
-const ProxyRowGhosts = React.memo(function ProxyRowGhosts({ count }: { count: number }) {
-  console.debug(`${loggerPrefix} Rendering ProxyRowGhosts with count: ${count}`);
-  return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <ProxyRowGhost key={idx} />
-      ))}
-    </>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  "p-1 m-0", // Name
+  "", // Provider
+  "d-none d-lg-table-cell", // Provider API
+  "d-none d-lg-table-cell", // API Key
+  "d-none d-md-table-cell", // Status
+  "text-end", // Actions
+];
 
 /**
  * ChunkedRows
@@ -234,7 +190,7 @@ export function ListView({ isLoading, ghostRows, sessionContext, objects, onRequ
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading ? (
-            <ProxyRowGhosts count={ghostRows} />
+            <SkeletonRows count={ghostRows} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows proxies={objects} sessionContext={sessionContext} onRequery={onRequery} />
           )}

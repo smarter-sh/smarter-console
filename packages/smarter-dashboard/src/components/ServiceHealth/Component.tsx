@@ -196,8 +196,8 @@ function ServiceHealth({ sessionContext, apiUrl }: ServiceHealthProps) {
       id="service-health"
       aria-label={gettext("Service Health")}
       aria-busy={!data && !error}
-      // without data, the card is its own ghost: shimmering while it loads, still if it failed.
-      className={`col-xl-6 mb-xl-10 ${!data && !error ? "service-health-loading" : ""}`}
+      // without data, the card is its own ghost: shimmering while it loads, still if it failed (Ghost.tsx).
+      className="col-xl-6 mb-xl-10"
     >
       <div className="card card-flush h-xl-100">
         <div className="card-header flex-nowrap pt-5">
@@ -211,7 +211,7 @@ function ServiceHealth({ sessionContext, apiUrl }: ServiceHealthProps) {
                 })}
               </span>
             )}
-            {!data && <GhostHeader />}
+            {!data && <GhostHeader loading={!error} />}
           </div>
           {(data || error) && (
             <div className="card-toolbar align-self-start flex-shrink-0 ms-2">
@@ -231,7 +231,7 @@ function ServiceHealth({ sessionContext, apiUrl }: ServiceHealthProps) {
         </div>
         <div className="card-body pt-2 pb-5 service-health-body">
           {data && <RuntimeVersions data={data} />}
-          {!data && <GhostBody />}
+          {!data && <GhostBody loading={!error} />}
           {error && (
             <p className="visually-hidden" role="status">
               {gettext("Service health couldn't be loaded. It will try again shortly.")}

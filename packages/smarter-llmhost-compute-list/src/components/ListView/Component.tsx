@@ -26,8 +26,8 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { gettext, Loading, SortableHeader } from "@smarter/common";
-import type { SessionContext, Sorting } from "@smarter/common";
+import { gettext, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SessionContext, SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { LLMHostCompute, LLMHostComputeListViewProps } from "../../lib/Types";
 import { Toolbar } from "../Toolbar";
@@ -36,15 +36,6 @@ import { loggerPrefix } from "../../lib/const";
 import { formatCpuMemory, formatGpus, formatPrice } from "../../lib/format";
 
 import "./styles.css";
-
-/**
- * LoadingText
- *
- * Displays a muted "Loading..." text, used in skeleton rows to indicate loading state.
- */
-const LoadingText = () => {
-  return <span className="text-muted fw-semibold">{gettext("Loading...")}</span>;
-};
 
 /**
  * TableHeader
@@ -126,53 +117,18 @@ const LLMHostComputeRow = React.memo(function LLMHostComputeRow({
 });
 
 /**
- * LLMHostComputeRowGhost
- *
- * A skeleton row to display while the data is loading, with the same columns as LLMHostComputeRow.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const LLMHostComputeRowGhost = React.memo(function LLMHostComputeRowGhost() {
-  console.debug(`${loggerPrefix} Rendering LLMHostComputeRowGhost`);
-  return (
-    <tr className="ghost">
-      {/* Name */}
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      {/* Instance Type */}
-      <td className="d-none d-lg-table-cell">
-        <LoadingText />
-      </td>
-      {/* GPUs */}
-      <td className=""></td>
-      {/* CPU and Memory */}
-      <td className="d-none d-lg-table-cell"></td>
-      {/* Price per Node */}
-      <td className="d-none d-md-table-cell"></td>
-      {/* Node Group */}
-      <td className="d-none d-md-table-cell "></td>
-      {/* Actions */}
-      <td className="text-end "></td>
-    </tr>
-  );
-});
-
-/**
- * LLMHostComputeRowGhosts
- *
- * Renders a number of skeleton rows to indicate loading state.
- *
- * @param count - Number of skeleton rows to render.
- */
-const LLMHostComputeRowGhosts = React.memo(function LLMHostComputeRowGhosts({ count }: { count: number }) {
-  console.debug(`${loggerPrefix} Rendering LLMHostComputeRowGhosts with count: ${count}`);
-  return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <LLMHostComputeRowGhost key={idx} />
-      ))}
-    </>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  "p-1 m-0", // Name
+  "d-none d-lg-table-cell", // Instance Type
+  "", // GPUs
+  "d-none d-lg-table-cell", // CPU and Memory
+  "d-none d-md-table-cell", // Price per Node
+  "d-none d-md-table-cell", // Node Group
+  "text-end", // Actions
+];
 
 /**
  * ChunkedRows
@@ -242,7 +198,7 @@ export function ListView({
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading ? (
-            <LLMHostComputeRowGhosts count={ghostRows} />
+            <SkeletonRows count={ghostRows} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows computes={objects} sessionContext={sessionContext} onRequery={onRequery} />
           )}

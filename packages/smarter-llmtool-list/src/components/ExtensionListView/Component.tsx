@@ -28,23 +28,14 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { formatDateTime, gettext, Loading, SortableHeader } from "@smarter/common";
-import type { Sorting } from "@smarter/common";
+import { formatDateTime, gettext, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { Extension, ExtensionListViewProps } from "../../lib/Types";
 import { ExtensionStatusBar } from "../ExtensionStatusBar";
 import { loggerPrefix } from "../../lib/const";
 
 import "../ListView/styles.css";
-
-/**
- * LoadingText
- *
- * Displays a muted "Loading..." text, used in skeleton or ghost rows to indicate loading state.
- */
-const LoadingText = () => {
-  return <span className="text-muted fw-semibold">{gettext("Loading...")}</span>;
-};
 
 /**
  * TableHeader
@@ -116,34 +107,18 @@ const ExtensionRow = React.memo(function ExtensionRow({ extension }: { extension
 });
 
 /**
- * ExtensionRowGhost
- *
- * A skeleton row component to display while Extension data is loading.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const ExtensionRowGhost = React.memo(function ExtensionRowGhost() {
-  return (
-    <tr className="ghost">
-      {/* Name */}
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      {/* Slug */}
-      <td className="">
-        <LoadingText />
-      </td>
-      {/* Version */}
-      <td className=""></td>
-      {/* Publisher */}
-      <td className="d-none d-lg-table-cell"></td>
-      {/* Description */}
-      <td className=""></td>
-      {/* Updated Date */}
-      <td className="d-none d-lg-table-cell width-100"></td>
-      {/* Status */}
-      <td className="d-none d-md-table-cell "></td>
-    </tr>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  "p-1 m-0", // Name
+  "", // Slug
+  "", // Version
+  "d-none d-lg-table-cell", // Publisher
+  { className: "", shape: "paragraph" }, // Description
+  "d-none d-lg-table-cell width-100", // Updated Date
+  "d-none d-md-table-cell", // Status
+];
 
 /**
  * ChunkedRows
@@ -192,7 +167,7 @@ export function ExtensionListView({ isLoading, ghostRows, objects, sorting }: Ex
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading ? (
-            Array.from({ length: ghostRows }).map((_, idx) => <ExtensionRowGhost key={idx} />)
+            <SkeletonRows count={ghostRows} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows extensions={objects} />
           )}

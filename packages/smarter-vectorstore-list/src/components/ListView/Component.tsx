@@ -28,8 +28,8 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { formatDateTime, gettext, Loading, SortableHeader } from "@smarter/common";
-import type { SessionContext, Sorting } from "@smarter/common";
+import { formatDateTime, gettext, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SessionContext, SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { Vectorstore, VectorstoreListViewProps } from "../../lib/Types";
 import { Toolbar } from "../Toolbar";
@@ -38,15 +38,6 @@ import { loggerPrefix } from "../../lib/const";
 import { databaseLabel, formatCount } from "../../lib/format";
 
 import "./styles.css";
-
-/**
- * LoadingText
- *
- * Displays a muted "Loading..." text, typically used in skeleton or ghost rows to indicate loading state.
- */
-const LoadingText = () => {
-  return <span className="text-muted fw-semibold">{gettext("Loading...")}</span>;
-};
 
 /**
  * TableHeader
@@ -136,47 +127,18 @@ const VectorstoreRow = React.memo(function VectorstoreRow({
 });
 
 /**
- * VectorstoreRowGhost
- *
- * A skeleton row component to display while vectorstore data is loading.
- * It mimics the structure of a regular VectorstoreRow but with placeholder content.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const VectorstoreRowGhost = React.memo(function VectorstoreRowGhost() {
-  console.debug(`${loggerPrefix} Rendering VectorstoreRowGhost`);
-  return (
-    <tr className="ghost">
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      <td className="d-none d-md-table-cell">
-        <LoadingText />
-      </td>
-      <td className=""></td>
-      <td className="d-none d-lg-table-cell"></td>
-      <td className="d-none d-lg-table-cell"></td>
-      <td className="d-none d-lg-table-cell width-100"></td>
-      <td className="text-end "></td>
-    </tr>
-  );
-});
-
-/**
- * VectorstoreRowGhosts
- *
- * Renders a specified number of skeleton (ghost) rows to indicate loading state in the vectorstore list.
- *
- * @param count - Number of skeleton rows to render.
- */
-const VectorstoreRowGhosts = React.memo(function VectorstoreRowGhosts({ count }: { count: number }) {
-  console.debug(`${loggerPrefix} Rendering VectorstoreRowGhosts with count: ${count}`);
-  return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <VectorstoreRowGhost key={idx} />
-      ))}
-    </>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  "p-1 m-0", // Name
+  "d-none d-md-table-cell", // Database
+  "", // Status
+  "d-none d-lg-table-cell text-end", // Vectors
+  "d-none d-lg-table-cell text-end", // Documents
+  "d-none d-lg-table-cell width-100", // Updated Date
+  "text-end", // Actions
+];
 
 /**
  * ChunkedRows
@@ -256,7 +218,7 @@ export function ListView({
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading ? (
-            <VectorstoreRowGhosts count={ghostRows} />
+            <SkeletonRows count={ghostRows} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows vectorstores={objects} sessionContext={sessionContext} onRequery={onRequery} />
           )}

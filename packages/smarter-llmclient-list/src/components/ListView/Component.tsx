@@ -28,8 +28,8 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { formatDateTime, gettext, interpolate, Loading, LoadingText, SortableHeader } from "@smarter/common";
-import type { SessionContext, Sorting } from "@smarter/common";
+import { formatDateTime, gettext, interpolate, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SessionContext, SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { LLMClient } from "../../lib/Types";
 import { workbenchPath } from "../../lib/workbench";
@@ -171,58 +171,21 @@ const LLMClientRow = React.memo(function LLMClientRow({
 });
 
 /**
- * LLMClientRowGhost
- *
- * A skeleton row component to display while llmclient data is loading.
- * It mimics the structure of a regular LLMClientRow but with placeholder content.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const LLMClientRowGhost = React.memo(function LLMClientRowGhost() {
-  console.debug(`${loggerPrefix} Rendering LLMClientRowGhost`);
-  return (
-    <tr className="ghost">
-      {/* Name */}
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      {/* Created Date */}
-      <td className="d-none d-lg-table-cell width-100">
-        <LoadingText />
-      </td>
-      {/* Updated Date */}
-      <td className="d-none d-lg-table-cell width-100"></td>
-      {/* Description */}
-      <td className=""></td>
-      {/* Provider */}
-      <td className=""></td>
-      {/* Model */}
-      <td className="min-width-150"></td>
-      {/* Tools */}
-      <td className="d-none d-xl-table-cell"></td>
-      {/* Status */}
-      <td className="d-none d-md-table-cell "></td>
-      {/* Operations */}
-      <td className="text-end "></td>
-    </tr>
-  );
-});
-
-/**
- * LLMClientRowGhosts
- *
- * Renders a specified number of skeleton (ghost) rows to indicate loading state in the llmclient list.
- *
- * @param count - Number of skeleton rows to render.
- */
-const LLMClientRowGhosts = React.memo(function LLMClientRowGhosts({ count }: { count: number }) {
-  console.debug(`${loggerPrefix} Rendering LLMClientRowGhosts with count: ${count}`);
-  return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <LLMClientRowGhost key={idx} />
-      ))}
-    </>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  // the name, and the Workbench button below it.
+  { className: "p-1 m-0", shape: "nameWithButton" },
+  "d-none d-lg-table-cell width-100", // Created Date
+  "d-none d-lg-table-cell width-100", // Updated Date
+  { className: "", shape: "paragraph" }, // Description
+  "", // Provider
+  "min-width-150", // Model
+  "d-none d-xl-table-cell", // Tools
+  "d-none d-md-table-cell", // Status
+  "text-end", // Actions
+];
 
 /**
  * ChunkedRows
@@ -297,7 +260,7 @@ export function ListView({ isLoading, sessionContext, objects, onRequery, sortin
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading && (!objects || objects.length === 0) ? (
-            <LLMClientRowGhosts count={5} />
+            <SkeletonRows count={5} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows llmclients={objects} sessionContext={sessionContext} onRequery={onRequery} />
           )}

@@ -1,0 +1,85 @@
+/*
+ * Skeletons: gray shapes that stand in for content while it loads (see Component.tsx). Their gray is the theme's,
+ * light or dark, and a light sweeps across them, left to right, as on YouTube and LinkedIn.
+ */
+.smarter-skeleton {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
+  border-radius: 0.375rem;
+  /* the theme's gray-300: its gray-200, nearly white, hardly shows on a white card. */
+  background-color: var(--bs-gray-300, #dbdfe9);
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  background-repeat: no-repeat;
+  background-size: 50% 100%;
+  background-position: -100% 0;
+  animation: smarter-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+[data-bs-theme="dark"] .smarter-skeleton {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.07) 50%, transparent 100%);
+}
+
+@keyframes smarter-skeleton-shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.smarter-skeleton-block {
+  border-radius: 0.475rem;
+}
+
+.smarter-skeleton-circle {
+  border-radius: 50%;
+}
+
+/* still: no light. When loading failed, the shapes only keep the layout. */
+.smarter-skeleton-still {
+  animation: none;
+  background-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smarter-skeleton {
+    animation: none;
+    background-image: none;
+  }
+}
+
+/* lines of text, one under the other. */
+.smarter-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* a paragraph in a table's cell: a width of its own, since an empty table's cells are narrow. */
+.smarter-skeleton-paragraph {
+  display: block;
+  width: 12rem;
+  max-width: 100%;
+}
+
+/* a name, with a button below it. */
+.smarter-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+/* a list's skeleton rows: the actions' icon buttons side by side, at the right, as the Toolbar's. */
+.smarter-skeleton-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+/* a list's skeleton rows don't stripe or highlight, as rows of objects do. */
+.table-striped > tbody > tr.smarter-skeleton-row > *,
+.table-hover > tbody > tr.smarter-skeleton-row:hover > * {
+  --bs-table-bg-type: transparent;
+  --bs-table-bg-state: transparent;
+}

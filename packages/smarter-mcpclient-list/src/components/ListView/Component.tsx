@@ -28,8 +28,8 @@
  */
 import React, { useState, useEffect } from "react";
 
-import { formatDateTime, gettext, Loading, SortableHeader } from "@smarter/common";
-import type { SessionContext, Sorting } from "@smarter/common";
+import { formatDateTime, gettext, SkeletonRows, SortableHeader } from "@smarter/common";
+import type { SessionContext, SkeletonColumn, Sorting } from "@smarter/common";
 
 import type { MCPClient, MCPClientListViewProps } from "../../lib/Types";
 import { Toolbar } from "../Toolbar";
@@ -37,15 +37,6 @@ import { StatusBar } from "../StatusBar";
 import { loggerPrefix } from "../../lib/const";
 
 import "./styles.css";
-
-/**
- * LoadingText
- *
- * Displays a muted "Loading..." text, typically used in skeleton or ghost rows to indicate loading state.
- */
-const LoadingText = () => {
-  return <span className="text-muted fw-semibold">{gettext("Loading...")}</span>;
-};
 
 /**
  * TableHeader
@@ -145,58 +136,19 @@ const MCPClientRow = React.memo(function MCPClientRow({
 });
 
 /**
- * MCPClientRowGhost
- *
- * A skeleton row component to display while mcpclient data is loading.
- * It mimics the structure of a regular MCPClientRow but with placeholder content.
+ * The columns of the table's skeleton rows, while the list loads: the class names of each column's cells, so
+ * that a column hidden at a width is hidden in the skeleton too. See SkeletonRows in @smarter/common.
  */
-const MCPClientRowGhost = React.memo(function MCPClientRowGhost() {
-  console.debug(`${loggerPrefix} Rendering MCPClientRowGhost`);
-  return (
-    <tr className="ghost">
-      {/* Name */}
-      <td className="p-1 m-0">
-        <Loading />
-      </td>
-      {/* Created Date */}
-      <td className="d-none d-lg-table-cell width-100">
-        <LoadingText />
-      </td>
-      {/* Updated Date */}
-      <td className="d-none d-lg-table-cell width-100"></td>
-      {/* Kind */}
-      <td className=""></td>
-      {/* Description */}
-      <td className="min-width-150"></td>
-      {/* isActive */}
-      <td className="d-none d-xl-table-cell"></td>
-      {/* priority */}
-      <td className="d-none d-xl-table-cell"></td>
-      {/* Status */}
-      <td className="d-none d-md-table-cell "></td>
-      {/* Actions */}
-      <td className="text-end "></td>
-    </tr>
-  );
-});
-
-/**
- * MCPClientRowGhosts
- *
- * Renders a specified number of skeleton (ghost) rows to indicate loading state in the mcpclient list.
- *
- * @param count - Number of skeleton rows to render.
- */
-const MCPClientRowGhosts = React.memo(function MCPClientRowGhosts({ count }: { count: number }) {
-  console.debug(`${loggerPrefix} Rendering MCPClientRowGhosts with count: ${count}`);
-  return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <MCPClientRowGhost key={idx} />
-      ))}
-    </>
-  );
-});
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  "p-1 m-0", // Name
+  "d-none d-lg-table-cell width-100", // Created Date
+  "d-none d-lg-table-cell width-100", // Updated Date
+  { className: "", shape: "paragraph" }, // Description
+  "",
+  "",
+  "d-none d-md-table-cell", // Status
+  "text-end", // Actions
+];
 
 /**
  * ChunkedRows
@@ -273,7 +225,7 @@ export function ListView({
         <TableHeader sorting={sorting} />
         <tbody>
           {isLoading ? (
-            <MCPClientRowGhosts count={ghostRows} />
+            <SkeletonRows count={ghostRows} columns={SKELETON_COLUMNS} />
           ) : (
             <ChunkedRows mcpclients={objects} sessionContext={sessionContext} onRequery={onRequery} />
           )}

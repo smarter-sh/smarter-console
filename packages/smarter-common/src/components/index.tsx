@@ -29,6 +29,7 @@ import {
   ResourceCard,
   ROOT_ID,
 } from "./ResourceTree";
+import { Skeleton, SkeletonRegion, SkeletonRows, SkeletonText } from "./Skeleton";
 import SortableHeader from "./SortableHeader";
 import TabbedListView from "./TabbedListView";
 import { getCookieForUrl, setCookieForUrl } from "./TabbedListView";
@@ -65,6 +66,10 @@ export {
   ResourceToolbar,
   ResourceTree,
   ROOT_ID,
+  Skeleton,
+  SkeletonRegion,
+  SkeletonRows,
+  SkeletonText,
   SortableHeader,
   TabbedListView,
   TagChips,
@@ -89,3 +94,4 @@ export type {
 } from "./ResourceDetail";
 export type { KindInfo, NodeId, ResourceTreeNode, ResourceTreeProps, Tone } from "./ResourceTree";
 export type { ToolbarMessages, ToolbarResource } from "./ResourceToolbar";
+export type { SkeletonColumn, SkeletonProps } from "./Skeleton";

@@ -202,45 +202,20 @@
   }
 }
 
-/* the ghost of the card: gray placeholders in the shape of its content. */
-.service-health-ghost {
-  display: block;
-  border-radius: 0.4rem;
-  background-color: var(--bs-gray-200);
-}
-
+/* the ghost of the card: @smarter/common's Skeletons in the shape of its content (Ghost.tsx). The ring is hollow,
+   as the health ring is, and the check tiles' shapes are a shade darker, on the tiles' own gray. */
 .service-health-ghost-ring {
   flex-shrink: 0;
-  width: 76px;
-  height: 76px;
   border: 7px solid var(--bs-gray-200);
-  border-radius: 50%;
-  background: none;
+  background-color: transparent;
 }
 
 .service-health-ghost-tile {
   cursor: default;
 }
 
-.service-health-ghost-tile .service-health-ghost {
+.service-health-ghost-tile .smarter-skeleton {
   background-color: var(--bs-gray-300);
-}
-
-/* while it loads, the ghost shimmers. A ghost that failed to load is still. */
-.service-health-loading .service-health-ghost {
-  animation: service-health-shimmer 1.4s ease-in-out infinite;
-}
-
-@keyframes service-health-shimmer {
-  50% {
-    opacity: 0.45;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .service-health-loading .service-health-ghost {
-    animation: none;
-  }
 }
 
 /* in a narrow card, the status badge and the tiles say what the ring does, and the tiles need its room. */

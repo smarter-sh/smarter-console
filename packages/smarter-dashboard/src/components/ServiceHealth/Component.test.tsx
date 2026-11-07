@@ -16,6 +16,11 @@ function renderWith(data: typeof serviceHealth) {
   return render(<ServiceHealth sessionContext={appContext.sessionContext} apiUrl={apiUrl} />);
 }
 
+/** The ghost's shapes, @smarter/common's Skeletons. */
+function ghostShapes(): HTMLElement[] {
+  return Array.from(screen.getByTestId("service-health-ghost").querySelectorAll<HTMLElement>(".smarter-skeleton"));
+}
+
 function withHealth(healthy: boolean[]) {
   const health_checks = serviceHealth.health_checks.map((check, i) => ({ ...check, healthy: healthy[i] }));
   const health_score = Math.round((healthy.filter(Boolean).length / healthy.length) * 100);
@@ -252,7 +257,7 @@ describe("ServiceHealth", () => {
       4,
     );
     expect(card).toHaveAttribute("aria-busy", "false");
-    expect(card).not.toHaveClass("service-health-loading");
+    expect(ghostShapes().every((shape) => shape.classList.contains("smarter-skeleton-still"))).toBe(true);
     expect(card).not.toHaveTextContent(/503|Failed/);
     expect(screen.queryByRole("list", { name: "Backend services" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh service health" })).toBeEnabled();
@@ -265,8 +270,8 @@ describe("ServiceHealth", () => {
     expect(card).toHaveAttribute("aria-busy", "true");
     expect(screen.getByTestId("service-health-ghost")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
-    // the shimmer is a class on the card; a failed card's ghost is still.
-    expect(card).toHaveClass("service-health-loading");
+    // the ghost's shapes shimmer while it loads; a failed card's are still.
+    expect(ghostShapes().some((shape) => shape.classList.contains("smarter-skeleton-still"))).toBe(false);
   });
 
   it("replaces its ghost with the content once it loads", async () => {
