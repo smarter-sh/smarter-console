@@ -179,7 +179,7 @@ can't break it, and it can't change your site.
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@0/dist/embed.js"
+  src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@1/dist/embed.js"
   data-chatbot="https://support.3141-5926-5359.api.example.com/"
   async
 ></script>
@@ -224,7 +224,7 @@ an array of them) before the script runs:
 <script>
   window.SmarterChatConfig = { chatbot: "https://support.3141-5926-5359.api.example.com/", position: "bottom-left" };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@0/dist/embed.js" async></script>
+<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@1/dist/embed.js" async></script>
 ```
 
 Your own buttons can open the launcher with `SmarterChat.open()`, `SmarterChat.close()` and `SmarterChat.toggle()`,
@@ -235,8 +235,10 @@ launcher from your css with `smarter-chat::part(launcher)`, `::part(panel)` and 
 
 `embed.js` loads its other files from an `embed/` directory beside it: Mermaid, which is downloaded only when a
 message has a diagram, and KaTeX's fonts, only when one has math. To serve it from your own site, copy `dist/embed.js`
-and `dist/embed/` together, e.g. from `npm pack @smarter.sh/ui-chat`. Pin a version (`@0.9.0`) on a CDN url if you want
-to review changes before your visitors see them; `@0` follows the latest 0.x release.
+and `dist/embed/` together, e.g. from `npm pack @smarter.sh/ui-chat`. Pin a version (`@1.2.0`) on a CDN url if you want
+to review changes before your visitors see them; `@1` follows the latest 1.x release. Versions before 1.0 were the
+Smarter platform's, published from its repository; `@0` stays on the last of them, so change it to `@1` for new
+versions (see [ADR-021](doc/adr/021-part-of-the-console-repository.md)).
 
 ### Platforms
 

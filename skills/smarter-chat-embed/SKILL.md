@@ -97,7 +97,7 @@ publishes.
   be lazy, like Mermaid.
 - **React's production build is required**: `check:dist` fails if
   `process.env.NODE_ENV` survives, which a web page can't resolve.
-- **jsDelivr's ranges** (`@0`, `@0.36`) follow only `latest` releases from main;
+- **jsDelivr's ranges** (`@1`, `@1.2`) follow only `latest` releases from main;
   `uiChatRelease.yml` refreshes them after each one. Prereleases are only on
   the `alpha` and `beta` dist-tags.
 - The launcher's panel is a region, not a dialog: no focus trap; Escape closes

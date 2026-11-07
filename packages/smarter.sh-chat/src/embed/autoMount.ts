@@ -2,7 +2,7 @@
  * The embed script's script tag, and window.SmarterChatConfig, each add a <smarter-chat> element to the page:
  *
  * ```html
- * <script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@0/dist/embed.js"
+ * <script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@1/dist/embed.js"
  *   data-chatbot="https://support.3141-5926-5359.api.example.com/" async></script>
  * ```
  *

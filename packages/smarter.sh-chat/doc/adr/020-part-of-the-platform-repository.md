@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-021](021-part-of-the-console-repository.md) for its repository, releases and version.
 
 Supersedes [ADR-003](003-repository.md) and [ADR-013](013-ci-cd.md). Amends [ADR-007](007-distribution.md) and
 [ADR-014](014-versioning.md): the package's version and dist-tags.

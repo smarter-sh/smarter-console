@@ -114,8 +114,8 @@ export function makePage(overrides: Partial<LLMClientDeploymentPage> = {}): LLMC
       apiKeyYaml: "spec:\n  apiKey: <API-KEY-NAME>",
       drupalInstallCommands: "composer require smarter-sh/smarter-drupal\ndrush pm:install smarter_chat",
       npmInstallCommand: "npm install @smarter.sh/ui-chat",
-      embedHtml: `<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@0/dist/embed.js"\n  data-chatbot="${URL}/" async></script>`,
-      embedHtmlWithApiKey: `<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@0/dist/embed.js"\n  data-chatbot="${URL}/"\n  data-api-key="<YOUR-API-KEY>" async></script>`,
+      embedHtml: `<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@1/dist/embed.js"\n  data-chatbot="${URL}/" async></script>`,
+      embedHtmlWithApiKey: `<script src="https://cdn.jsdelivr.net/npm/@smarter.sh/ui-chat@1/dist/embed.js"\n  data-chatbot="${URL}/"\n  data-api-key="<YOUR-API-KEY>" async></script>`,
       reactSnippet: 'import { SmarterChat } from "@smarter.sh/ui-chat";',
       reactSnippetWithApiKey:
         'import { SmarterChat } from "@smarter.sh/ui-chat";\n// apiKey={import.meta.env.VITE_SMARTER_API_KEY}',
