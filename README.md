@@ -38,7 +38,7 @@ make build            # the production builds, into dist/react/<package>/
 ### Running the console against a backend
 
 ```console
-npm run dev -w @smarter/console
+make dev
 ```
 
 Vite serves the console at <http://localhost:5173/>, and proxies the backend's paths (`/api`, `/admin`,

@@ -6,7 +6,7 @@ PYTHON ?= python3
 VENV := venv
 VENV_BIN := $(VENV)/bin
 
-.PHONY: init venv install test lint format typecheck build storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
+.PHONY: init venv install test lint format typecheck build dev storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
 
@@ -44,6 +44,11 @@ typecheck:
 # The production builds, into dist/react/<package>/, the layout of the backend's static/react/.
 build:
 	NODE_ENV=production npm run build
+
+# The console's dev server, http://localhost:5173/, which proxies the backend's paths to a Smarter dev
+# server on port 9357 (the smarter repository's make run).
+dev:
+	npm run dev -w @smarter/console
 
 # One package's Storybook, e.g. make storybook APP=smarter-secret-list
 storybook:
@@ -104,6 +109,7 @@ help:
 	@echo 'format           - Fix formatting and auto-fixable lint'
 	@echo 'typecheck        - Check types'
 	@echo 'build            - Build the production bundles into dist/react/'
+	@echo 'dev              - Run the console on :5173, against a Smarter dev server on :9357'
 	@echo 'storybook        - Run a package'"'"'s Storybook: make storybook APP=smarter-secret-list'
 	@echo 'i18n-extract     - Extract the translatable messages into i18n/messages.js'
 	@echo 'contracts        - Copy the backend'"'"'s api contracts and regenerate their types: SMARTER=../smarter SMARTER_REF=...'

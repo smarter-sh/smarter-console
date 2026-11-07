@@ -58,7 +58,7 @@ npx vitest run packages/<name>     # one package
 make lint                          # formatting, lint and types, as CI does
 make build                         # production builds into dist/react/<package>/
 make contracts                     # the backend's api contracts, from ../smarter, and their types
-npm run dev -w @smarter/console    # the console on :5173, against a Smarter dev server on :9357
+make dev                           # the console on :5173, against a Smarter dev server on :9357
 ```
 
 ## Conventions
