@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.5](https://github.com/smarter-sh/smarter-console/compare/v1.0.4...v1.0.5) (2026-11-07)
+
+### Bug Fixes
+
+* **console:** load the session through TanStack Query ([256d2f6](https://github.com/smarter-sh/smarter-console/commit/256d2f6bc472c0554eb8247f43e9d0da45ff1033))
+
 ## [1.0.4](https://github.com/smarter-sh/smarter-console/compare/v1.0.3...v1.0.4) (2026-11-07)
 
 ### Bug Fixes
