@@ -35,6 +35,8 @@ export default defineConfig([
     "i18n/messages.js",
     // Scalar's vendored, minified build, which the console's OpenAPI page loads.
     "**/public/scalar",
+    // the Keen theme's source, which isn't committed (see README.md, The Theme).
+    "keen_*",
   ]),
   {
     files: ["**/*.{ts,tsx}"],

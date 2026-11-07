@@ -34,10 +34,14 @@ HTTP, and through the console's build, which the backend serves (ADR-035).
 - **The web console api**, `/api/web/<app>/`, and the public api, `/api/v1/`. Calls carry the session
   cookie, and POSTs the CSRF token (`src/lib/api.ts`, or `fetchDjangoUrl` in `@smarter/common`).
 - **Contracts**: a package that reads a backend model has the model's JSON Schema in its `contract/`
-  folder, and TypeScript generated from it (`npm run contract:types`). The backend owns the schema.
+  folder, and TypeScript generated from it (`npm run contract:types`). The backend owns the schema:
+  after it changes, `make contracts` (`scripts/sync-contracts.sh`) copies all six from a smarter
+  checkout, optionally at a git ref, and regenerates their types. Never edit a copy by hand.
 - **Translations**: messages are marked with `gettext()` and friends from `@smarter/common`;
-  `npm run i18n:extract` writes `i18n/messages.js`, and a test fails when it is out of date. The
-  catalogs are the backend's for now (its `djangojs` domain, loaded from `/jsi18n/`).
+  `npm run i18n:extract` writes `i18n/messages.js`, and a test fails when it is out of date. Each
+  release's tarball carries it, and the backend translates it: its catalogs (the `djangojs` domain)
+  are built from the pinned release's `messages.js`, and loaded from `/jsi18n/` before the console's
+  scripts run, which is why module-level constants may call `gettext()`.
 - **The build**: `make build` writes the console and the deployed LLMClient page into
   `dist/react/@smarter/<package>/`, the layout of the backend's `static/react/`. The backend serves the
   console's `index.html` at every console path.

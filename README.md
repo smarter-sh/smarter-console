@@ -46,6 +46,40 @@ Vite serves the console at <http://localhost:5173/>, and proxies the backend's p
 browser sees one origin and Django's session and CSRF cookies work. Run the backend with the `smarter` repository's
 `make run`.
 
+## The Theme
+
+The console is styled by [Keen](https://themes.getbootstrap.com/product/keen-the-ultimate-bootstrap-admin-theme), a
+Bootstrap 5 theme: its classes, its app layout, and its CSS variables (`--bs-*`), which the console's own styles
+read, so that a theme change restyles it. Every page loads the theme's stylesheets from the backend, which serves
+them at `/static/assets/`:
+
+| File, under `static/assets/`        | What it is                                                   |
+| ----------------------------------- | ------------------------------------------------------------ |
+| `css/style.bundle.css`              | The theme: Bootstrap and Keen's components, layout and icons |
+| `plugins/global/plugins.bundle.css` | The styles of the theme's plugins, and its fonts             |
+| `plugins/global/plugins.bundle.js`  | The theme's plugins' scripts                                 |
+| `js/scripts.bundle.js`              | The theme's own scripts                                      |
+
+The console's `index.html`, each package's development page (whose Vite config proxies `/assets/` and `/static/`
+to the backend), and Storybook (`storybook/preview-head.html`) link them from a Smarter dev server at
+<http://localhost:9357>, so run one (the smarter repository's `make run`) for pages and stories to look as they do in
+the console. Storybook also loads `static/common-styles.css`, a small stylesheet of the backend's own, which is
+written by hand rather than generated.
+
+These files are built from the theme's source, and committed in the smarter repository. Rebuild them only to change
+the theme, or to upgrade it:
+
+1. **Get the theme.** Keen is licensed, so its source, `keen_v3.0.6/` (about 670 MB), is not in this repository:
+   copy your licensed copy into the repository's root. `.gitignore` and ESLint ignore `keen_*`.
+2. **`make keen-init`**, once: the theme's build tools (yarn and gulp) and its dependencies, in
+   `keen_v3.0.6/tools/`.
+3. **`make keen-build`**: `gulp --demo1` compiles the theme's Sass and bundles its plugins into
+   `keen_v3.0.6/demo1/assets/`, in a few seconds.
+4. **`make keen-install SMARTER=../smarter`** copies that folder into the smarter checkout's
+   `smarter/smarter/static/assets/`. Review the change there, and commit it in the smarter repository.
+
+`make keen-server` serves the theme's own demo pages, where a component's markup can be looked up.
+
 ## Workspace Layout
 
 | Path                      | Contents                                                                   |
@@ -90,6 +124,22 @@ of the backend's `static/react/`. Each build has a `manifest.json`, which Django
 names. The backend serves the console's `index.html` at every console path, and, while
 `SMARTER_STATIC_FILES_ON_CDN` is on, rewrites its script and style urls to the environment's CDN. The console's
 scripts load their chunks relative to themselves, so they work from either host.
+
+Each release attaches `smarter-console-<version>.tar.gz`: `react/`, the builds, and `i18n/messages.js`, the
+console's translatable messages. The smarter repository pins a release in `smarter-console-version.txt`, and its
+`make console` and CI unpack it.
+
+### Contracts and translations
+
+- **Contracts**: the backend owns the JSON Schemas of what the console reads (the session, Smarter Chat's api, the
+  Extensions console, the LLM tool list, a deployed LLMClient's page, the workbench's Architecture tab). Each
+  package keeps a copy in its `contract/` folder, with TypeScript generated from it. After the backend's contracts
+  change, `make contracts` copies them from a smarter checkout (`SMARTER=../smarter`, and optionally
+  `SMARTER_REF=origin/main`) and regenerates the types.
+- **Translations**: the console marks its messages with `gettext()` from `@smarter/common`, and
+  `npm run i18n:extract` writes them to `i18n/messages.js`. The backend translates them: its `make i18n-messages`
+  reads the pinned release's `messages.js` into its `djangojs` catalogs, and the console loads them from the
+  backend's `/jsi18n/` before its scripts run. A new message shows in English until the backend's catalogs have it.
 
 ## Stories (Storybook)
 

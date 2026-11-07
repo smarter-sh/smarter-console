@@ -40,6 +40,14 @@ kind of work.
 | `i18n/`                    | The extractor of the console's translatable messages                 |
 | `skills/`                  | Agent Skills for developing this repository                          |
 
+## The theme
+
+The console is styled by the Keen Bootstrap theme, whose bundles (`style.bundle.css`, `plugins.bundle.css` and
+their scripts) the backend serves at `/static/assets/`. Its licensed source, `keen_v3.0.6/` (about 670 MB), may be
+in this checkout's root, but is never committed: `.gitignore` and ESLint ignore `keen_*`. Don't edit, format, lint
+or search it; look up a component's markup there, or with `make keen-server`. `make keen-build` and
+`make keen-install SMARTER=../smarter` rebuild the bundles into the smarter repository. See README.md, The Theme.
+
 ## Common commands
 
 ```bash
@@ -49,6 +57,7 @@ make test                          # every package's tests, with coverage
 npx vitest run packages/<name>     # one package
 make lint                          # formatting, lint and types, as CI does
 make build                         # production builds into dist/react/<package>/
+make contracts                     # the backend's api contracts, from ../smarter, and their types
 npm run dev -w @smarter/console    # the console on :5173, against a Smarter dev server on :9357
 ```
 

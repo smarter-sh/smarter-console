@@ -6,7 +6,7 @@ PYTHON ?= python3
 VENV := venv
 VENV_BIN := $(VENV)/bin
 
-.PHONY: init venv install test lint format typecheck build storybook i18n-extract pre-commit-init pre-commit-run clean help
+.PHONY: init venv install test lint format typecheck build storybook i18n-extract contracts keen-init keen-build keen-server keen-install pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
 
@@ -49,6 +49,35 @@ build:
 storybook:
 	cd packages/$(or $(APP),smarter-dashboard) && npm run storybook
 
+# The backend's api contracts that the console reads, from a smarter checkout, and their TypeScript types:
+# make contracts, or make contracts SMARTER=../smarter SMARTER_REF=origin/main. See scripts/sync-contracts.sh.
+contracts:
+	scripts/sync-contracts.sh $(or $(SMARTER),../smarter) $(SMARTER_REF)
+
+# The Keen theme (keen_v3.0.6/, a licensed copy that isn't committed: see README.md, The Theme). Its build,
+# demo1/assets/, holds the stylesheets and scripts that every page loads from the backend's /static/assets/.
+KEEN := keen_v3.0.6
+KEEN_ASSETS := $(KEEN)/demo1/assets
+
+# Once: the theme's build tools (yarn, gulp) and its dependencies.
+keen-init:
+	@test -d $(KEEN)/tools || { echo >&2 "$(KEEN)/tools is missing: copy the theme into the repository root first."; exit 1; }
+	cd $(KEEN)/tools && npm install --global yarn && npm install gulp@^4.0.2 gulp-cli && yarn && npx gulp --version
+
+# The theme's stylesheets and scripts, from its Sass and plugins, into $(KEEN_ASSETS)/.
+keen-build:
+	cd $(KEEN)/tools && npx gulp --demo1
+
+# The theme's own demo pages, to look up a component's markup: http://localhost:3000/
+keen-server:
+	cd $(KEEN)/tools && npx gulp localhost
+
+# The theme's build into a smarter checkout's static/assets/, which the backend serves at /static/assets/:
+# make keen-install SMARTER=../smarter, then review and commit the change there.
+keen-install:
+	@test -f $(KEEN_ASSETS)/css/style.bundle.css || { echo >&2 "$(KEEN_ASSETS) has no build: run make keen-build."; exit 1; }
+	rsync -a $(KEEN_ASSETS)/ $(or $(SMARTER),../smarter)/smarter/smarter/static/assets/
+
 # The translatable messages, into i18n/messages.js.
 i18n-extract:
 	npm run i18n:extract
@@ -77,6 +106,11 @@ help:
 	@echo 'build            - Build the production bundles into dist/react/'
 	@echo 'storybook        - Run a package'"'"'s Storybook: make storybook APP=smarter-secret-list'
 	@echo 'i18n-extract     - Extract the translatable messages into i18n/messages.js'
+	@echo 'contracts        - Copy the backend'"'"'s api contracts and regenerate their types: SMARTER=../smarter SMARTER_REF=...'
+	@echo 'keen-init        - Once: install the Keen theme'"'"'s build tools and dependencies'
+	@echo 'keen-build       - Build the Keen theme'"'"'s stylesheets and scripts into keen_v3.0.6/demo1/assets/'
+	@echo 'keen-server      - Serve the Keen theme'"'"'s demo pages'
+	@echo 'keen-install     - Copy the theme'"'"'s build into a smarter checkout'"'"'s static/assets/: SMARTER=../smarter'
 	@echo 'pre-commit-init  - Install the pre-commit hooks'
 	@echo 'pre-commit-run   - Run the pre-commit hooks on every file'
 	@echo 'clean            - Remove the builds, coverage, the venv and node_modules'
