@@ -1,0 +1,46 @@
+# The workspace's own Prettier and ESLint run as local hooks, so that the hooks and
+# `npm run format` / `npm run lint` always agree. They need node_modules: make install.
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        args: ["--ignore-words=codespell.txt"]
+        # the message catalogs of other languages, generated files, and Scalar's vendored build.
+        exclude: '\.svg$|package-lock\.json$|^i18n/messages\.js$|^storybook/public/mockServiceWorker\.js$|^packages/smarter\.sh-chat/(locale/(?!en/)|src/catalogs\.gen\.ts$|\.storybook/public/mockServiceWorker\.js$)|^packages/smarter-console/public/scalar/'
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: npx --no-install prettier --write --ignore-unknown
+        language: system
+        types: [text]
+        # Scalar's vendored, minified build stays unformatted.
+        exclude: ^(package-lock\.json|storybook/public/|packages/[^/]+/CHANGELOG\.md$|packages/smarter-console/public/scalar/)
+      - id: eslint
+        name: eslint
+        entry: npx --no-install eslint --max-warnings=0 --no-warn-ignored
+        language: system
+        files: \.(ts|tsx|js)$
+        exclude: ^packages/smarter-console/public/scalar/
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: ^packages/smarter-console/public/scalar/
+      - id: trailing-whitespace
+        exclude: ^packages/smarter-console/public/scalar/
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.27.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional", "@commitlint/config-angular"]

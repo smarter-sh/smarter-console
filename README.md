@@ -1,246 +1,128 @@
-# React Apps for the Smarter Web Console
+# Smarter Web Console
 
-This directory contains the React app npm workspace for the Smarter web console.
+The web console of [Smarter](https://github.com/smarter-sh/smarter), the open source platform for building and
+running LLM applications: a single-page React app, `@smarter/console`, and the packages it is built from, as one npm
+workspace. Smarter Chat, the chat UI that the console's workbench uses and that any web page can embed, is here too,
+and published to npm.
 
-## Overview
+The console talks to the Smarter backend only over HTTP: the web console api (`/api/web/`), the public api
+(`/api/v1/`), and the session (`GET /api/web/session/`). The backend serves the console's page, and its static files,
+from each release's build. See [ADR-035](https://github.com/smarter-sh/smarter/blob/main/docs/source/adr/035-single-page-app.rst).
 
-The React frontend is organized as an npm workspace with standardized packages
-under `packages/*`.
+## Getting Started
 
-Key points:
-
-- All package names are namespaced under `@smarter`.
-- `@smarter/common` is the shared dependency package and must be built first.
-- React app builds are managed with [Vite.js](https://vite.dev/).
-- App structure, build behavior, and dependency patterns are
-  standardized across packages.
-- Build artifacts are written into Django static paths and then collected by Django.
-
-## Build For Production
-
-Use the convenvience commands in Makefile to build all packages and integrate
-to Django.
+You need Node.js 24 and npm.
 
 ```console
-make react-install
-make react-build
-make collectstatic
-make build
-make run
+make install          # npm install, which the tests, the builds and the pre-commit hooks need
+make test             # every package's tests, with a coverage report in coverage/
+make lint             # formatting, lint and types, as CI checks them
+make build            # the production builds, into dist/react/<package>/
+make pre-commit-init  # install the pre-commit hooks
 ```
+
+`make help` lists every target.
+
+### Running the console against a backend
+
+```console
+npm run dev -w @smarter/console
+```
+
+Vite serves the console at <http://localhost:5173/>, and proxies the backend's paths (`/api`, `/admin`,
+`/social-auth`, `/i18n`, `/jsi18n`, `/static`, `/ws`) to a Smarter dev server at <http://localhost:9357>, so the
+browser sees one origin and Django's session and CSRF cookies work. Run the backend with the `smarter` repository's
+`make run`.
 
 ## Workspace Layout
 
-- Root workspace manifest: `smarter/react/package.json`
-- Packages directory: `smarter/react/packages`
-- Shared package: `smarter/react/packages/smarter-common`
+| Path                      | Contents                                                                   |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `packages/`               | One package per app or library; see below                                  |
+| `packages/smarter-common` | `@smarter/common`: shared components, the Django api client, i18n, cookies |
+| `storybook/`              | Storybook's shared configuration                                           |
+| `test/`                   | Vitest's shared setup and MSW server                                       |
+| `i18n/`                   | The extractor of the console's translatable messages                       |
+| `scripts/`                | Shared scripts, e.g. the generation of TypeScript types from a JSON Schema |
+| `dist/`                   | The production builds (not committed): `dist/react/<package>/`             |
 
-Current app packages include:
+### The packages
 
-- `smarter-authtoken-list`
-- `smarter-budget-list`
-- `smarter-common`
-- `smarter-connection-list`
-- `smarter-console`: the single-page web console that replaces the apps above one page at a time
-  (ADR-035). `npm run dev -w @smarter/console` serves it at http://localhost:5173/, with the backend's
-  paths proxied to the Django dev server.
-- `smarter-custom-domain-list`
-- `smarter-dashboard`
-- `smarter-guardrail-list`
-- `smarter-llmclient-architecture`
-- `smarter-llmclient-deployment`
-- `smarter-llmclient-list`
-- `smarter-llmhost-compute-list`
-- `smarter-llmhost-list`
-- `smarter-llmtool-list`
-- `smarter-manifest-dropzone`
-- `smarter-manifest-editor`
-- `smarter-mcpclient-list`
-- `smarter-orchestrator-list`
-- `smarter-prompt-passthrough`
-- `smarter-provider-list`
-- `smarter-proxy-list`
-- `smarter-secret-list`
-- `smarter-terminal-emulator`
-- `smarter-vectorsearch-list`
-- `smarter-vectorstore-list`
-- `smarter-workbench`
+- **The console**, `smarter-console`: the single-page app, its routes, its frame (sidebar, header, user menu) and
+  its docs pages. It imports most other packages.
+- **Pages the console renders**: the resource lists (`smarter-<kind>-list`), the dashboard, the workbench, the
+  manifest editor and drop zone, the Prompt Passthrough, the Terminal, the Extensions console, and the frame's
+  widgets (user menu, welcome, onboarding, Did you know?, doodle). Each is import-only: no build of its own, and a
+  development page (`npm run dev` in the package) that renders its fixtures.
+- **A page the backend renders**: `smarter-llmclient-deployment`, the page that a deployed LLMClient's own host
+  shows. Its build is served by Django's template tag.
+- **Published to npm**, under the `@smarter.sh` scope, in folders named `smarter.sh-<name>`:
 
-### Published packages
+| Package                                                                        | Folder                        |
+| ------------------------------------------------------------------------------ | ----------------------------- |
+| [@smarter.sh/ui-chat](https://www.npmjs.com/package/@smarter.sh/ui-chat)       | `packages/smarter.sh-chat`    |
+| [@smarter.sh/ui-widgets](https://www.npmjs.com/package/@smarter.sh/ui-widgets) | `packages/smarter.sh-widgets` |
 
-Two packages are published to npm, under the `@smarter.sh` scope, and their folders are named
-`smarter.sh-<name>` to match. Every other package is part of the web console only: its name is
-`@smarter/<app-name>`, and its `package.json` sets `"private": true`, so that npm refuses to publish it.
+Every other package is named `@smarter/<name>` and sets `"private": true`, so npm refuses to publish it.
 
-| Package                                                                        | Folder                        | Published by                                                        |
-| ------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------- |
-| [@smarter.sh/ui-chat](https://www.npmjs.com/package/@smarter.sh/ui-chat)       | `packages/smarter.sh-chat`    | `.github/workflows/uiChatRelease.yml`, with each Smarter release    |
-| [@smarter.sh/ui-widgets](https://www.npmjs.com/package/@smarter.sh/ui-widgets) | `packages/smarter.sh-widgets` | `.github/workflows/uiWidgetsRelease.yml`, with each Smarter release |
+### Build order
 
-A published package has no `"private"` field, and sets `"publishConfig": { "access": "public" }`.
+`@smarter/common`, and the libraries that other packages import as builds (`@smarter/didyouknow`,
+`@smarter/onboarding`, `@smarter.sh/ui-widgets`, `@smarter.sh/ui-chat`), are built first: `npm run build:deps`.
+`make test`, `make lint` and CI run it before anything else.
 
-## Workspace Build Orchestration
+## How the Backend Gets the Console
 
-The workspace root uses npm workspaces and a build script that enforces build order:
-
-```json
-{
-  "private": true,
-  "workspaces": ["packages/*"],
-  "scripts": {
-    "build": "npm run build --workspace=@smarter/common && npm run build --workspaces --exclude=@smarter/common"
-  }
-}
-```
-
-Why this matters:
-
-- `@smarter/common` is compiled first.
-- All other packages that depend on `@smarter/common` build afterwards.
-- This avoids dependency ordering issues and keeps builds deterministic.
-
-## Standard Local Development Build Procedure
-
-To build and run all React apps from the repository root,
-run the following steps in order:
-
-1. `make react-install`
-   Creates shared `node_modules` for the React workspace.
-2. `make react-build`
-   Builds each React package and writes output into Django static path under `smarter/static/react`.
-3. `make collectstatic`
-   Consolidates static assets into Django `staticfiles`.
-4. `make build`
-   Builds the Docker container.
-5. `make run`
-   Starts the web console, typically served on localhost.
-
-## Typical Package Pattern
-
-A typical app package:
-
-- Name format: `@smarter/<app-name>`, with `"private": true` (see [Published packages](#published-packages))
-- Build stack: TypeScript + Vite
-- Common dependency: `@smarter/common`
-- Local commands usually include:
-  - `dev`
-  - `build`
-  - `lint`
-  - `preview`
-  - `typecheck`
-  - `test` and `test:watch`
-  - `storybook`
-  - `build-storybook`
-
-Example package manifest reference: [packages/smarter-authtoken-list/package.json](./packages/smarter-authtoken-list/package.json)
+`make build` writes the console and the deployed LLMClient page into `dist/react/@smarter/<package>/`, the layout
+of the backend's `static/react/`. Each build has a `manifest.json`, which Django reads to find the hashed file
+names. The backend serves the console's `index.html` at every console path, and, while
+`SMARTER_STATIC_FILES_ON_CDN` is on, rewrites its script and style urls to the environment's CDN. The console's
+scripts load their chunks relative to themselves, so they work from either host.
 
 ## Stories (Storybook)
 
 Every app documents its components as [Storybook](https://storybook.js.org/) stories, in
 [Component Story Format 3](https://storybook.js.org/docs/api/csf): a `Component.stories.tsx` next to each
-component, and an `App.stories.tsx` for the whole app. Each story renders one state of a component, from
-the example data in the app's `src/mocks/`: e.g. a list that is loading, empty, or failed to load.
+component, and an `App.stories.tsx` for the whole app.
 
 ```console
-make react-storybook APP=smarter-secret-list    # or: cd packages/smarter-secret-list && npm run storybook
+make storybook APP=smarter-secret-list    # or: cd packages/smarter-secret-list && npm run storybook
 ```
 
-- The Storybook configuration is shared: each package's `.storybook/main.ts` and `preview.ts` delegate to
-  [storybook/main.ts](./storybook/main.ts) and [storybook/preview.ts](./storybook/preview.ts).
-- Stories that call the Django api declare its responses as [MSW](https://mswjs.io/) request handlers, in
-  `parameters.msw.handlers`. The app's `src/mocks/handlers.ts` holds them; `src/mocks/fixtures.ts` holds the
-  example data. No Django server is needed, though its stylesheets are loaded from it, if it is running, so
-  that components look as they do in the web console.
-- A story's `play` function scripts a user interaction, e.g. the Toolbar's `Delete` story, which confirms a
-  delete. It runs in Storybook, and in the tests.
-- `@storybook/addon-docs` generates a docs page per component, and `@storybook/addon-a11y` reports each
-  story's accessibility violations.
+- Each package's `.storybook/main.ts` and `preview.ts` delegate to [storybook/main.ts](./storybook/main.ts) and
+  [storybook/preview.ts](./storybook/preview.ts).
+- Stories that call the backend declare its responses as [MSW](https://mswjs.io/) handlers, from the package's
+  `src/mocks/`. No backend is needed.
+- A story's `play` function scripts a user interaction. It runs in Storybook, and in the tests.
 
 ## Testing
 
-The apps are tested with [Vitest](https://vitest.dev/) and
+The packages are tested with [Vitest](https://vitest.dev/) and
 [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/), in jsdom.
 
-```console
-make react-test                  # every app, with a coverage report in coverage/
-npm test                         # every app, in smarter/react
-npm run test:watch               # in a package: re-run its tests on each change
-```
-
-- Tests are `*.test.ts(x)` files next to the code that they test. Following Testing Library's guidance,
-  they find elements as a user does, by role and accessible name, e.g.
-  `screen.getByRole("button", { name: /^Delete:/ })`, and act as a user does, with `user-event`.
-- Api requests are answered by MSW, with the same handlers as the stories. A request without a handler
-  fails the test, so a test never reaches a real server.
-- Every story is also a test: each package's `src/stories.test.tsx` renders all of its stories, and runs
-  their `play` functions. A story that stops rendering, e.g. after a component's props change, fails.
-- The shared setup is in [vitest.shared.ts](./vitest.shared.ts) and [test/](./test/). It pins `NODE_ENV`,
-  the time zone and the locale, so that tests behave the same on every machine and in CI.
-- What jsdom cannot run is replaced in tests: the Monaco editor by a textarea, and xterm.js and
-  `EventSource` by fakes (see `src/mocks/` in those apps).
+- Tests are `*.test.ts(x)` files next to the code they test. They find elements as a user does, by role and
+  accessible name, and act as a user does, with `user-event`.
+- Api requests are answered by MSW, with the same handlers as the stories. A request without a handler fails the
+  test, so a test never reaches a real server.
+- Every story is also a test: each package's `src/stories.test.tsx` renders all of its stories.
+- The shared setup, [vitest.shared.ts](./vitest.shared.ts) and [test/](./test/), pins `NODE_ENV`, the time zone and
+  the locale, so tests behave the same on every machine and in CI.
 
 ## Code Quality
 
-The React counterparts of the repository's Python tooling:
+- [Prettier](https://prettier.io/) (`npm run format`), [ESLint](https://eslint.org/) (`npm run lint`), with
+  TypeScript, React hooks, jsx-a11y, Storybook, Testing Library and Vitest rules, and TypeScript
+  (`npm run typecheck`).
+- pre-commit runs them, with codespell and commitlint, on each commit, with the workspace's own versions: run
+  `make install` first.
+- CI (`.github/workflows/test.yml`) checks formatting, lint, types, the ui-widgets package and the tests on every
+  pull request to `main`, and every push to `main` and `alpha`.
 
-| Python         | React                                                                                                                              | Command                                  |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| black          | [Prettier](https://prettier.io/)                                                                                                   | `npm run format`, `npm run format:check` |
-| flake8, pylint | [ESLint](https://eslint.org/), with TypeScript, React hooks, accessibility (jsx-a11y), Storybook, Testing Library and Vitest rules | `npm run lint`                           |
-| mypy           | TypeScript                                                                                                                         | `npm run typecheck`                      |
-| pytest         | Vitest                                                                                                                             | `npm test`                               |
+## Contributing
 
-- pre-commit runs Prettier and ESLint on the React files of each commit, with the workspace's own
-  versions and configuration ([eslint.config.js](./eslint.config.js), and the repository's
-  `.prettierrc.json`). Install the workspace's dependencies first: `make react-install`.
-- `make react-lint` checks formatting, lint and types, and CI's `react` job (`.github/workflows/test.yml`)
-  runs all four.
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/), which commitlint checks. See
+[CLAUDE.md](./CLAUDE.md) for the conventions that agents and people follow here.
 
-## Adding an App
+## License
 
-A new package is private: its `package.json` sets `"private": true`. A new package gets the shared
-configuration by copying these files from an existing app, unchanged:
-`.storybook/main.ts`, `.storybook/preview.ts`, `vitest.config.ts`, `eslint.config.js`, and the
-`typecheck`, `test`, `test:watch`, `storybook` and `build-storybook` scripts of its `package.json`. Its
-`tsconfig.app.json` includes `../../test` and `../../storybook`, and maps `@test/*` to `../../test/*`.
-Then add `src/mocks/`, stories, tests, and a `src/stories.test.tsx`.
-
-## Vite and Django Integration
-
-Each app uses a standardized Vite configuration to support Django integration
-and deployment workflows.
-
-Example vite config: [packages/smarter-authtoken-list/vite.config.ts](./packages/smarter-authtoken-list/vite.config.ts)
-
-Common behavior includes:
-
-- Output directory points to Django static React folder: [smarter/smarter/static/react/@smarter](../smarter/static/react/@smarter/)
-- Build manifest is generated and used by Django template tags for hashed asset
-  resolution.
-- Custom metadata is injected into `manifest.json` after build.
-- Optional post-build CDN deploy can sync to S3 and invalidate CloudFront when
-  enabled in package config.
-- Vite dev server proxies API and static routes to Django so app behavior in
-  development is close to runtime behavior.
-- Production builds remove `console.debug` via the Oxc minifier's `manualPureFunctions` configuration.
-- xterm-related dependencies may be chunked separately for better browser caching.
-
-## Standardization Rules Across Apps
-
-To keep all React apps consistent:
-
-- Use `@smarter` namespace for package names.
-- Depend on `@smarter/common` for shared functionality.
-- Keep scripts and tooling aligned with the common pattern.
-- Use Vite config conventions that target Django static integration.
-- Preserve proxy behavior needed for local Django-backed development.
-- Keep manifest behavior consistent so Django asset resolution remains reliable.
-
-## Practical Notes
-
-- If a package depends on `@smarter/common`, do not build it before common is built.
-- If static assets appear stale in Django, re-run:
-  1. `make react-build`
-  2. `make collectstatic`
-- For local feature work on a single package, use that package `dev` command, but
-  follow the full build pipeline before integration testing through Django and Docker.
+[GNU Affero General Public License v3.0](./LICENSE).

@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output: the console's release tarball is made from dist/
+dist/
+**/dist/
+storybook-static/
+**/storybook-static/
+*.tgz
+
+# test output
+coverage/
+
+# editors and operating systems
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+.env

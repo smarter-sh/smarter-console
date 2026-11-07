@@ -1,0 +1,70 @@
+name: Tests
+
+#------------------------------------------------------------------------------
+# Every pull request to main, and every push to main and alpha, checks the
+# workspace: formatting, lint, types, the published ui-widgets package, and
+# the unit tests with coverage. A new push cancels the run in progress.
+#------------------------------------------------------------------------------
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - alpha
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  react:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Install Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: npm ci
+        run: npm ci --include=dev
+
+      - name: Formatting (Prettier)
+        run: npm run format:check
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Types (TypeScript)
+        run: |
+          npm run build:deps
+          npm run typecheck
+
+      # The npm package that the ui-widgets release publishes. build:deps built it.
+      - name: Check @smarter.sh/ui-widgets
+        run: npm run check:dist --workspace=@smarter.sh/ui-widgets
+
+      # Naming any reporter replaces Vitest's defaults, so default (the log)
+      # and github-actions (annotations and the job summary) are named too.
+      - name: Unit tests (Vitest), with coverage
+        run: npm run coverage -- --reporter=default --reporter=github-actions
+
+      # Optional: it needs the repository's CODECOV_TOKEN secret, and a run
+      # without it still passes.
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./coverage/lcov.info
+          flags: react
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
