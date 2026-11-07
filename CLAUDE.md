@@ -43,6 +43,7 @@ kind of work.
 ## Common commands
 
 ```bash
+make init                          # once: venv with pre-commit, npm install, the hooks
 make install                       # npm install
 make test                          # every package's tests, with coverage
 npx vitest run packages/<name>     # one package

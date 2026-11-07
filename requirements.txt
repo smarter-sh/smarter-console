@@ -1,0 +1,2 @@
+# The development tools that run in the Python virtual environment that `make init` creates.
+pre-commit==4.7.0

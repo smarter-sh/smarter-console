@@ -1,7 +1,26 @@
 # The Smarter web console's npm workspace. See README.md and CLAUDE.md.
-.PHONY: install test lint format typecheck build storybook i18n-extract pre-commit-init pre-commit-run help
+SHELL := /bin/bash
+
+# The Python that creates the virtual environment of the development tools (pre-commit).
+PYTHON ?= python3
+VENV := venv
+VENV_BIN := $(VENV)/bin
+
+.PHONY: init venv install test lint format typecheck build storybook i18n-extract pre-commit-init pre-commit-run clean help
 
 .DEFAULT_GOAL := help
+
+# Everything a new checkout needs: the Python virtual environment with pre-commit, the npm
+# dependencies, and the pre-commit hooks.
+init: venv install pre-commit-init
+
+# (Re)create the Python virtual environment, venv/, with the tools in requirements.txt.
+venv:
+	@command -v $(PYTHON) >/dev/null 2>&1 || { echo >&2 "$(PYTHON) is not installed. Install Python 3, or run make init PYTHON=<python>."; exit 1; }
+	rm -rf $(VENV)
+	$(PYTHON) -m venv $(VENV)
+	$(VENV_BIN)/pip install --quiet --upgrade pip
+	$(VENV_BIN)/pip install --quiet -r requirements.txt
 
 # Install the workspace's dependencies, which the tests, the builds and the pre-commit hooks need.
 install:
@@ -34,13 +53,22 @@ storybook:
 i18n-extract:
 	npm run i18n:extract
 
+# The pre-commit hooks, including commitlint's commit-msg hook. Needs make venv and make install.
 pre-commit-init:
-	pre-commit install
+	@test -x $(VENV_BIN)/pre-commit || { echo >&2 "pre-commit is not installed: run make init, or make venv."; exit 1; }
+	$(VENV_BIN)/pre-commit install
 
 pre-commit-run:
-	pre-commit run --all-files
+	@test -x $(VENV_BIN)/pre-commit || { echo >&2 "pre-commit is not installed: run make init, or make venv."; exit 1; }
+	$(VENV_BIN)/pre-commit run --all-files
+
+# Remove the builds, coverage, the virtual environment and node_modules.
+clean:
+	rm -rf $(VENV) node_modules packages/*/node_modules dist packages/*/dist coverage
 
 help:
+	@echo 'init             - Set up a new checkout: the venv with pre-commit, npm install, and the hooks'
+	@echo 'venv             - (Re)create the Python virtual environment of the development tools'
 	@echo 'install          - Install the workspace'"'"'s dependencies'
 	@echo 'test             - Run every package'"'"'s tests, with coverage'
 	@echo 'lint             - Check formatting, lint and types, as CI does'
@@ -51,3 +79,4 @@ help:
 	@echo 'i18n-extract     - Extract the translatable messages into i18n/messages.js'
 	@echo 'pre-commit-init  - Install the pre-commit hooks'
 	@echo 'pre-commit-run   - Run the pre-commit hooks on every file'
+	@echo 'clean            - Remove the builds, coverage, the venv and node_modules'

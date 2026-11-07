@@ -18,3 +18,7 @@ coverage/
 !.vscode/extensions.json
 *.log
 .env
+
+# the Python virtual environment of the development tools: make init
+venv/
+.venv/

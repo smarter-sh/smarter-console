@@ -11,15 +11,16 @@ from each release's build. See [ADR-035](https://github.com/smarter-sh/smarter/b
 
 ## Getting Started
 
-You need Node.js 24 and npm.
+You need Node.js 24 and npm, and Python 3 for pre-commit.
 
 ```console
-make install          # npm install, which the tests, the builds and the pre-commit hooks need
+make init             # once: a Python venv with pre-commit, npm install, and the pre-commit hooks
 make test             # every package's tests, with a coverage report in coverage/
 make lint             # formatting, lint and types, as CI checks them
 make build            # the production builds, into dist/react/<package>/
-make pre-commit-init  # install the pre-commit hooks
 ```
+
+`make init` uses `python3`; pass another with `make init PYTHON=python3.14`.
 
 `make help` lists every target.
 

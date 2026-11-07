@@ -1,4 +1,5 @@
 {
+  "name": "smarter-console",
   "private": true,
   "type": "module",
   "workspaces": [

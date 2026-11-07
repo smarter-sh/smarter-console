@@ -63,4 +63,5 @@ const Configuration = {
   },
 };
 
-module.exports = Configuration;
+// an ES module, as package.json's "type": "module" makes every .js file here.
+export default Configuration;

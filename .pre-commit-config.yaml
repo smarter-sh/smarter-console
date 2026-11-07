@@ -1,6 +1,8 @@
 # The workspace's own Prettier and ESLint run as local hooks, so that the hooks and
 # `npm run format` / `npm run lint` always agree. They need node_modules: make install.
 default_install_hook_types: [pre-commit, commit-msg]
+# The hooks check the commit's files; only commitlint, which sets its own stage, checks the commit's message.
+default_stages: [pre-commit]
 repos:
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
