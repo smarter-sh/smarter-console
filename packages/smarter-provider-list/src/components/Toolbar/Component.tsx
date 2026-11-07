@@ -232,14 +232,6 @@ export const Toolbar = ({ sessionContext, provider, onRequery }: ToolbarProps) =
         <a
           href={provider.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the provider workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={provider.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this provider resource")}
           tabIndex={0}
         >

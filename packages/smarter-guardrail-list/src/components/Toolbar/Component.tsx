@@ -232,14 +232,6 @@ export const Toolbar = ({ sessionContext, guardrail, onRequery }: ToolbarProps) 
         <a
           href={guardrail.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the guardrail workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={guardrail.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this guardrail resource")}
           tabIndex={0}
         >

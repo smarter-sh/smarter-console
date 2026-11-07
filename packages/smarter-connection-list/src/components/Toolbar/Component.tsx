@@ -235,14 +235,6 @@ export const Toolbar = ({ sessionContext, connection, onRequery }: ToolbarProps)
         <a
           href={connection.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the connection workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={connection.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this connection resource")}
           tabIndex={0}
         >

@@ -16,9 +16,11 @@ function renderToolbar(guardrail = makeObject(1, { name: "first_example" })) {
 }
 
 describe("Toolbar", () => {
-  it("links to the manifest", () => {
+  it("links to the manifest, and nothing else", () => {
     renderToolbar();
     expect(screen.getByRole("link", { name: /^(Edit|Manifest):/ })).toHaveAttribute("href", makeObject(1).manifestUrl);
+    // its only link: a resource without a workbench has no Chat link.
+    expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 
   it("deletes, then queries the list again", async () => {

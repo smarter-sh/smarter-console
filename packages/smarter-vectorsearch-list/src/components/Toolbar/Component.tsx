@@ -237,14 +237,6 @@ export const Toolbar = ({ sessionContext, vectorsearch, onRequery }: ToolbarProp
         <a
           href={vectorsearch.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the vectorsearch workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={vectorsearch.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this vectorsearch resource")}
           tabIndex={0}
         >

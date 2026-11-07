@@ -239,14 +239,6 @@ export const Toolbar = ({ sessionContext, vectorstore, onRequery }: ToolbarProps
         <a
           href={vectorstore.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the vectorstore workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={vectorstore.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this vectorstore resource")}
           tabIndex={0}
         >

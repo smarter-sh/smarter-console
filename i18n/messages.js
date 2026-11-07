@@ -103,8 +103,6 @@ gettext("Successfully deleted authtoken");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx, packages/smarter-connection-list/src/components/Toolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmclient-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx, packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx, packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx, packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx, packages/smarter-provider-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-secret-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Actions");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the authtoken workbench");
-// Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this authtoken resource");
 // Translators: used in packages/smarter-authtoken-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this authtoken resource to a new resource owned by you");
@@ -460,8 +458,6 @@ gettext("Successfully renamed connection");
 gettext("Failed to delete connection (%(status)s): %(error)s");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted connection");
-// Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the connection workbench");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this connection resource");
 // Translators: used in packages/smarter-connection-list/src/components/Toolbar/Component.tsx
@@ -1525,8 +1521,6 @@ gettext("Failed to delete guardrail (%(status)s): %(error)s");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted guardrail");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the guardrail workbench");
-// Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this guardrail resource");
 // Translators: used in packages/smarter-guardrail-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this guardrail resource to a new resource owned by you");
@@ -2518,8 +2512,6 @@ gettext("Failed to delete llmhost (%(status)s): %(error)s");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted llmhost");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the llmhost workbench");
-// Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this llmhost resource");
 // Translators: used in packages/smarter-llmhost-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this llmhost resource to a new resource owned by you");
@@ -2651,8 +2643,6 @@ gettext("Successfully renamed LLMTool");
 gettext("Failed to delete LLMTool (%(status)s): %(error)s");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted LLMTool");
-// Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the LLMTool workbench");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this LLMTool resource");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
@@ -2918,8 +2908,6 @@ gettext("Failed to delete mcpclient (%(status)s): %(error)s");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted mcpclient");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the mcpclient workbench");
-// Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this mcpclient resource");
 // Translators: used in packages/smarter-mcpclient-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this mcpclient resource to a new resource owned by you");
@@ -3003,8 +2991,6 @@ gettext("Successfully renamed orchestrator");
 gettext("Failed to delete orchestrator (%(status)s): %(error)s");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted orchestrator");
-// Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the orchestrator workbench");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this orchestrator resource");
 // Translators: used in packages/smarter-orchestrator-list/src/components/Toolbar/Component.tsx
@@ -3236,8 +3222,6 @@ gettext("Failed to delete provider (%(status)s): %(error)s");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted provider");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the provider workbench");
-// Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this provider resource");
 // Translators: used in packages/smarter-provider-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this provider resource to a new resource owned by you");
@@ -3407,8 +3391,6 @@ gettext("Successfully renamed secret");
 gettext("Failed to delete secret (%(status)s): %(error)s");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted secret");
-// Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the secret workbench");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this secret resource");
 // Translators: used in packages/smarter-secret-list/src/components/Toolbar/Component.tsx
@@ -3636,8 +3618,6 @@ gettext("Failed to delete vectorsearch (%(status)s): %(error)s");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted vectorsearch");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the vectorsearch workbench");
-// Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this vectorsearch resource");
 // Translators: used in packages/smarter-vectorsearch-list/src/components/Toolbar/Component.tsx
 gettext("Clone: Clone this vectorsearch resource to a new resource owned by you");
@@ -3741,8 +3721,6 @@ gettext("Successfully renamed vectorstore");
 gettext("Failed to delete vectorstore (%(status)s): %(error)s");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted vectorstore");
-// Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
-gettext("Chat: Open the vectorstore workbench");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Edit: Open the YAML manifest that defines this vectorstore resource");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx

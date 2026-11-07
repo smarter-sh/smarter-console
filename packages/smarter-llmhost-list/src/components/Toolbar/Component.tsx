@@ -232,14 +232,6 @@ export const Toolbar = ({ sessionContext, llmhost, onRequery }: ToolbarProps) =>
         <a
           href={llmhost.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the llmhost workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={llmhost.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this llmhost resource")}
           tabIndex={0}
         >

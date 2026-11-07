@@ -237,14 +237,6 @@ export const Toolbar = ({ sessionContext, orchestrator, onRequery }: ToolbarProp
         <a
           href={orchestrator.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the orchestrator workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={orchestrator.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this orchestrator resource")}
           tabIndex={0}
         >

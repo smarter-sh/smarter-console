@@ -232,14 +232,6 @@ export const Toolbar = ({ sessionContext, mcpclient, onRequery }: ToolbarProps) 
         <a
           href={mcpclient.manifestUrl}
           className="btn btn-icon btn-sm border"
-          title={gettext("Chat: Open the mcpclient workbench")}
-          tabIndex={0}
-        >
-          <i className="bi bi-chat-dots md-teal" />
-        </a>
-        <a
-          href={mcpclient.manifestUrl}
-          className="btn btn-icon btn-sm border"
           title={gettext("Edit: Open the YAML manifest that defines this mcpclient resource")}
           tabIndex={0}
         >
