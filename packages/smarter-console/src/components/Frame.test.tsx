@@ -170,7 +170,8 @@ describe("the theme's layout", () => {
     expect(aside).toHaveClass("drawer-on");
 
     await user.click(within(aside).getByRole("link", { name: "Dashboard" }));
-    expect(router.state.location.pathname).toBe("/dashboard");
+    // the dashboard's route is lazy: the router commits it once its chunk has loaded.
+    await waitFor(() => expect(router.state.location.pathname).toBe("/dashboard"));
     expect(aside).not.toHaveClass("drawer-on");
 
     await user.click(screen.getByRole("button", { name: "Show the sidebar" }));
@@ -182,7 +183,8 @@ describe("the theme's layout", () => {
     const router = mountAt("/secret/secrets/rMTAwx/");
     const user = userEvent.setup();
     await user.click(within(await findSidebar()).getByRole("link", { name: "Dashboard" }));
-    expect(router.state.location.pathname).toBe("/dashboard");
+    // the dashboard's route is lazy: the router commits it once its chunk has loaded.
+    await waitFor(() => expect(router.state.location.pathname).toBe("/dashboard"));
     expect(screen.getByLabelText("Sidebar")).not.toHaveClass("drawer");
   });
 });
