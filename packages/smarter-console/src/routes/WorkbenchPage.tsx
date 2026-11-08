@@ -17,6 +17,8 @@ import { NotFoundPage } from "@/routes/NotFoundPage";
 import { PageSkeleton } from "@/routes/PageSkeleton";
 import { useConsoleSession } from "@/session/context";
 
+import "./WorkbenchPage.css";
+
 export function WorkbenchPage() {
   const { session } = useConsoleSession();
   const { id = "" } = useParams();
@@ -42,7 +44,7 @@ export function WorkbenchPage() {
   }
   return (
     <section aria-label={gettext("Chat with your AI assistant")} className="smarter-chat-section">
-      <div style={{ height: "88vh" }}>
+      <div className="smarter-workbench-page">
         <Workbench workbench={workbench} onboarding={onboarding} />
       </div>
     </section>

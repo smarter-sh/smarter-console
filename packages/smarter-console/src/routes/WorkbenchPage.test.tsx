@@ -93,6 +93,16 @@ describe("the workbench", () => {
     expect(screen.getByRole("region", { name: "Chat with your AI assistant" })).toBeInTheDocument();
   });
 
+  it("sizes the workbench to the visible window, so that the chat's input is on screen on a phone", async () => {
+    server.use(resourceAnswers(200));
+    mountAt("/workbench/llm-clients/rMTAwx/prompt/");
+    await screen.findByLabelText("configuration");
+    // a class, whose height is the visible window's less the header's, rather than a fixed share of the window.
+    expect(screen.getByRole("region", { name: "Chat with your AI assistant" }).innerHTML).toMatch(
+      /^<div class="smarter-workbench-page">/,
+    );
+  });
+
   it("has no Server Logs tab while the server logs are off", async () => {
     server.use(resourceAnswers(200));
     mountAt("/workbench/llm-clients/rMTAwx/prompt/", { serverLogs: false });

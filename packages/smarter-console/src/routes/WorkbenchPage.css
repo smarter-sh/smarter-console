@@ -1,0 +1,20 @@
+/*
+The workbench fills the visible window below the frame's header, so that the chat's input is on screen. The chat
+takes touch swipes to scroll its own thread, so on a phone the page can't be scrolled down to an input below it.
+
+dvh is the window as the browser shows it now; vh, on a phone, is the window with the address bar hidden, which is
+taller. Browsers without dvh use vh. The theme's app-content pads the page 30px from lg up and 20px below it.
+*/
+
+.smarter-workbench-page {
+  --smarter-workbench-page-padding: 30px;
+  height: calc(100vh - var(--bs-app-header-height, 70px) - 2 * var(--smarter-workbench-page-padding));
+  height: calc(100dvh - var(--bs-app-header-height, 70px) - 2 * var(--smarter-workbench-page-padding));
+  min-height: 320px;
+}
+
+@media (max-width: 991.98px) {
+  .smarter-workbench-page {
+    --smarter-workbench-page-padding: 20px;
+  }
+}
