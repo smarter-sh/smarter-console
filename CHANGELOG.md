@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.0](https://github.com/smarter-sh/smarter-console/compare/v1.0.18...v1.1.0) (2026-11-08)
+
+### Features
+
+* **user-menu:** add a download my data dialog ([397537e](https://github.com/smarter-sh/smarter-console/commit/397537e0f47f3ebdec53eda4438bc5de75c776f3))
+
 ## [1.0.18](https://github.com/smarter-sh/smarter-console/compare/v1.0.17...v1.0.18) (2026-11-08)
 
 ### Bug Fixes
