@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { anonymousAppContext, appContext, singleProfileAppContext } from "@/mocks/fixtures";
-import { signOutErrorHandler, signOutHandler, userProfileHandlers } from "@/mocks/handlers";
+import { dataExportHandlers, signOutErrorHandler, signOutHandler, userProfileHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
 import UserMenu from "@/components/UserMenu/Component";
@@ -46,7 +46,28 @@ describe("UserMenu", () => {
     expect(screen.getByRole("button", { name: "Remove Profile Image" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Change Profile" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Welcome Tour" })).toHaveAttribute("data-smarter-welcome-open", "true");
+    expect(screen.getByRole("button", { name: "Download My Data" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign Out" })).toBeInTheDocument();
+  });
+
+  it("puts Download My Data just above Sign Out", () => {
+    render(<UserMenu appContext={appContext} />);
+    const items = screen.getAllByRole("button").map((button) => button.textContent);
+    const signOut = items.indexOf("Sign Out");
+    expect(items[signOut - 1]).toBe("Download My Data");
+  });
+
+  it("opens the Download My Data dialog, closes the menu, and returns the focus when the dialog closes", async () => {
+    const user = userEvent.setup();
+    server.use(...dataExportHandlers());
+    render(<UserMenu appContext={appContext} />);
+    await user.click(menuButton());
+    await user.click(screen.getByRole("button", { name: "Download My Data" }));
+    expect(menuButton()).toHaveAttribute("aria-expanded", "false");
+    expect(await screen.findByRole("dialog", { name: "Get a copy of your data" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(menuButton()).toHaveFocus();
   });
 
   it("has no Change Profile item, and no account, for a user with one profile", () => {
@@ -72,6 +93,7 @@ describe("UserMenu", () => {
     expect(screen.queryByRole("button", { name: "Sign Out" })).not.toBeInTheDocument();
     expect(screen.queryByText("Change Profile Image")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Welcome Tour" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Download My Data" })).not.toBeInTheDocument();
   });
 
   it("closes the menu when Welcome Tour is chosen", async () => {

@@ -1,0 +1,784 @@
+/*
+ * The Download My Data dialog. Its frame is the welcome dialog's (@smarter/welcome), so that the user
+ * menu's dialogs look alike, with the same orange accent. Colors otherwise come from the Keen theme's
+ * variables, which [data-bs-theme=dark] redefines, and the illustrations' colors from the --smarter-dx-*
+ * variables below, which it redefines too.
+ */
+.smarter-dx-backdrop {
+  --smarter-dx-accent: #ff5733;
+  --smarter-dx-accent-hover: #e64a28;
+  --smarter-dx-accent-light: rgba(255, 87, 51, 0.1);
+  --smarter-dx-art-bg: linear-gradient(160deg, #fff6f2 0%, #ffe6dc 100%);
+  --smarter-dx-disc: rgba(255, 255, 255, 0.7);
+  --smarter-dx-paper: #ffffff;
+  --smarter-dx-paper-stroke: #e4e6ef;
+  --smarter-dx-ink: #3f4254;
+  --smarter-dx-muted: #b5b5c3;
+  --smarter-dx-tile: #f1f1f4;
+  --smarter-dx-success: #17c653;
+  --smarter-dx-danger: #f8285a;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 17, 26, 0.55);
+  animation: smarter-dx-fade 200ms ease-out;
+}
+
+[data-bs-theme="dark"] .smarter-dx-backdrop {
+  --smarter-dx-accent-light: rgba(255, 87, 51, 0.16);
+  --smarter-dx-art-bg: linear-gradient(160deg, #2a201d 0%, #1e1a1a 100%);
+  --smarter-dx-disc: rgba(255, 255, 255, 0.05);
+  --smarter-dx-paper: #2b2b40;
+  --smarter-dx-paper-stroke: #3f4254;
+  --smarter-dx-ink: #cdcdde;
+  --smarter-dx-muted: #565674;
+  --smarter-dx-tile: #323248;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.smarter-dx-dialog {
+  position: relative;
+  display: grid;
+  /* minmax(0, ...): a column never grows past its share to fit its content. */
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  width: 100%;
+  max-width: 920px;
+  min-height: 560px;
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.3);
+  animation: smarter-dx-rise 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.smarter-dx-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+}
+
+.smarter-dx-art-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 2rem;
+  background: var(--smarter-dx-art-bg);
+}
+
+.smarter-dx-figure {
+  width: 100%;
+  max-width: 320px;
+  animation: smarter-dx-fade 300ms ease-out;
+}
+
+.smarter-dx-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 2.5rem 2.5rem 1.75rem;
+}
+
+.smarter-dx-phase {
+  flex: 1;
+  overflow-y: auto;
+  animation: smarter-dx-slide 260ms ease-out;
+}
+
+.smarter-dx-eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--smarter-dx-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.smarter-dx-title {
+  margin-bottom: 0.75rem;
+  color: var(--bs-gray-900);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.smarter-dx-lead {
+  margin-bottom: 1.5rem;
+  color: var(--bs-gray-700);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.smarter-dx-highlights {
+  display: grid;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.smarter-dx-highlights li {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.smarter-dx-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--smarter-dx-accent-light);
+}
+
+.smarter-dx-icon i {
+  color: var(--smarter-dx-accent);
+}
+
+.smarter-dx-highlight-title {
+  display: block;
+  color: var(--bs-gray-900);
+  font-weight: 600;
+}
+
+.smarter-dx-highlight-description {
+  display: block;
+  color: var(--bs-gray-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* the steps of an export, as a vertical tracker. */
+.smarter-dx-steps {
+  display: grid;
+  gap: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.smarter-dx-step {
+  position: relative;
+  display: flex;
+  gap: 0.9rem;
+  padding-bottom: 1rem;
+}
+
+/* the line that joins a step's marker to the next one's. */
+.smarter-dx-step:not(:last-child)::after {
+  position: absolute;
+  top: 2.1rem;
+  bottom: 0.1rem;
+  left: 0.95rem;
+  width: 2px;
+  background-color: var(--bs-gray-200);
+  content: "";
+  transition: background-color 300ms ease;
+}
+
+.smarter-dx-step-done:not(:last-child)::after {
+  background-color: var(--smarter-dx-accent);
+}
+
+.smarter-dx-step-marker {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--bs-gray-300);
+  border-radius: 50%;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-gray-500);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+.smarter-dx-step-active .smarter-dx-step-marker {
+  border-color: var(--smarter-dx-accent);
+  color: var(--smarter-dx-accent);
+  animation: smarter-dx-pulse 1.4s ease-in-out infinite;
+}
+
+.smarter-dx-step-done .smarter-dx-step-marker {
+  border-color: var(--smarter-dx-accent);
+  background-color: var(--smarter-dx-accent);
+}
+
+.smarter-dx-step-done .smarter-dx-step-marker i {
+  color: #ffffff;
+}
+
+.smarter-dx-step-text {
+  display: block;
+  min-width: 0;
+  padding-top: 0.2rem;
+}
+
+.smarter-dx-step-title {
+  display: block;
+  color: var(--bs-gray-500);
+  font-weight: 600;
+  transition: color 300ms ease;
+}
+
+.smarter-dx-step-active .smarter-dx-step-title,
+.smarter-dx-step-done .smarter-dx-step-title {
+  color: var(--bs-gray-900);
+}
+
+.smarter-dx-step-description {
+  display: block;
+  color: var(--bs-gray-500);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.smarter-dx-meter {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+.smarter-dx-meter-bar {
+  flex: 1;
+  height: 0.4rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: var(--bs-gray-200);
+}
+
+.smarter-dx-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 1rem;
+  background-color: var(--smarter-dx-accent);
+  transition: width 300ms ease;
+}
+
+.smarter-dx-meter-label {
+  color: var(--bs-gray-600);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* what the export holds, once it is done. */
+.smarter-dx-summary {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.smarter-dx-stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 7rem;
+  padding: 0.8rem 1rem;
+  border: 1px dashed var(--bs-gray-300);
+  border-radius: 0.85rem;
+}
+
+.smarter-dx-stat-value {
+  color: var(--bs-gray-900);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.smarter-dx-stat-label {
+  color: var(--bs-gray-600);
+  font-size: 0.85rem;
+}
+
+.smarter-dx-note {
+  margin: 0;
+  color: var(--bs-gray-500);
+  font-size: 0.85rem;
+}
+
+.smarter-dx-footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+}
+
+.smarter-dx-quota {
+  color: var(--bs-gray-500);
+  font-size: 0.85rem;
+}
+
+.smarter-dx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.smarter-dx-primary,
+.smarter-dx-primary:focus {
+  min-width: 6.5rem;
+  background-color: var(--smarter-dx-accent);
+  color: #ffffff;
+}
+
+.smarter-dx-primary:hover,
+.smarter-dx-primary:focus-visible {
+  background-color: var(--smarter-dx-accent-hover) !important;
+  color: #ffffff !important;
+}
+
+/* ------------------------------------------------------------------------- */
+/* the illustrations                                                          */
+/* ------------------------------------------------------------------------- */
+.smarter-dx-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* a group that scales or rotates does so about its own center. */
+.smarter-dx-art g {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.smarter-dx-disc {
+  fill: var(--smarter-dx-disc);
+}
+
+.smarter-dx-paper {
+  fill: var(--smarter-dx-paper);
+  stroke: var(--smarter-dx-paper-stroke);
+  stroke-width: 2;
+}
+
+.smarter-dx-fold,
+.smarter-dx-flap {
+  fill: none;
+  stroke: var(--smarter-dx-paper-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.smarter-dx-flap {
+  stroke: var(--smarter-dx-accent);
+  stroke-width: 3;
+}
+
+.smarter-dx-key {
+  fill: var(--smarter-dx-accent);
+  opacity: 0.75;
+}
+
+.smarter-dx-line {
+  fill: var(--smarter-dx-muted);
+}
+
+.smarter-dx-accent-fill {
+  fill: var(--smarter-dx-accent);
+}
+
+.smarter-dx-ink-fill {
+  fill: var(--smarter-dx-ink);
+}
+
+.smarter-dx-success-fill {
+  fill: var(--smarter-dx-success);
+}
+
+.smarter-dx-danger-fill {
+  fill: var(--smarter-dx-danger);
+}
+
+.smarter-dx-check,
+.smarter-dx-zipper {
+  fill: none;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.smarter-dx-arrow,
+.smarter-dx-handle,
+.smarter-dx-shackle,
+.smarter-dx-ink {
+  fill: none;
+  stroke: var(--smarter-dx-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.smarter-dx-ink {
+  fill: var(--smarter-dx-ink);
+  stroke-width: 1;
+}
+
+.smarter-dx-handle {
+  stroke-width: 7;
+}
+
+.smarter-dx-lens {
+  fill: var(--smarter-dx-accent-light);
+  stroke: var(--smarter-dx-ink);
+  stroke-width: 5;
+}
+
+.smarter-dx-tile {
+  fill: var(--smarter-dx-tile);
+  stroke: var(--smarter-dx-paper-stroke);
+  stroke-width: 1.5;
+  animation: smarter-dx-found 1.8s ease-in-out infinite;
+}
+
+.smarter-dx-write {
+  fill: none;
+  stroke: var(--smarter-dx-muted);
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  stroke-linecap: round;
+  stroke-width: 5;
+  animation: smarter-dx-write 2.4s ease-in-out infinite;
+}
+
+.smarter-dx-write-key {
+  stroke: var(--smarter-dx-accent);
+}
+
+.smarter-dx-box-lid {
+  fill: var(--smarter-dx-accent-hover);
+}
+
+.smarter-dx-dash {
+  stroke-dasharray: 4 6;
+  animation: smarter-dx-march 0.8s linear infinite;
+}
+
+.smarter-dx-float {
+  animation: smarter-dx-float 3s ease-in-out infinite;
+}
+
+.smarter-dx-delay-0 {
+  animation-delay: 0s;
+}
+
+.smarter-dx-delay-1 {
+  animation-delay: 0.3s;
+}
+
+.smarter-dx-delay-2 {
+  animation-delay: 0.6s;
+}
+
+.smarter-dx-sweep {
+  animation: smarter-dx-sweep 2.4s ease-in-out infinite;
+}
+
+.smarter-dx-pen {
+  animation: smarter-dx-pen 2.4s ease-in-out infinite;
+}
+
+.smarter-dx-drop {
+  animation: smarter-dx-drop 1.8s ease-in infinite;
+}
+
+.smarter-dx-zip {
+  stroke-dasharray: 80;
+  animation: smarter-dx-zip 1.8s ease-in-out infinite;
+}
+
+.smarter-dx-rise {
+  animation: smarter-dx-rise-up 1.8s ease-in-out infinite;
+}
+
+.smarter-dx-fly {
+  animation: smarter-dx-fly 1.8s ease-in-out infinite;
+}
+
+.smarter-dx-speed {
+  animation: smarter-dx-speed 1.8s ease-in-out infinite;
+}
+
+.smarter-dx-pop {
+  animation: smarter-dx-pop 500ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+@keyframes smarter-dx-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes smarter-dx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes smarter-dx-slide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes smarter-dx-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 87, 51, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 0.4rem rgba(255, 87, 51, 0);
+  }
+}
+
+@keyframes smarter-dx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes smarter-dx-march {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* the magnifying glass moves over the grid of resources, left to right, row by row. */
+@keyframes smarter-dx-sweep {
+  0% {
+    transform: translate(66px, 64px);
+  }
+  33% {
+    transform: translate(174px, 64px);
+  }
+  50% {
+    transform: translate(174px, 100px);
+  }
+  66% {
+    transform: translate(66px, 136px);
+  }
+  100% {
+    transform: translate(174px, 136px);
+  }
+}
+
+@keyframes smarter-dx-found {
+  0%,
+  60%,
+  100% {
+    fill: var(--smarter-dx-tile);
+  }
+  20%,
+  40% {
+    fill: var(--smarter-dx-accent);
+  }
+}
+
+@keyframes smarter-dx-write {
+  0% {
+    stroke-dashoffset: 60;
+  }
+  40%,
+  85% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 60;
+  }
+}
+
+/* the pen moves down the page, line by line. */
+@keyframes smarter-dx-pen {
+  0% {
+    transform: translate(130px, 50px);
+  }
+  50% {
+    transform: translate(150px, 130px);
+  }
+  100% {
+    transform: translate(130px, 50px);
+  }
+}
+
+@keyframes smarter-dx-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(70px) scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(80px) scale(0.7);
+  }
+}
+
+@keyframes smarter-dx-zip {
+  0%,
+  40% {
+    stroke-dashoffset: 80;
+  }
+  80%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes smarter-dx-rise-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-50px) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.6);
+  }
+}
+
+@keyframes smarter-dx-fly {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) rotate(-4deg);
+  }
+  25%,
+  70% {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(60px) translateY(-20px) rotate(6deg);
+  }
+}
+
+@keyframes smarter-dx-speed {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  45%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes smarter-dx-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* on a phone, the illustration shrinks into a band above the text. */
+@media (max-width: 767.98px) {
+  .smarter-dx-dialog {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    min-height: 0;
+  }
+
+  .smarter-dx-art-panel {
+    padding: 1rem;
+  }
+
+  .smarter-dx-figure {
+    max-width: 160px;
+  }
+
+  .smarter-dx-body {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .smarter-dx-title {
+    font-size: 1.4rem;
+  }
+}
+
+/* the illustrations hold still, and the dialog appears without moving. */
+@media (prefers-reduced-motion: reduce) {
+  .smarter-dx-backdrop,
+  .smarter-dx-dialog,
+  .smarter-dx-figure,
+  .smarter-dx-phase,
+  .smarter-dx-art *,
+  .smarter-dx-step-active .smarter-dx-step-marker {
+    animation: none !important;
+  }
+
+  .smarter-dx-write {
+    stroke-dashoffset: 0;
+  }
+
+  .smarter-dx-sweep {
+    transform: translate(120px, 100px);
+  }
+
+  .smarter-dx-pen {
+    transform: translate(150px, 110px);
+  }
+
+  .smarter-dx-step::after,
+  .smarter-dx-step-marker,
+  .smarter-dx-step-title,
+  .smarter-dx-meter-fill {
+    transition: none;
+  }
+}

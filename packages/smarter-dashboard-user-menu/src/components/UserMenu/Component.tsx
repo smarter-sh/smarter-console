@@ -4,11 +4,13 @@
  * The user's profile image is a button that opens and closes it; their email shows on hover, and names
  * the button for screen readers. A click outside the menu, or Escape, closes it. For a signed-in user,
  * the menu has their name and email, the Language item (with two or more languages), Change Profile
- * Image, Remove Profile Image, Change Profile (with two or more profiles), Welcome Tour and Sign Out.
+ * Image, Remove Profile Image, Change Profile (with two or more profiles), Welcome Tour, Download My Data
+ * and Sign Out.
  * An anonymous request gets the Language item and Sign In.
  *
  * Welcome Tour opens the welcome dialog, the @smarter/welcome app, which listens for clicks on elements
- * with the data-smarter-welcome-open attribute.
+ * with the data-smarter-welcome-open attribute. Download My Data opens a dialog that emails the user a zip
+ * file of the manifest of every resource that they own.
  *
  * :param appContext: The menu's context, which the console builds from its session.
  * :param onSwitched: Passed to the Change Profile dialog. Reloads the page by default.
@@ -19,6 +21,7 @@ import { useId, useState } from "react";
 import { getCookie, gettext, useDropdown } from "@smarter/common";
 
 import ChangeProfile from "../ChangeProfile";
+import DataExportDialog from "../DataExport";
 import LanguageMenu from "../LanguageMenu";
 import MenuHeader from "../MenuHeader";
 import ProfileImageItems from "../ProfileImageItems";
@@ -38,6 +41,7 @@ function UserMenu({ appContext, onSwitched, onSignedOut = goTo }: UserMenuProps)
   const { sessionContext, isAuthenticated, user, urls } = appContext;
   const { open, setOpen, toggle, rootRef, buttonRef, menuId } = useDropdown();
   const [changingProfile, setChangingProfile] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(appContext.profileImageUrl);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
@@ -63,6 +67,16 @@ function UserMenu({ appContext, onSwitched, onSignedOut = goTo }: UserMenuProps)
 
   const closeChangeProfile = () => {
     setChangingProfile(false);
+    buttonRef.current?.focus();
+  };
+
+  const openDataExport = () => {
+    setOpen(false);
+    setExportingData(true);
+  };
+
+  const closeDataExport = () => {
+    setExportingData(false);
     buttonRef.current?.focus();
   };
 
@@ -140,6 +154,16 @@ function UserMenu({ appContext, onSwitched, onSignedOut = goTo }: UserMenuProps)
               <button
                 type="button"
                 className="menu-link px-5 w-100 border-0 bg-transparent"
+                aria-haspopup="dialog"
+                onClick={openDataExport}
+              >
+                {gettext("Download My Data")}
+              </button>
+            </div>
+            <div className="menu-item px-5">
+              <button
+                type="button"
+                className="menu-link px-5 w-100 border-0 bg-transparent"
                 disabled={signingOut}
                 onClick={signOutAndLeave}
               >
@@ -171,6 +195,9 @@ function UserMenu({ appContext, onSwitched, onSignedOut = goTo }: UserMenuProps)
           onClose={closeChangeProfile}
           onSwitched={onSwitched}
         />
+      )}
+      {exportingData && (
+        <DataExportDialog sessionContext={sessionContext} apiUrl={urls.dataExportApi} onClose={closeDataExport} />
       )}
     </div>
   );

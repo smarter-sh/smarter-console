@@ -1,10 +1,10 @@
 /**
- * The user menu's requests to the console's account api, /api/web/account/: the user profile apis, which
- * return JSON, and the profile image api, which takes a multipart form, or a DELETE.
+ * The user menu's requests to the console's account api, /api/web/account/: the user profile and data
+ * export apis, which return JSON, and the profile image api, which takes a multipart form, or a DELETE.
  */
 import { fetchDjangoUrl, getCookie, gettext, interpolate, type SessionContext } from "@smarter/common";
 
-import type { ProfileImageApiResponse, UserProfilesApiResponse } from "./Types";
+import type { DataExportOverview, DataExportProgress, ProfileImageApiResponse, UserProfilesApiResponse } from "./Types";
 
 /** The user profile apis' response, or their error message, else their status. */
 async function userProfilesResponse(response: Response): Promise<UserProfilesApiResponse> {
@@ -88,4 +88,51 @@ export async function sendProfileImage(
     throw new Error(errors.join(" "));
   }
   return data.profile_image_url;
+}
+
+/** An api's JSON response, or its error message, else its status. */
+async function jsonResponse<T>(response: Response): Promise<T> {
+  const data = (await response.json().catch(() => ({}))) as T & { error?: string };
+  if (!response.ok) {
+    throw new Error(data.error || interpolate(gettext("Request failed: %(status)s"), { status: response.status }));
+  }
+  return data;
+}
+
+/**
+ * GET what the Download My Data dialog says before the user starts: where the link goes, and the limits.
+ *
+ * @param url - The data export api's url, /api/web/account/data-export/.
+ * @returns The overview.
+ * @throws Error with the api's error message, if it answers with one, else its status.
+ */
+export async function getDataExportOverview(url: string): Promise<DataExportOverview> {
+  const response = await fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } });
+  return jsonResponse<DataExportOverview>(response);
+}
+
+/**
+ * Start a data export, or get the one that is already in progress.
+ *
+ * @param sessionContext - The cookies and headers of the request.
+ * @param url - The data export api's url.
+ * @returns The export's progress.
+ * @throws Error with the api's error message, e.g. that the day's exports are used up, else its status.
+ */
+export async function startDataExport(sessionContext: SessionContext, url: string): Promise<DataExportProgress> {
+  const response = await fetchDjangoUrl(sessionContext, url, "{}");
+  return jsonResponse<DataExportProgress>(response);
+}
+
+/**
+ * GET a data export's progress.
+ *
+ * @param url - The data export api's url.
+ * @param id - The export's id.
+ * @returns The export's progress.
+ * @throws Error with the api's error message, if it answers with one, else its status.
+ */
+export async function getDataExport(url: string, id: number): Promise<DataExportProgress> {
+  const response = await fetch(`${url}${id}/`, { credentials: "same-origin", headers: { Accept: "application/json" } });
+  return jsonResponse<DataExportProgress>(response);
 }

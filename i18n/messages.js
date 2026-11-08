@@ -189,7 +189,7 @@ gettext("Hierarchy");
 gettext("Dependencies");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("The detail of %(name)s could not be loaded: %(error)s");
-// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-console/src/App.tsx
+// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
 gettext("Try again");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("Browse the list");
@@ -207,7 +207,7 @@ gettext("Next (→)");
 gettext("Next");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("Close (Esc)");
-// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx, packages/smarter-workbench/src/components/DocsDialog/Component.tsx
+// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx, packages/smarter-workbench/src/components/DocsDialog/Component.tsx
 gettext("Close");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("Detail");
@@ -331,7 +331,7 @@ gettext("You can't read this resource");
 gettext("Show the detail of %(name)s");
 // Translators: used in packages/smarter-common/src/components/ResourceTree/ResourceCard.tsx
 gettext("Open the manifest of %(name)s in a new tab");
-// Translators: used in packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-dashboard/src/components/TokenUsage/Chart.tsx, packages/smarter-dashboard-user-menu/src/components/ChangeProfile/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
+// Translators: used in packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-dashboard/src/components/TokenUsage/Chart.tsx, packages/smarter-dashboard-user-menu/src/components/ChangeProfile/Component.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
 gettext("Loading…");
 // Translators: used in packages/smarter-common/src/components/TabbedListView/AnnotationSelectorBox.tsx
 gettext("Annotation, e.g. acme.com/id=42");
@@ -386,7 +386,7 @@ gettext("Unable to load objects.");
 gettext("Invalid response payload: expected objects array.");
 // Translators: used in packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-llmclient-deployment/src/components/NextSteps.tsx
 gettext("OK");
-// Translators: used in packages/smarter-common/src/lib/modalDialogue.tsx
+// Translators: used in packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
 gettext("Cancel");
 // Translators: used in packages/smarter-connection-list/src/App.tsx
 gettext("Your Connections");
@@ -1034,6 +1034,86 @@ gettext("Current");
 gettext("Switch to %(account)s");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/ChangeProfile/Component.tsx
 gettext("Switching…");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-dashboard-user-menu/src/components/UserMenu/Component.tsx
+gettext("Download My Data");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Get a copy of your data");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Everything that you've built on Smarter is described by manifests. Download them all, to keep, to put under version control, or to apply to another Smarter platform.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("What you'll get");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("A zip file with the manifest of every resource that you own, in every account that you belong to: one YAML file per resource, and a README.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("How long it takes");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Usually a few seconds. You can close this window at any time: the email comes either way.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Where it goes");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("A download link is emailed to %(email)s. It works for %(hours)s hours.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("A download link is emailed to you. It works for %(hours)s hours.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Your secrets stay secret");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Secrets' values are left out, because the link travels by email. Their names and settings are included.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Your account has no email address to send the download link to.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("You can download your data %(count)s times a day. Please try again tomorrow.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Preparing your data…");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("You can close this window. The email comes either way.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Manifests written");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("%(done)s of %(total)s");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Check your inbox");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("A link to your data is on its way to %(email)s. It works for %(hours)s hours.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+ngettext("manifest", "manifests", 1);
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("zip file");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+ngettext("%(count)s resource could not be exported. The README says which, and why.", "%(count)s resources could not be exported. The README says which, and why.", 1);
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Didn't get it? Look in your spam folder, or request your data again.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Your data couldn't be exported");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Something went wrong while your data was being prepared, and no email was sent.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("%(left)s of %(count)s requests left today");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Starting…");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx
+gettext("Request my data");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-onboarding/src/components/Tour/Component.tsx
+gettext("Done");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Find your resources");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Every resource that you own, in every account that you belong to.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Write their manifests");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("One YAML file per resource, as smarter describe prints it.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Zip them up");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("The manifests and a README, in a single zip file.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Store the zip file privately");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("In this platform's private storage, which deletes it after a day.");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("Email you a link");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/DataExport/steps.ts
+gettext("A download link that expires, sent to your email address.");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/LanguageMenu/Component.tsx
 gettext("Language");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
@@ -2925,8 +3005,6 @@ gettext("Step %(step)s of %(steps)s");
 gettext("Skip tour");
 // Translators: used in packages/smarter-onboarding/src/components/Tour/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx
 gettext("Back");
-// Translators: used in packages/smarter-onboarding/src/components/Tour/Component.tsx
-gettext("Done");
 // Translators: used in packages/smarter-orchestrator-list/src/App.tsx
 gettext("Your Orchestrators");
 // Translators: used in packages/smarter-orchestrator-list/src/App.tsx

@@ -1,7 +1,7 @@
 /**
  * Types of the user menu: its context, which the console builds from its session, and what the
- * Django apis return. See smarter.apps.account.api.web.profile_image and
- * smarter.apps.account.api.web.user_profiles.
+ * Django apis return. See smarter.apps.account.api.web.profile_image,
+ * smarter.apps.account.api.web.user_profiles and smarter.apps.account.api.web.data_export.
  */
 import type { SessionContext } from "@smarter/common";
 
@@ -35,6 +35,8 @@ export interface MenuUrls {
   userProfilesApi: string;
   /** Chooses the profile that the console acts as. */
   userProfileSelectApi: string;
+  /** Download My Data: GET its overview, POST to start an export, GET <id>/ for an export's progress. */
+  dataExportApi: string;
   login: string;
   logout: string;
 }
@@ -79,4 +81,47 @@ export interface ProfileImageApiResponse {
   profile_image_url?: string;
   profile_image?: string[];
   error?: string;
+}
+
+/** Where a data export is. See DataExportStatus in smarter.apps.account.models. */
+export type DataExportState = "queued" | "running" | "succeeded" | "failed";
+
+/** The step that a data export is on, in order. See DataExportStep in smarter.apps.account.models. */
+export type DataExportStepName = "queued" | "inventory" | "manifests" | "archive" | "upload" | "email" | "done";
+
+/** A data export's progress. See DataExportStatusResponse in smarter.apps.account.data_export. */
+export interface DataExportProgress {
+  id: number;
+  status: DataExportState;
+  step: DataExportStepName;
+  /** How many resources the user owns. */
+  resourceCount: number;
+  /** How many manifests have been written so far. */
+  manifestCount: number;
+  /** How many resources had no manifest. */
+  failedCount: number;
+  /** The size of the zip file, in bytes. */
+  sizeBytes: number;
+  /** The address that the link is emailed to. */
+  email: string;
+  /** When the export was started, as an ISO 8601 date. */
+  createdAt: string;
+  /** When the emailed link expires, as an ISO 8601 date, or null before it is made. */
+  expiresAt: string | null;
+  /** Why the export failed, or an empty string. */
+  error: string;
+}
+
+/** What the dialog says before the user starts. See DataExportOverviewResponse in smarter.apps.account.data_export. */
+export interface DataExportOverview {
+  /** The address that the link is emailed to, or an empty string. */
+  email: string;
+  /** How many hours the emailed link works. */
+  linkHours: number;
+  /** The most exports that a user may start in 24 hours. */
+  exportsPerDay: number;
+  /** How many more the user may start now. */
+  exportsLeftToday: number;
+  /** The user's most recent export, or null. */
+  latest: DataExportProgress | null;
 }

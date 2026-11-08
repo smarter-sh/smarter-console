@@ -15,6 +15,7 @@ export const userMenuUrls = {
   profileImageApi: `${ACCOUNT_API}/profile-image/`,
   userProfilesApi: `${ACCOUNT_API}/user-profiles/`,
   userProfileSelectApi: `${ACCOUNT_API}/user-profiles/select/`,
+  dataExportApi: `${ACCOUNT_API}/data-export/`,
 };
 
 /**
