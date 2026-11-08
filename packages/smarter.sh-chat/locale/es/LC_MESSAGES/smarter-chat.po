@@ -247,6 +247,16 @@ msgstr "Haré %(verb)s con el %(noun)s lo más rápido que pueda, lo prometo…"
 msgid "Still here! Just pausing to %(verb)s the %(noun)s…"
 msgstr "¡Sigo aquí! Solo hago una pausa para hacer %(verb)s con el %(noun)s…"
 
+#: src/lib/code.ts
+msgid "Download"
+msgstr "Descargar"
+
+#: src/lib/code.ts
+msgid "Show all %(lines)s line"
+msgid_plural "Show all %(lines)s lines"
+msgstr[0] "Mostrar %(lines)s línea"
+msgstr[1] "Mostrar las %(lines)s líneas"
+
 #: src/lib/code.ts src/lib/media.ts
 msgid "Copy code"
 msgstr "Copiar el código"
@@ -256,12 +266,12 @@ msgid "Copy"
 msgstr "Copiar"
 
 #: src/lib/code.ts
+msgid "Show fewer lines"
+msgstr "Mostrar menos líneas"
+
+#: src/lib/code.ts
 msgid "Copied!"
 msgstr "¡Copiado!"
-
-#: src/lib/media.ts
-msgid "Download"
-msgstr "Descargar"
 
 #. Translators: a button that shows the code of an svg image, instead of the image.
 #. Translators: a button that shows the code of a diagram, instead of the diagram.
@@ -313,6 +323,11 @@ msgstr "Diagrama"
 #: src/lib/messages.ts
 msgid "Image"
 msgstr "Imagen"
+
+#. Translators: an assistant called a tool, e.g. "Called stackademy_sql".
+#: src/lib/messages.ts
+msgid "Called %(tool)s"
+msgstr "Llamó a %(tool)s"
 
 #: src/lib/messages.ts
 msgid "Some example prompts to get you started:"

@@ -1,6 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { codeBlockHtml, codeLanguage, copyCodeBlock, highlightCode, stripTrailingFence } from "./code";
+import {
+  codeBlockHtml,
+  codeLanguage,
+  COLLAPSE_LINES,
+  COLLAPSED_CLASS,
+  copyCodeBlock,
+  DOWNLOAD_BUTTON_CLASS,
+  highlightCode,
+  stripTrailingFence,
+  toggleCodeBlock,
+} from "./code";
 
 describe("codeLanguage", () => {
   it("is the first word of the fence's info string, in lower case", () => {
@@ -109,5 +119,51 @@ describe("copyCodeBlock", () => {
     expect(copyCodeBlock(document.querySelector("pre"))).toBe(false);
     expect(copyCodeBlock(null)).toBe(false);
     expect(writeText).not.toHaveBeenCalled();
+  });
+});
+
+describe("codeBlockHtml, with a file name", () => {
+  it("has a download button that saves the code as the file", () => {
+    document.body.innerHTML = codeBlockHtml("a: 1", "yaml", { filename: "a.yaml" });
+    expect(document.querySelector<HTMLElement>(`button.${DOWNLOAD_BUTTON_CLASS}`)?.dataset.filename).toBe("a.yaml");
+    document.body.innerHTML = codeBlockHtml("a: 1", "yaml");
+    expect(document.querySelector(`button.${DOWNLOAD_BUTTON_CLASS}`)).toBeNull();
+  });
+});
+
+describe("toggleCodeBlock", () => {
+  const lines = (count: number) => Array.from({ length: count }, (_, index) => `line ${index}`).join("\n");
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("collapses a long code block, and shows all of it, and collapses it again, when its button is clicked", () => {
+    document.body.innerHTML = codeBlockHtml(lines(COLLAPSE_LINES + 5), "");
+    const block = document.querySelector(".smarter-chat-code")!;
+    const button = document.querySelector<HTMLButtonElement>("button.smarter-chat-code-expand")!;
+    expect(block).toHaveClass(COLLAPSED_CLASS);
+    expect(button).toHaveTextContent(`Show all ${COLLAPSE_LINES + 5} lines`);
+    expect(button).toHaveAttribute("aria-expanded", "false");
+
+    expect(toggleCodeBlock(button)).toBe(true);
+    expect(block).not.toHaveClass(COLLAPSED_CLASS);
+    expect(button).toHaveTextContent("Show fewer lines");
+    expect(button).toHaveAttribute("aria-expanded", "true");
+
+    expect(toggleCodeBlock(button)).toBe(true);
+    expect(block).toHaveClass(COLLAPSED_CLASS);
+    expect(button).toHaveTextContent(`Show all ${COLLAPSE_LINES + 5} lines`);
+  });
+
+  it("doesn't collapse a short code block, or a mermaid diagram's", () => {
+    expect(codeBlockHtml(lines(COLLAPSE_LINES), "")).not.toContain(COLLAPSED_CLASS);
+    expect(codeBlockHtml(lines(COLLAPSE_LINES + 5), "mermaid")).not.toContain(COLLAPSED_CLASS);
+  });
+
+  it("ignores clicks on anything else", () => {
+    document.body.innerHTML = codeBlockHtml("x", "");
+    expect(toggleCodeBlock(document.querySelector("button"))).toBe(false);
+    expect(toggleCodeBlock(null)).toBe(false);
   });
 });

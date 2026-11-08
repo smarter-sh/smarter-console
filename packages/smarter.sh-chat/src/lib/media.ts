@@ -8,25 +8,36 @@
  *   sanitized, then displayed by an ``img`` with a data url, in which browsers never run scripts.
  *   Any other raw html is still displayed as text. See messages.ts.
  * - ``![alt](url)`` whose url is an audio file (mp3, wav, ogg, oga, m4a, flac, opus), or a base64
- *   audio data url, is an audio player.
- * - Images, svg graphics, audio and mermaid diagrams have a download button. The buttons work by
+ *   audio data url, is an audio player, and one whose url is a video file (mp4, webm, mov, m4v,
+ *   ogv), or a base64 video data url, is a video player.
+ * - Images, svg graphics, audio, video and mermaid diagrams have a download button, as does a code
+ *   block that has a file name, e.g. a Smarter manifest's. See code.ts. The buttons work by
  *   event delegation, as the code blocks' copy button does, because messages are html strings
  *   rather than React elements. See downloadMedia, toggleSvgCode, and SmarterChat's onClick.
  */
 import DOMPurify from "dompurify";
 import type { RendererExtension, TokenizerExtension, Tokens } from "marked";
 
-import { CODE_BLOCK_CLASS, COPY_BUTTON_CLASS, highlightCode, MERMAID_BLOCK_CLASS } from "./code";
+import {
+  CODE_BLOCK_CLASS,
+  COPY_BUTTON_CLASS,
+  DOWNLOAD_BUTTON_CLASS,
+  downloadButton,
+  highlightCode,
+  MERMAID_BLOCK_CLASS,
+} from "./code";
 import { gettext, pgettext } from "./i18n";
 
+export { DOWNLOAD_BUTTON_CLASS, downloadButton };
+
 export const MEDIA_CLASS = "smarter-chat-media";
-export const DOWNLOAD_BUTTON_CLASS = "smarter-chat-download";
 export const SVG_CLASS = "smarter-chat-svg";
 // the code block of an svg, its graphic, and the button that shows its code, or the graphic.
 export const SVG_BLOCK_CLASS = "smarter-chat-svg-block";
 export const SVG_IMAGE_CLASS = "smarter-chat-svg-image";
 export const SVG_TOGGLE_BUTTON_CLASS = "smarter-chat-svg-toggle";
 export const AUDIO_CLASS = "smarter-chat-audio";
+export const VIDEO_CLASS = "smarter-chat-video";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 // an svg document: an optional xml declaration, then one svg element.
@@ -67,15 +78,6 @@ export function sanitizedSvgDocument(text: string): string | null {
 /** A data url of an svg document, which an ``img`` displays. */
 export function svgDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
-/** A download button, which saves the media beside it as filename. */
-export function downloadButton(filename: string): string {
-  return (
-    `<button type="button" class="${DOWNLOAD_BUTTON_CLASS}" data-filename="${escape(filename)}" ` +
-    `aria-label="${escape(gettext("Download"))}" title="${escape(gettext("Download"))}">` +
-    `${escape(gettext("Download"))}</button>`
-  );
 }
 
 /** Media (html of an image, an svg or an audio player) with its download button. */
@@ -176,6 +178,27 @@ export function audioHtml(src: string, title: string): string {
   );
 }
 
+const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogv"];
+const videoUrlRegex = new RegExp(
+  String.raw`^(?:(?:https?:\/\/|\/)[^\s)"?#]+\.(?:${VIDEO_EXTENSIONS.join("|")})(?:[?#][^\s)"]*)?` +
+    String.raw`|data:video\/(?:mp4|webm|ogg|quicktime);base64,[A-Za-z0-9+/=]+)$`,
+  "i",
+);
+
+/** Whether a url is a video file's, or a video data url. */
+export function isVideoUrl(url: string): boolean {
+  return videoUrlRegex.test(url);
+}
+
+/** Html for a video player, with its download button. The url must be one that isVideoUrl accepts. */
+export function videoHtml(src: string, title: string): string {
+  const label = title ? ` aria-label="${escape(title)}" title="${escape(title)}"` : "";
+  return mediaHtml(
+    `<video class="${VIDEO_CLASS}" controls preload="metadata" src="${escape(src)}"${label}></video>`,
+    filenameOf(src, "video"),
+  );
+}
+
 const EXTENSIONS_BY_TYPE: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
@@ -191,6 +214,10 @@ const EXTENSIONS_BY_TYPE: Record<string, string> = {
   "audio/aac": "aac",
   "audio/flac": "flac",
   "audio/webm": "webm",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/ogg": "ogv",
+  "video/quicktime": "mov",
 };
 
 /**
@@ -231,16 +258,24 @@ export const svgExtension: TokenizerExtension & RendererExtension = {
   },
 };
 
-/** The url of the media beside a download button: an image, an audio player, an svg or a mermaid diagram. */
+/** A temporary url of a file's text. */
+function textUrl(text: string, type: string): { url: string; revoke: boolean } {
+  return { url: URL.createObjectURL(new Blob([text], { type })), revoke: true };
+}
+
+/**
+ * The url of the media beside a download button: an image, an audio or video player, an svg, a
+ * mermaid diagram, or a code block's code.
+ */
 function mediaUrl(media: Element): { url: string; revoke: boolean } | null {
   const src = media
-    .querySelector(`:scope > img, :scope > a > img, :scope > audio, :scope > .${SVG_IMAGE_CLASS} > img`)
+    .querySelector(`:scope > img, :scope > a > img, :scope > audio, :scope > video, :scope > .${SVG_IMAGE_CLASS} > img`)
     ?.getAttribute("src");
   if (src) return { url: src, revoke: false };
   const svg = media.querySelector(".smarter-chat-mermaid-diagram > svg");
-  if (!svg) return null;
-  const markup = new XMLSerializer().serializeToString(svg);
-  return { url: URL.createObjectURL(new Blob([markup], { type: "image/svg+xml" })), revoke: true };
+  if (svg) return textUrl(new XMLSerializer().serializeToString(svg), "image/svg+xml");
+  const code = media.matches(`.${CODE_BLOCK_CLASS}`) ? media.querySelector(":scope > pre code") : null;
+  return code ? textUrl(code.textContent ?? "", "text/plain") : null;
 }
 
 /** Saves a url as filename, with a temporary link. */
@@ -287,14 +322,14 @@ async function saveRemote(url: string, filename: string): Promise<void> {
 
 /**
  * Saves the media beside a download button when it is clicked: an image, an svg graphic, an audio
- * clip or a mermaid diagram. Clicks on anything else are ignored.
+ * or video clip, a mermaid diagram, or a code block's code. Clicks on anything else are ignored.
  *
  * :returns: whether the click was on a download button.
  */
 export function downloadMedia(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;
   const button = target.closest<HTMLButtonElement>(`button.${DOWNLOAD_BUTTON_CLASS}`);
-  const media = button?.closest(`.${MEDIA_CLASS}, .${MERMAID_BLOCK_CLASS}, .${SVG_BLOCK_CLASS}`);
+  const media = button?.closest(`.${MEDIA_CLASS}, .${MERMAID_BLOCK_CLASS}, .${SVG_BLOCK_CLASS}, .${CODE_BLOCK_CLASS}`);
   const source = media ? mediaUrl(media) : null;
   if (!button || !source) return false;
   const filename = button.dataset.filename || "download";

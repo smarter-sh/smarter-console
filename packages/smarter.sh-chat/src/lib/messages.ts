@@ -11,19 +11,27 @@ import { Marked, type Tokens } from "marked";
 
 import type { ApiMessage, ChatMessage } from "../types";
 import { codeBlockHtml, codeLanguage } from "./code";
+import { dataHtml, isManifest, manifestHtml, prettyJson } from "./data";
 import { MessageDirectionEnum, SenderRoleEnum, ValidMessageRolesEnum, type MessageDirection } from "./enums";
-import { gettext } from "./i18n";
+import { gettext, interpolate } from "./i18n";
 import { mathExtension } from "./math";
 import {
   audioHtml,
   filenameOf,
   isAudioUrl,
   isSvgCodeBlock,
+  isVideoUrl,
   MEDIA_CLASS,
   mediaHtml,
   svgExtension,
   svgHtml,
+  videoHtml,
 } from "./media";
+
+/** An assistant's call of a tool. */
+type ToolCall = NonNullable<ApiMessage["tool_calls"]>[number];
+
+export const TOOL_CALL_CLASS = "smarter-chat-tool-call";
 
 const HTML_ESCAPES: Record<string, string> = {
   "&": "&amp;",
@@ -113,11 +121,24 @@ function downloadableImage(src: string, html: string): string {
   return mediaHtml(html, filenameOf(src, "image"));
 }
 
+// the languages of code blocks that may be a Smarter manifest.
+const MANIFEST_LANGUAGES = ["yaml", "yml", ""];
+
 // GitHub flavored markdown, in which a line break is a line break, as it is in a chat.
 // Math, in LaTeX, is typeset. See math.ts. An svg is displayed as its graphic. See media.ts.
 const markdown = new Marked({ gfm: true, breaks: true, async: false });
 markdown.use(mathExtension);
 markdown.use({ extensions: [svgExtension] });
+markdown.use({
+  // a list item that is only a JSON object or array is pretty printed, as a json code block in the
+  // list item, e.g. an LLMClient's example prompts for a JSON api. See prettyJson().
+  walkTokens(token) {
+    if (token.type !== "list_item") return;
+    const item = token as Tokens.ListItem;
+    const json = prettyJson(item.text);
+    if (json !== null) item.tokens = [{ type: "code", raw: item.text, text: json, lang: "json" } as Tokens.Code];
+  },
+});
 markdown.use({
   renderer: {
     // raw html is displayed as text.
@@ -135,16 +156,21 @@ markdown.use({
       const content = this.parser.parseInline(tokens);
       return urlRegex.test(href) ? anchor(escapeHtml(href), content) : content;
     },
-    // an image, or an audio player for an audio file. See media.ts.
+    // an image, or an audio or video player for an audio or video file. See media.ts.
     image({ href, text }: Tokens.Image): string {
       if (isAudioUrl(href)) return audioHtml(href, text);
+      if (isVideoUrl(href)) return videoHtml(href, text);
       return imageUrlRegex.test(href) ? downloadableImage(href, linkedImage(escapeHtml(href), text)) : text;
     },
     // highlighted, with a header of its language and a copy button. See code.ts. A code block that
-    // is only an svg is displayed as its graphic. See media.ts.
+    // is only an svg is displayed as its graphic. See media.ts. A yaml block that is a Smarter
+    // manifest has a download button. See data.ts.
     code({ text, lang }: Tokens.Code): string {
-      const svg = isSvgCodeBlock(text, codeLanguage(lang)) ? svgHtml(text) : null;
-      return svg ?? codeBlockHtml(text, lang);
+      const language = codeLanguage(lang);
+      const svg = isSvgCodeBlock(text, language) ? svgHtml(text) : null;
+      if (svg) return svg;
+      if (MANIFEST_LANGUAGES.includes(language) && isManifest(text)) return manifestHtml(text);
+      return codeBlockHtml(text, lang);
     },
   },
 });
@@ -169,8 +195,9 @@ function sanitize(html: string): string {
  *
  * Raw html is displayed as text, except an svg, which is displayed as its graphic. Links and images
  * follow the rules of convertMarkdownLinksToHTML, and images have a download button. An image whose
- * url is an audio file's is an audio player, with a download button. See media.ts. A message that is a single paragraph is not wrapped in one,
- * so that its chat bubble stays as compact as the text.
+ * url is an audio or video file's is a player, with a download button. See media.ts. A list item
+ * that is only JSON is pretty printed. See data.ts. A message that is a single paragraph is not
+ * wrapped in one, so that its chat bubble stays as compact as the text.
  */
 export function convertMarkdownToHTML(text: string): string {
   const html = (markdown.parse(text) as string).trim();
@@ -184,14 +211,39 @@ export function directionOf(sender: string): MessageDirection {
   return sender === SenderRoleEnum.USER ? MessageDirectionEnum.OUTGOING : MessageDirectionEnum.INCOMING;
 }
 
-/** Html for a message's text: the user's as they typed it, and the others as markdown. */
+/**
+ * Html for a message's text: the user's as they typed it, and the others as markdown. A message
+ * that is only data, from anyone, is displayed as data: JSON pretty printed, a Smarter manifest with
+ * a download button, CSV or TSV as a table. See data.ts.
+ */
 export function messageHtml(content: string, sender: string): string {
+  const data = dataHtml(content);
+  if (data !== null) return sanitize(data);
   return sender === SenderRoleEnum.USER ? convertMarkdownLinksToHTML(content) : convertMarkdownToHTML(content);
 }
 
 /**
- * A new chat message. Messages without text, e.g. an assistant's tool calls, stay in the thread,
- * so that they are sent back to the api, but are not displayed.
+ * Html for an assistant's tool calls, e.g. "Called stackademy_sql", each of which shows its
+ * arguments, pretty printed, when it is opened.
+ */
+export function toolCallsHtml(toolCalls: ToolCall[]): string {
+  const calls = toolCalls.map(({ function: call }) => {
+    // Translators: an assistant called a tool, e.g. "Called stackademy_sql".
+    const summary = interpolate(escapeHtml(gettext("Called %(tool)s")), {
+      tool: `<code>${escapeHtml(call.name)}</code>`,
+    });
+    const args = call.arguments ?? "";
+    const json = prettyJson(args);
+    const code = json === null ? codeBlockHtml(args) : codeBlockHtml(json, "json");
+    return `<details class="${TOOL_CALL_CLASS}"><summary>${summary}</summary>${code}</details>`;
+  });
+  return sanitize(calls.join(""));
+}
+
+/**
+ * A new chat message. Messages without text stay in the thread, so that they are sent back to the
+ * api, but are not displayed, except an assistant's tool calls, which are metadata: displayed, as
+ * the backend's own messages are, only in sandbox mode. See toggleMetadataMessages.
  */
 export function messageFactory(
   content: ApiMessage["content"],
@@ -199,16 +251,23 @@ export function messageFactory(
   originalMessage?: ApiMessage,
   direction: MessageDirection = directionOf(sender),
 ): ChatMessage {
-  const display = typeof content === "string" && content !== "";
+  const hasText = typeof content === "string" && content !== "";
+  const toolCalls = !hasText && originalMessage?.tool_calls?.length ? originalMessage.tool_calls : null;
   return {
-    message: display ? messageHtml(content, sender) : "",
+    message: hasText ? messageHtml(content, sender) : toolCalls ? toolCallsHtml(toolCalls) : "",
     content: content ?? null,
     direction,
     sender,
     sentTime: new Date().toLocaleString(),
-    display,
+    display: hasText || !!toolCalls,
     originalMessage,
+    ...(toolCalls ? { metadata: true } : {}),
   };
+}
+
+/** Whether a message is metadata, displayed only in sandbox mode: the backend's, or an assistant's tool calls. */
+export function isMetadataMessage(message: ChatMessage, metadataRoles: readonly string[]): boolean {
+  return !!message.metadata || metadataRoles.includes(message.sender);
 }
 
 /** The thread of a chat session, from the messages that the backend saved. */
@@ -268,7 +327,7 @@ export function toggleMetadataMessages(messages: ChatMessage[], show: boolean, m
     if (!message.message) {
       return { ...message, display: false };
     }
-    return { ...message, display: metadataRoles.includes(message.sender) ? show : true };
+    return { ...message, display: isMetadataMessage(message, metadataRoles) ? show : true };
   });
 }
 

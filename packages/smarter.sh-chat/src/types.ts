@@ -24,10 +24,15 @@ export interface ChatMessage {
   direction: MessageDirection;
   sender: SenderRole | string;
   sentTime: string;
-  /** false for messages that are part of the thread, but never displayed, e.g. an assistant's tool calls. */
+  /** false for messages that are part of the thread, but not displayed, e.g. the backend's in production mode. */
   display: boolean;
   /** The api's original message, whose other fields (e.g. tool_calls) are sent back to the api. */
   originalMessage?: ApiMessage;
+  /**
+   * true for a message that is displayed only in sandbox mode, as the backend's own messages are,
+   * although its sender isn't the backend, e.g. an assistant's tool calls.
+   */
+  metadata?: boolean;
 }
 
 /** The LLMClient, in the configuration. */

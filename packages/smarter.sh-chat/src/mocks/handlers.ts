@@ -11,6 +11,7 @@ import {
   apiErrorResponse,
   config,
   configWithHistory,
+  configWithData,
   configWithDiagram,
   configWithImages,
   configWithMath,
@@ -83,6 +84,12 @@ export const stylesHandlers = [
 /** A chat session whose assistant replied with a mermaid diagram. */
 export const diagramHandlers = [
   configHandler(configWithDiagram),
+  http.post(PROMPT_URL, () => HttpResponse.json(promptResponse())),
+];
+
+/** A chat session whose messages are data: JSON, a manifest, CSV and a long code block. */
+export const dataHandlers = [
+  configHandler(configWithData),
   http.post(PROMPT_URL, () => HttpResponse.json(promptResponse())),
 ];
 

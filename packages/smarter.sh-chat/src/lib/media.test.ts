@@ -6,6 +6,7 @@ import {
   filenameOf,
   isAudioUrl,
   isSvgCodeBlock,
+  isVideoUrl,
   mediaHtml,
   providerRequestFilename,
   sanitizedSvgDocument,
@@ -14,7 +15,9 @@ import {
   svgHtml,
   svgExtension,
   toggleSvgCode,
+  videoHtml,
 } from "./media";
+import { codeBlockHtml } from "./code";
 import { replaceBrokenImage } from "./messages";
 
 function toElement(html: string): HTMLElement {
@@ -144,6 +147,33 @@ describe("audioHtml", () => {
   });
 });
 
+describe("isVideoUrl", () => {
+  it("accepts video files and video data urls", () => {
+    expect(isVideoUrl("https://example.com/a.mp4")).toBe(true);
+    expect(isVideoUrl("/media/a.WEBM?v=1")).toBe(true);
+    expect(isVideoUrl("https://example.com/a.mov#t=10")).toBe(true);
+    expect(isVideoUrl("data:video/mp4;base64,AAAA")).toBe(true);
+  });
+
+  it("refuses other urls", () => {
+    expect(isVideoUrl("https://example.com/a.mp3")).toBe(false);
+    expect(isVideoUrl("javascript:alert(1)//.mp4")).toBe(false);
+    expect(isVideoUrl("data:text/html;base64,PGI+")).toBe(false);
+  });
+});
+
+describe("videoHtml", () => {
+  it("is a video player with a download button, labeled by its title, and escapes the url", () => {
+    const html = videoHtml("https://example.com/intro.mp4?x=1&y=2", "The intro");
+    expect(html).toContain('<video class="smarter-chat-video" controls preload="metadata"');
+    expect(html).toContain('src="https://example.com/intro.mp4?x=1&amp;y=2"');
+    expect(html).toContain('aria-label="The intro"');
+    expect(html).toContain('data-filename="intro.mp4"');
+    expect(videoHtml("data:video/webm;base64,AAAA", "")).not.toContain('aria-label=""');
+    expect(videoHtml("data:video/webm;base64,AAAA", "")).toContain('data-filename="video.webm"');
+  });
+});
+
 describe("filenameOf", () => {
   it("names a file by its url's path, or by its type", () => {
     expect(filenameOf("https://example.com/images/fog%20bank.jpg?w=1", "image")).toBe("fog bank.jpg");
@@ -250,6 +280,24 @@ describe("downloadMedia", () => {
     );
     expect(downloadMedia(button(element))).toBe(true);
     expect(clicked).toEqual([{ href: "blob:https://example.com/1", download: "diagram.svg" }]);
+  });
+
+  it("saves a video as its file", () => {
+    const element = toElement(videoHtml("data:video/mp4;base64,AAAA", ""));
+    expect(downloadMedia(button(element))).toBe(true);
+    expect(clicked).toEqual([{ href: "data:video/mp4;base64,AAAA", download: "video.mp4" }]);
+  });
+
+  it("saves a code block's code as its file", () => {
+    let saved: Blob | undefined;
+    URL.createObjectURL = vi.fn((blob: Blob) => {
+      saved = blob;
+      return "blob:https://example.com/2";
+    });
+    const element = toElement(codeBlockHtml("kind: Plugin\n", "yaml", { filename: "plugin.yaml" }));
+    expect(downloadMedia(button(element))).toBe(true);
+    expect(clicked).toEqual([{ href: "blob:https://example.com/2", download: "plugin.yaml" }]);
+    expect(saved?.type).toBe("text/plain");
   });
 
   it("ignores a button without media", () => {

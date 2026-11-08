@@ -5,6 +5,7 @@ import { props } from "@/mocks/fixtures";
 import {
   chatHandlers,
   configErrorHandlers,
+  dataHandlers,
   diagramHandlers,
   historyHandlers,
   imageHandlers,
@@ -184,5 +185,21 @@ export const WithMath: Story = {
     const paragraph = await canvas.findByText(/Each term is the sum of the two before it/, { selector: "p" });
     await expect(paragraph.querySelectorAll(".katex")).toHaveLength(3);
     await expect(canvasElement.querySelector(".katex-display")).toBeInTheDocument();
+  },
+};
+
+/**
+ * Messages that are data: JSON is pretty printed, a Smarter manifest is yaml with a download button,
+ * CSV is a table, and a long code block is collapsed, with a button that shows all of it.
+ */
+export const WithData: Story = {
+  parameters: { msw: { handlers: dataHandlers } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole("columnheader", { name: "credits" })).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-filename="stackademy_sql.yaml"]')).toBeInTheDocument();
+    await expect(canvasElement.querySelector("code.language-json")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Show all 40 lines" }));
+    await expect(canvas.getByRole("button", { name: "Show fewer lines" })).toBeInTheDocument();
   },
 };

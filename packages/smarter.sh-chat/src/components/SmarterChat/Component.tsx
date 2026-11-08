@@ -3,23 +3,44 @@
  *
  * It fetches the LLMClient's configuration, which includes the chat session's history, then sends
  * the chat thread to the LLMClient's prompt api with each new message, and adds the response's
- * messages to the thread. With verbose, the configuration's diagnostic parts, e.g. the session's tool
- * calls, are fetched too (with ?verbose=true), and again after each prompt. Failed prompts are
+ * messages to the thread. With verbose, the configuration's diagnostic parts, e.g. the session's
+ * tool calls, are fetched too (with ?verbose=true), and again after each prompt. Failed prompts are
  * displayed in the thread, as "smarter_error" messages.
- * While a prompt runs, its progress (e.g. its tool calls and MCP server requests) is displayed in
- * the thread, with a spinner beside its current step, and is replaced by the response's messages
- * when it finishes. BANTER_DELAY_MS after a prompt is sent, the assistant replies with a chat bubble of silly
- * banter, with a twinkling sparkle, whose line changes every BANTER_INTERVAL_MS until the response replaces it.
- * See lib/banter.ts. Code blocks in messages
- * are syntax highlighted, and have a copy button. Images, svg graphics, audio and diagrams have a
- * download button.
  *
- * With toggleMetadata, the header has a Sandbox / Production mode switch. In sandbox mode, the
- * thread also displays Smarter's system, tool and meta data messages, and the header has a button that
- * downloads the conversation as the JSON request that Smarter sends to the LLM provider, without Smarter's
- * own messages and fields, for curl or the Prompt Passthrough page. In production mode, it displays
- * only the conversation, as the LLMClient's users see it. When the chat is narrow, the header's
- * buttons show only their icons. See styles.css.
+ * While a prompt runs:
+ *
+ * - its progress (e.g. its tool calls and MCP server requests) is displayed in the thread, with a
+ *   spinner beside its current step, and is replaced by the response's messages when it finishes.
+ * - BANTER_DELAY_MS after it is sent, the assistant replies with a chat bubble of silly banter, with
+ *   a twinkling sparkle, whose line changes every BANTER_INTERVAL_MS until the response replaces it.
+ *   See lib/banter.ts.
+ *
+ * Messages are displayed by what they hold (see lib/messages.ts):
+ *
+ * - Markdown: the LLM's replies and the backend's messages. The user's are displayed as typed,
+ *   except for their links and images.
+ * - Code blocks: syntax highlighted, with a copy button. Long ones are collapsed, with a button that
+ *   shows the rest. See lib/code.ts.
+ * - Math, in LaTeX, is typeset, and mermaid code blocks are diagrams. See lib/math.ts and
+ *   lib/mermaid.ts.
+ * - Media: images, svg graphics, audio and video players, and diagrams, each with a download button.
+ *   See lib/media.ts.
+ * - Data: a message from anyone that is only JSON (pretty printed), a Smarter manifest (yaml, with a
+ *   download button), or CSV or TSV (a table). See lib/data.ts.
+ * - Tool calls: an assistant message that only calls tools is "Called <tool>", which opens to show
+ *   the arguments. It is metadata, displayed only in sandbox mode.
+ * - Direction: each paragraph reads left to right or right to left, by its text, as does the
+ *   message input. Code always reads left to right. See styles.css.
+ *
+ * With toggleMetadata, the header has a Sandbox / Production mode switch.
+ *
+ * - Sandbox mode: the thread also displays Smarter's system, tool and meta data messages, and the
+ *   assistant's tool calls. The header has a button that downloads the conversation as the JSON
+ *   request that Smarter sends to the LLM provider, without Smarter's own messages and fields, for
+ *   curl or the Prompt Passthrough page.
+ * - Production mode: the thread displays only the conversation, as the LLMClient's users see it.
+ *
+ * When the chat is narrow, the header's buttons show only their icons. See styles.css.
  *
  * A page that hosts the chat, e.g. the Smarter web console's Prompt Engineer's Workbench, which puts
  * its developer Console beside it, follows it with onConfig, onNewChat and onModeChange, asks it to
@@ -28,10 +49,10 @@
  * The LLMClient's styles (its manifest's spec.config.styles) set its logo, which is displayed in
  * the header, its avatars, its background image, its fonts and its colors. See lib/styles.ts.
  *
- * The chat's own text, e.g. its buttons' labels, is in the language that the `language` prop asks for, or else the
- * page's, or else the browser's: English, Spanish or French. See lib/i18n.tsx. The LLMClient's own text, e.g. its
- * welcome message and its example prompts, and the messages of the conversation are displayed as they are.
- *
+ * The chat's own text, e.g. its buttons' labels, is in the language that the `language` prop asks
+ * for, or else the page's, or else the browser's: English, Spanish, French or Brazilian Portuguese.
+ * See lib/i18n.tsx. The LLMClient's own text, e.g. its welcome message and its example prompts, and
+ * the messages of the conversation are displayed as they are.
  */
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
@@ -50,7 +71,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { DEFAULT_COOKIE_EXPIRATION, loggerPrefix, projectName, projectVersion } from "@/const";
 import { fetchConfig, fetchPrompt, fetchProviderRequest, type PromptProgressEvent } from "@/lib/api";
 import { BANTER_DELAY_MS, BANTER_INTERVAL_MS, idleBanter } from "@/lib/banter";
-import { copyCodeBlock } from "@/lib/code";
+import { copyCodeBlock, toggleCodeBlock } from "@/lib/code";
 import { downloadMedia, providerRequestFilename, saveJson, toggleSvgCode } from "@/lib/media";
 import { pastePlainText } from "@/lib/paste";
 import { activateLanguage, gettext, interpolate, ngettext, pgettext } from "@/lib/i18n";
@@ -61,6 +82,7 @@ import { safeImageUrl, styleVariables, useGoogleFont } from "@/lib/styles";
 import {
   chatInit,
   chatMessages2RequestMessages,
+  isMetadataMessage,
   messageFactory,
   replaceBrokenImage,
   sanitizeInput,
@@ -78,11 +100,11 @@ import {
 } from "@/components/SmarterChat/icons";
 import "@/components/SmarterChat/styles.css";
 
-/** The css class of a message, by its sender. */
-function messageClassName(sender: string): string {
+/** The css class of a message, by its sender. An assistant's tool calls look like the tools' responses. */
+function messageClassName({ sender, metadata }: ChatMessage): string {
   if (sender === SenderRoleEnum.SMARTER) return "smarter-message";
   if (sender === SenderRoleEnum.SMARTER_ERROR) return "smarter-error-message";
-  if (sender === SenderRoleEnum.TOOL || sender === SenderRoleEnum.SYSTEM) return "system-message";
+  if (sender === SenderRoleEnum.TOOL || sender === SenderRoleEnum.SYSTEM || metadata) return "system-message";
   return "";
 }
 
@@ -236,15 +258,18 @@ function SmarterChat({
     editor?.setAttribute("role", "textbox");
     editor?.setAttribute("aria-multiline", "true");
     editor?.setAttribute("aria-label", gettext("Message"));
+    // a message in a right-to-left language, e.g. Arabic or Hebrew, is typed right to left.
+    editor?.setAttribute("dir", "auto");
   }, [activeLanguage]);
 
   useEffect(() => {
-    // messages are html strings, so their code blocks' copy buttons, their diagrams' and svg
+    // messages are html strings, so their code blocks' copy and expand buttons, their diagrams' and svg
     // images' code buttons, and their media's download buttons, are handled here. See lib/code.ts,
     // lib/mermaid.ts and lib/media.ts.
     const chatApp = chatAppRef.current;
     const handleClick = (event: MouseEvent) =>
       copyCodeBlock(event.target) ||
+      toggleCodeBlock(event.target) ||
       toggleMermaidDiagram(event.target) ||
       toggleSvgCode(event.target) ||
       downloadMedia(event.target);
@@ -339,7 +364,7 @@ function SmarterChat({
       const result = await fetchPrompt(config, chatMessages2RequestMessages(thread), cookies, context, onProgress);
       const responseMessages = result.messages.map((message) => {
         const chatMessage = messageFactory(message.content, message.role, message);
-        const hidden = MetadataRolesEnum.includes(chatMessage.sender as never) && !showMetadata;
+        const hidden = isMetadataMessage(chatMessage, MetadataRolesEnum) && !showMetadata;
         return hidden ? { ...chatMessage, display: false } : chatMessage;
       });
       setMessages((previous) => [...previous, ...responseMessages]);
@@ -520,7 +545,7 @@ function SmarterChat({
                       message.display ? (
                         <Message
                           key={index}
-                          className={messageClassName(message.sender)}
+                          className={messageClassName(message)}
                           model={{
                             message: message.message,
                             sentTime: message.sentTime,

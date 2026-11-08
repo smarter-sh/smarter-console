@@ -78,7 +78,38 @@ describe("SmarterChat", () => {
     const link = await screen.findByRole("link", { name: "the catalogue" });
     expect(link).toHaveAttribute("href", "https://stackademy.edu");
     expect(screen.getByText("Do you offer any courses on AI?")).toBeInTheDocument();
-    expect(screen.getByText(/"course_code": "CS210"/)).toBeInTheDocument();
+    // the tool's response, a JSON array, is pretty printed as a json code block.
+    expect(screen.getByText('"CS210"')).toHaveClass("hljs-string");
+    expect(screen.getAllByText("json")[0]).toHaveClass("smarter-chat-code-language");
+  });
+
+  it("displays the assistant's tool calls in sandbox mode, and hides them in production mode", async () => {
+    server.use(...historyHandlers);
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    const tool = await screen.findByText("stackademy_sql", { selector: "summary code" });
+    // eslint-disable-next-line testing-library/no-node-access -- the tool call is a details element of the message's html.
+    expect(tool.closest("section")).toHaveClass("system-message");
+    await user.click(screen.getByRole("button", { name: "Production" }));
+    expect(screen.queryByText("stackademy_sql", { selector: "summary code" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Sandbox" }));
+    expect(screen.getByText("stackademy_sql", { selector: "summary code" })).toBeInTheDocument();
+  });
+
+  it("collapses a long code block, and shows all of it when its button is clicked", async () => {
+    const code = Array.from({ length: 40 }, (_, index) => `print(${index})`).join("\n");
+    const history = [{ role: "assistant", content: "```python\n" + code + "\n```" }];
+    server.use(
+      http.post(CONFIG_URL, () =>
+        HttpResponse.json({ data: { ...config, history: { ...config.history, chat_history: history } } }),
+      ),
+    );
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    const expand = await screen.findByRole("button", { name: "Show all 40 lines" });
+    await user.click(expand);
+    expect(expand).toHaveTextContent("Show fewer lines");
+    expect(expand).toHaveAttribute("aria-expanded", "true");
   });
 
   it("sends the thread with the user's message, and adds the response's messages", async () => {

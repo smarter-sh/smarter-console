@@ -416,10 +416,63 @@ div.cs-message__html-content .smarter-chat-code {
   border-radius: 6px;
   background-color: #0d1117;
   text-align: left;
+  /* code reads left to right, even in a message in a right-to-left language. */
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* each paragraph of a message reads left to right or right to left, by its first letters, e.g. a
+   reply in Arabic or Hebrew, as dir="auto" would. */
+div.cs-message__html-content,
+div.cs-message__html-content :is(p, li, h1, h2, h3, h4, h5, h6, blockquote, th, td, summary) {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* a long code block shows its first lines, which fade out, and a button that shows the rest. See
+   lib/code.ts. */
+div.cs-message__html-content .smarter-chat-code-collapsed pre {
+  max-height: 22em;
+  overflow-y: hidden;
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+
+div.cs-message__html-content .smarter-chat-code-expand {
+  display: block;
+  width: 100%;
+  padding: 0.4em;
+  border: 0;
+  border-top: 1px solid #30363d;
+  background-color: #161b22;
+  color: #c9d1d9;
+  font-family: inherit;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+div.cs-message__html-content .smarter-chat-code-expand:hover,
+div.cs-message__html-content .smarter-chat-code-expand:focus-visible {
+  background-color: #30363d;
+  outline: none;
+}
+
+/* an assistant's tool calls, in sandbox mode: "Called <tool>", which opens to show its arguments.
+   See lib/messages.ts. */
+div.cs-message__html-content .smarter-chat-tool-call > summary {
+  cursor: pointer;
+}
+
+div.cs-message__html-content .smarter-chat-tool-call > .smarter-chat-code {
+  margin-top: 0.5em;
 }
 
 div.cs-message__html-content .smarter-chat-code:last-child {
   margin-bottom: 0;
+}
+
+div.cs-message__html-content .smarter-chat-code-language {
+  /* the header's buttons are together, at its end. */
+  margin-right: auto;
 }
 
 div.cs-message__html-content .smarter-chat-code-header {
@@ -564,7 +617,7 @@ div.cs-message__html-content table {
 div.cs-message__html-content :is(th, td) {
   padding: 0.25em 0.6em;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  text-align: left;
+  text-align: start;
 }
 
 div.cs-message__html-content th {
@@ -748,7 +801,7 @@ div.cs-message__html-content .smarter-chat-svg-toggle:focus-visible {
   outline: none;
 }
 
-/* media (images, svg graphics, audio) with their download button. See lib/media.ts. */
+/* media (images, svg graphics, audio, video) with their download button. See lib/media.ts. */
 div.cs-message__html-content .smarter-chat-media {
   display: inline-flex;
   flex-direction: column;
@@ -761,6 +814,14 @@ div.cs-message__html-content audio.smarter-chat-audio {
   display: block;
   max-width: 100%;
   margin: 4px 0;
+}
+
+div.cs-message__html-content video.smarter-chat-video {
+  display: block;
+  max-width: 100%;
+  max-height: 360px;
+  margin: 4px 0;
+  border-radius: 6px;
 }
 
 div.cs-message__html-content .smarter-chat-download {
@@ -782,7 +843,8 @@ div.cs-message__html-content .smarter-chat-download:focus-visible {
   outline: none;
 }
 
-/* a diagram's download button is in its code block's dark header. See lib/mermaid.ts. */
+/* a diagram's, an svg's or a manifest's download button is in its code block's dark header. See
+   lib/mermaid.ts and lib/data.ts. */
 div.cs-message__html-content .smarter-chat-code-header .smarter-chat-download {
   border-color: #30363d;
   background-color: #21262d;

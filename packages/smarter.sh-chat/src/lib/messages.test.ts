@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { chatHistory } from "@/mocks/fixtures";
+import type { ApiMessage } from "@/types";
 
+import { CODE_BLOCK_CLASS } from "./code";
 import { MetadataRolesEnum } from "./enums";
 import {
   chatInit,
@@ -15,6 +17,8 @@ import {
   replaceBrokenImage,
   sanitizeInput,
   toggleMetadataMessages,
+  toolCallsHtml,
+  TOOL_CALL_CLASS,
 } from "./messages";
 
 describe("convertMarkdownLinksToHTML", () => {
@@ -189,6 +193,78 @@ describe("messageHtml", () => {
     expect(messageHtml("# not a heading", "user")).toBe("# not a heading");
     expect(messageHtml("# a heading", "assistant")).toBe("<h1>a heading</h1>");
   });
+
+  it.each(["user", "assistant"])("pretty prints a %s message that is only a JSON object", (sender) => {
+    const html = messageHtml(' {"name": "Revolution Day", "prefix": "rd"} ', sender);
+    expect(html).toContain(`class="${CODE_BLOCK_CLASS}"`);
+    expect(html).toContain("language-json");
+    const text = new DOMParser().parseFromString(html, "text/html").querySelector("code")?.textContent;
+    expect(text).toBe('{\n  "name": "Revolution Day",\n  "prefix": "rd"\n}\n');
+  });
+
+  it("escapes the html in a JSON message", () => {
+    const html = messageHtml('{"a": "<img src=x onerror=alert(1)>"}', "user");
+    expect(html).not.toContain("<img");
+  });
+});
+
+describe("messageHtml, for data", () => {
+  it("pretty prints JSON that a tool returned as a JSON string", () => {
+    const html = messageHtml(JSON.stringify('{"course_code":"CS210"}'), "tool");
+    expect(new DOMParser().parseFromString(html, "text/html").querySelector("code")?.textContent).toBe(
+      '{\n  "course_code": "CS210"\n}\n',
+    );
+  });
+
+  it("displays a Smarter manifest as yaml, with a download button, from anyone", () => {
+    const manifest = "apiVersion: smarter.sh/v1\nkind: Plugin\nmetadata:\n  name: stackademy_sql\n";
+    for (const sender of ["user", "assistant"]) {
+      const html = messageHtml(manifest, sender);
+      expect(html).toContain("language-yaml");
+      expect(html).toContain('data-filename="stackademy_sql.yaml"');
+    }
+  });
+
+  it("displays CSV as a table", () => {
+    const html = messageHtml("code,name,price\nCS210,AI,700\nCS110,Python,500", "assistant");
+    expect(html).toContain('<table class="smarter-chat-csv">');
+    expect(html).toContain("<td>Python</td>");
+  });
+});
+
+describe("convertMarkdownToHTML, for media and manifests", () => {
+  it("displays a markdown image whose url is a video as a video player", () => {
+    const html = convertMarkdownToHTML("![The intro](https://example.com/intro.mp4)");
+    expect(html).toContain('<video class="smarter-chat-video" controls="" preload="metadata"');
+    expect(html).toContain('data-filename="intro.mp4"');
+  });
+
+  it("gives a yaml code block that is a manifest a download button, and leaves other yaml alone", () => {
+    const manifest = "```yaml\napiVersion: smarter.sh/v1\nkind: Secret\nmetadata:\n  name: openai\n```";
+    expect(convertMarkdownToHTML(manifest)).toContain('data-filename="openai.yaml"');
+    expect(convertMarkdownToHTML("```yaml\nname: x\n```")).not.toContain("data-filename");
+    expect(convertMarkdownToHTML("```python\napiVersion = 1\nkind = 2\n```")).not.toContain("data-filename");
+  });
+
+  it("displays a reply that the LLM's max tokens cut off as well as it can", () => {
+    // an unclosed code block is code to the end of the message.
+    expect(convertMarkdownToHTML("Here:\n\n```python\nprint(1)\nprint(2")).toContain("language-python");
+    // unclosed math, emphasis and inline code are their source.
+    expect(convertMarkdownToHTML("The answer:\n\n$$\nx^2 + y")).toContain("x^2 + y");
+    expect(convertMarkdownToHTML("Some **bold and `code")).toBe("Some **bold and `code");
+  });
+});
+
+describe("JSON in a markdown list", () => {
+  it("pretty prints a list item that is only JSON, in its list item", () => {
+    const html = convertMarkdownToHTML(examplePrompts(['{"name": "World Book Day", "prefix": "wb"}', "plain text"]));
+    const items = new DOMParser().parseFromString(html, "text/html").querySelectorAll("ul > li");
+    expect(items).toHaveLength(2);
+    expect(items[0].querySelector(`.${CODE_BLOCK_CLASS} code.language-json`)?.textContent).toBe(
+      '{\n  "name": "World Book Day",\n  "prefix": "wb"\n}\n',
+    );
+    expect(items[1].innerHTML).toBe("plain text");
+  });
 });
 
 describe("messageFactory", () => {
@@ -221,7 +297,9 @@ describe("chatInit", () => {
   it("restores a chat session from its history", () => {
     const messages = chatInit("Welcome!", "You are helpful.", [], chatHistory);
     expect(messages).toHaveLength(chatHistory.length);
-    expect(messages.filter((message) => message.display)).toHaveLength(chatHistory.length - 1);
+    expect(messages.filter((message) => message.display)).toHaveLength(chatHistory.length);
+    // the assistant's tool calls are metadata, displayed only in sandbox mode.
+    expect(messages.filter((message) => message.metadata).map((message) => message.sender)).toEqual(["assistant"]);
   });
 
   it("introduces a new chat session without a history", () => {
@@ -245,7 +323,36 @@ describe("chatMessages2RequestMessages", () => {
   });
 });
 
+describe("toolCallsHtml", () => {
+  const call = (name: string, args: string) => ({
+    id: "call_1",
+    type: "function" as const,
+    function: { name, arguments: args },
+  });
+
+  it("names each tool, and shows its arguments, pretty printed, when opened", () => {
+    const html = toolCallsHtml([call("stackademy_sql", '{"description":"AI"}'), call("weather", "not json")]);
+    const details = new DOMParser().parseFromString(html, "text/html").querySelectorAll(`details.${TOOL_CALL_CLASS}`);
+    expect(details).toHaveLength(2);
+    expect(details[0].querySelector("summary")?.innerHTML).toBe("Called <code>stackademy_sql</code>");
+    expect(details[0].querySelector("code.language-json")?.textContent).toBe('{\n  "description": "AI"\n}\n');
+    expect(details[1].querySelector("pre code")?.textContent).toBe("not json\n");
+  });
+
+  it("escapes a tool's name", () => {
+    expect(toolCallsHtml([call("<img src=x onerror=alert(1)>", "{}")])).not.toContain("<img");
+  });
+});
+
 describe("toggleMetadataMessages", () => {
+  it("shows an assistant's tool calls only in sandbox mode", () => {
+    const toolCalls: ApiMessage = { role: "assistant", content: null, tool_calls: chatHistory[3].tool_calls };
+    const thread = [messageFactory(null, "assistant", toolCalls)];
+    expect(thread[0]).toMatchObject({ display: true, metadata: true });
+    expect(toggleMetadataMessages(thread, false, MetadataRolesEnum)[0].display).toBe(false);
+    expect(toggleMetadataMessages(thread, true, MetadataRolesEnum)[0].display).toBe(true);
+  });
+
   it("hides and shows the backend's messages, and always shows the rest", () => {
     const thread = [
       messageFactory("system role", "system"),

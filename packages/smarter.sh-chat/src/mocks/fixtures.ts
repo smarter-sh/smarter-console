@@ -457,6 +457,37 @@ export const configWithDiagram = makeConfig({
   },
 });
 
+/**
+ * A configuration whose history has messages that are data: JSON, a Smarter manifest, CSV, and a long
+ * code block, which is collapsed.
+ */
+export const configWithData = makeConfig({
+  history: {
+    ...config.history,
+    chat_history: [
+      { role: "system", content: "You are a helpful assistant. DO NOT GUESS." },
+      {
+        role: "user",
+        content: '{"name": "Revolution Day", "subject": "Paper flags and a few fireworks.", "prefix": "rd"}',
+      },
+      {
+        role: "assistant",
+        content:
+          "apiVersion: smarter.sh/v1\nkind: Plugin\nmetadata:\n  name: stackademy_sql\n  version: 1.0.0\n" +
+          "spec:\n  selector:\n    directive: search_terms\n    searchTerms:\n      - course\n      - enroll\n",
+      },
+      { role: "user", content: "code,name,credits,price\nCS110,Python,3,$500\nCS210,Artificial Intelligence,4,$700" },
+      {
+        role: "assistant",
+        content:
+          "All of the courses:\n\n```python\n" +
+          Array.from({ length: 40 }, (_, index) => `enroll("CS${100 + index}")`).join("\n") +
+          "\n```",
+      },
+    ],
+  },
+});
+
 /** The progress of a prompt that calls a tool and an MCP server, as the prompt api streams it. */
 export const progressEvents = [
   { type: "llm_request", message: "Sending the prompt to the LLM", iteration: 1 },
