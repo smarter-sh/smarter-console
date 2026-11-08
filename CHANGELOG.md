@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.0...v1.1.1) (2026-11-08)
+
+### Bug Fixes
+
+* **chat:** render svg in messages, with downloads for images and audio ([d4cac41](https://github.com/smarter-sh/smarter-console/commit/d4cac41c69449fade4a803312714fddd5fb8a22d))
+
 ## [1.1.0](https://github.com/smarter-sh/smarter-console/compare/v1.0.18...v1.1.0) (2026-11-08)
 
 ### Features
