@@ -7,7 +7,9 @@ import {
   isAudioUrl,
   isSvgCodeBlock,
   mediaHtml,
+  providerRequestFilename,
   sanitizedSvgDocument,
+  saveJson,
   svgDataUrl,
   svgHtml,
   svgExtension,
@@ -149,6 +151,38 @@ describe("filenameOf", () => {
     expect(filenameOf("data:application/x-unknown;base64,AAAA", "file")).toBe("file.bin");
     expect(filenameOf("https://example.com/", "image")).toBe("image");
     expect(filenameOf("https://example.com/%E0%A4%A", "image")).toBe("image");
+  });
+});
+
+describe("providerRequestFilename", () => {
+  it("names the file after the LLMClient, without characters that file names can't have", () => {
+    expect(providerRequestFilename("stackademy_sql")).toBe("stackademy_sql-request.json");
+    expect(providerRequestFilename("../a b/c")).toBe("a_b_c-request.json");
+    expect(providerRequestFilename("")).toBe("smarter-chat-request.json");
+    expect(providerRequestFilename(undefined)).toBe("smarter-chat-request.json");
+  });
+});
+
+describe("saveJson", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("saves indented JSON as a file", async () => {
+    const clicked: { href: string; download: string }[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      clicked.push({ href: this.href, download: this.download });
+    });
+    let blob: Blob | undefined;
+    URL.createObjectURL = vi.fn((value: Blob) => {
+      blob = value;
+      return "blob:https://example.com/2";
+    }) as typeof URL.createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    saveJson({ model: "gpt-4o-mini" }, "a-request.json");
+    expect(clicked).toEqual([{ href: "blob:https://example.com/2", download: "a-request.json" }]);
+    expect(blob?.type).toBe("application/json");
+    expect(await blob?.text()).toBe('{\n  "model": "gpt-4o-mini"\n}\n');
+    expect(document.querySelector("a")).toBeNull();
+    await vi.waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:https://example.com/2"));
   });
 });
 

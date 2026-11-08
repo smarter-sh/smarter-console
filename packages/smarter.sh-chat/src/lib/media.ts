@@ -255,6 +255,20 @@ function save(url: string, filename: string): void {
   link.remove();
 }
 
+/** The file name of the downloaded provider request: the LLMClient's name, without characters that file names can't have. */
+export function providerRequestFilename(name: string | null | undefined): string {
+  const safeName = (name ?? "").replace(/[^\w.-]+/g, "_").replace(/^[._]+/, "");
+  return `${safeName || "smarter-chat"}-request.json`;
+}
+
+/** Saves a JSON value as a file named filename, indented as a person would write it. */
+export function saveJson(value: unknown, filename: string): void {
+  const text = `${JSON.stringify(value, null, 2)}\n`;
+  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  save(url, filename);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 /**
  * Saves another site's media. Its server must allow it (CORS) for the browser to save it as a
  * file. Otherwise, it opens in a new tab, from which the user can save it.

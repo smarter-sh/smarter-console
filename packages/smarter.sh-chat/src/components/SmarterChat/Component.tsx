@@ -15,7 +15,9 @@
  * download button.
  *
  * With toggleMetadata, the header has a Sandbox / Production mode switch. In sandbox mode, the
- * thread also displays Smarter's system, tool and meta data messages. In production mode, it displays
+ * thread also displays Smarter's system, tool and meta data messages, and the header has a button that
+ * downloads the conversation as the JSON request that Smarter sends to the LLM provider, without Smarter's
+ * own messages and fields, for curl or the Prompt Passthrough page. In production mode, it displays
  * only the conversation, as the LLMClient's users see it. When the chat is narrow, the header's
  * buttons show only their icons. See styles.css.
  *
@@ -46,10 +48,10 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import { DEFAULT_COOKIE_EXPIRATION, loggerPrefix, projectName, projectVersion } from "@/const";
-import { fetchConfig, fetchPrompt, type PromptProgressEvent } from "@/lib/api";
+import { fetchConfig, fetchPrompt, fetchProviderRequest, type PromptProgressEvent } from "@/lib/api";
 import { BANTER_DELAY_MS, BANTER_INTERVAL_MS, idleBanter } from "@/lib/banter";
 import { copyCodeBlock } from "@/lib/code";
-import { downloadMedia, toggleSvgCode } from "@/lib/media";
+import { downloadMedia, providerRequestFilename, saveJson, toggleSvgCode } from "@/lib/media";
 import { pastePlainText } from "@/lib/paste";
 import { activateLanguage, gettext, interpolate, ngettext, pgettext } from "@/lib/i18n";
 import { renderMermaidDiagrams, toggleMermaidDiagram } from "@/lib/mermaid";
@@ -67,7 +69,13 @@ import {
 import type { ChatConfig, ChatCookies, ChatMessage, ClientContext, SmarterChatProps } from "@/types";
 import AppTitle from "@/components/AppTitle";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { BanterSparkleIcon, NewChatIcon, ProductionIcon, SandboxIcon } from "@/components/SmarterChat/icons";
+import {
+  BanterSparkleIcon,
+  DownloadRequestIcon,
+  NewChatIcon,
+  ProductionIcon,
+  SandboxIcon,
+} from "@/components/SmarterChat/icons";
 import "@/components/SmarterChat/styles.css";
 
 /** The css class of a message, by its sender. */
@@ -115,6 +123,8 @@ function SmarterChat({
   // e.g. on a page that embeds the chat, the thread is the conversation, as the LLMClient's users see it.
   const [showMetadata, setShowMetadata] = useState(toggleMetadata);
   const [isTyping, setIsTyping] = useState(false);
+  // while the provider request downloads, its button is disabled.
+  const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState<PromptProgressEvent[]>([]);
   // the assistant's bubble of idle banter, while a prompt runs. It's never part of the thread, nor sent to the api.
   // See lib/banter.ts.
@@ -293,6 +303,25 @@ function SmarterChat({
     setMessages((previous) => toggleMetadataMessages(previous, show, MetadataRolesEnum));
   };
 
+  /**
+   * Downloads the conversation as the JSON request that Smarter sends to the LLM provider. A failure is displayed in
+   * the thread, as a failed prompt is.
+   */
+  async function downloadProviderRequest() {
+    setIsDownloading(true);
+    try {
+      const request = await fetchProviderRequest(apiUrl, cookies, context);
+      saveJson(request, providerRequestFilename(config?.llmclient.name));
+      debug("provider request downloaded", request);
+    } catch (error) {
+      console.error(`${loggerPrefix} Provider request failed:`, error);
+      const errorText = error instanceof Error ? error.message : String(error);
+      setMessages((previous) => [...previous, messageFactory(errorText, SenderRoleEnum.SMARTER_ERROR)]);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
   /** Sends the thread, with the user's new message, to the prompt api. */
   async function sendMessage(text: string) {
     if (!config) return;
@@ -448,6 +477,18 @@ function SmarterChat({
                             </span>
                           </Button>
                         </div>
+                      )}
+                      {toggleMetadata && showMetadata && (
+                        <Button
+                          className="smarter-chat-toolbar-button smarter-chat-download-request"
+                          icon={<DownloadRequestIcon />}
+                          onClick={() => void downloadProviderRequest()}
+                          disabled={!isReady || isTyping || isDownloading}
+                          title={gettext(
+                            "Download this chat as the JSON request that Smarter sends to the LLM provider, for curl or the Prompt Passthrough.",
+                          )}
+                          aria-label={gettext("Download the LLM provider request")}
+                        />
                       )}
                       <Button
                         className="smarter-chat-toolbar-button"

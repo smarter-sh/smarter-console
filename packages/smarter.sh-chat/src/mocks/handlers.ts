@@ -7,6 +7,7 @@ import type { ChatConfig } from "@/types";
 import {
   CONFIG_URL,
   PROMPT_URL,
+  PROVIDER_REQUEST_URL,
   apiErrorResponse,
   config,
   configWithHistory,
@@ -18,6 +19,7 @@ import {
   promptErrorResponse,
   promptEventStream,
   promptResponse,
+  providerRequestResponse,
 } from "./fixtures";
 
 const eventStreamHeaders = { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" };
@@ -30,13 +32,21 @@ function configHandler(chatConfig: ChatConfig) {
   });
 }
 
+/** The provider request api, which sandbox mode's download button calls. */
+const providerRequestHandler = http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json(providerRequestResponse()));
+
 /** A new chat session, whose prompts succeed. */
-export const chatHandlers = [configHandler(config), http.post(PROMPT_URL, () => HttpResponse.json(promptResponse()))];
+export const chatHandlers = [
+  configHandler(config),
+  http.post(PROMPT_URL, () => HttpResponse.json(promptResponse())),
+  providerRequestHandler,
+];
 
 /** A chat session in progress. */
 export const historyHandlers = [
   configHandler(configWithHistory),
   http.post(PROMPT_URL, () => HttpResponse.json(promptResponse())),
+  providerRequestHandler,
 ];
 
 /** The LLM provider rejects the prompt. */

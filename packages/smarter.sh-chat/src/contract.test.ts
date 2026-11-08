@@ -28,6 +28,7 @@ import {
   promptMaxTokensResponseV1,
   promptResponse,
   promptResponseV1,
+  providerRequestResponse,
 } from "@/mocks/fixtures";
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -85,6 +86,10 @@ describe("the test fixtures match the contract", () => {
     for (const event of progressEvents) expect(errors("PromptChatApiProgressEvent", event)).toEqual([]);
     expect(errors("PromptChatApiProgressResult", { status: 200, response: promptResponse() })).toEqual([]);
     expect(errors("PromptChatApiErrorResponse", apiErrorResponse())).toEqual([]);
+  });
+
+  it("provider requests", () => {
+    expect(errors("PromptChatApiProviderRequestResponse", providerRequestResponse())).toEqual([]);
   });
 
   it("rejects a response that breaks the contract", () => {

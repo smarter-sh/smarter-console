@@ -7,6 +7,7 @@ import { createRef } from "react";
 import {
   CONFIG_URL,
   PROMPT_URL,
+  PROVIDER_REQUEST_URL,
   SESSION_KEY,
   config,
   configWithCode,
@@ -19,8 +20,10 @@ import {
   progressEvents,
   promptEventStream,
   promptMaxTokensResponse,
+  apiErrorResponse,
   promptResponse,
   props,
+  providerRequestResponse,
 } from "@/mocks/fixtures";
 import {
   chatHandlers,
@@ -169,6 +172,55 @@ describe("SmarterChat", () => {
     expect(screen.getByText((config.llmclient.default_system_role ?? "").trim())).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sandbox" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Production" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("downloads the LLM provider request, in sandbox mode only", async () => {
+    server.use(...chatHandlers);
+    const saved: { href: string; download: string }[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      saved.push({ href: this.href, download: this.download });
+    });
+    let blob: Blob | undefined;
+    URL.createObjectURL = vi.fn((value: Blob) => {
+      blob = value;
+      return "blob:http://localhost/request";
+    }) as typeof URL.createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+
+    await user.click(screen.getByRole("button", { name: "Download the LLM provider request" }));
+    await waitFor(() =>
+      expect(saved).toEqual([
+        { href: "blob:http://localhost/request", download: `${config.llmclient.name}-request.json` },
+      ]),
+    );
+    expect(JSON.parse((await blob?.text()) ?? "")).toEqual(providerRequestResponse().data);
+
+    await user.click(screen.getByRole("button", { name: "Production" }));
+    expect(screen.queryByRole("button", { name: "Download the LLM provider request" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Sandbox" }));
+    expect(screen.getByRole("button", { name: "Download the LLM provider request" })).toBeEnabled();
+  });
+
+  it("displays a failed download of the LLM provider request in the thread", async () => {
+    server.use(
+      http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json(apiErrorResponse(), { status: 404 })),
+      ...chatHandlers,
+    );
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    await user.click(screen.getByRole("button", { name: "Download the LLM provider request" }));
+    expect(await screen.findByText("LLMClient not found.")).toBeInTheDocument();
+  });
+
+  it("has no download button without the metadata toggle", async () => {
+    server.use(...chatHandlers);
+    render(<SmarterChat {...props} toggleMetadata={false} />);
+    await screen.findByText(WELCOME);
+    expect(screen.queryByRole("button", { name: "Download the LLM provider request" })).not.toBeInTheDocument();
   });
 
   it("has no metadata toggle unless asked for one", async () => {

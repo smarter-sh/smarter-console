@@ -107,6 +107,14 @@ msgid "Production"
 msgstr ""
 
 #: src/components/SmarterChat/Component.tsx
+msgid "Download this chat as the JSON request that Smarter sends to the LLM provider, for curl or the Prompt Passthrough."
+msgstr ""
+
+#: src/components/SmarterChat/Component.tsx
+msgid "Download the LLM provider request"
+msgstr ""
+
+#: src/components/SmarterChat/Component.tsx
 msgid "Start a new chat"
 msgstr ""
 
@@ -173,6 +181,10 @@ msgstr ""
 #. Translators: defaultMaxTokens is a field of the LLMClient's manifest, which is not translated.
 #: src/lib/api.ts
 msgid "Raise defaultMaxTokens in the LLMClient's manifest."
+msgstr ""
+
+#: src/lib/api.ts
+msgid "The Smarter api returned an incomplete provider request."
 msgstr ""
 
 #. Translators: %(verb)s is a made-up English verb, e.g. "flabberjabber", and %(noun)s a silly English noun, e.g. "doohickey", sometimes after a scientific English adjective, e.g. "quantum doohickey". None of them is translated. Every noun and adjective starts with a consonant other than "h".

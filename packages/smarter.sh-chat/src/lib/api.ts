@@ -6,6 +6,8 @@
  *
  * - smarter.apps.prompt.views.detailviews.prompt_config_view.PromptConfigView: <apiUrl>config/
  * - smarter.apps.llmclient.api.v1.views.base: the LLMClient's prompt api, llmclient.url_llmclient.
+ * - smarter.apps.prompt.views.detailviews.prompt_provider_request_view.PromptProviderRequestView:
+ *   <apiUrl>provider-request/, which sandbox mode downloads.
  *
  * The contract is versioned (see smarter.apps.prompt.contract). Smarter Chat asks for version 2 with
  * "X-Smarter-Capabilities: chat-contract-v2", and reads version 1 from older platforms, which ignore
@@ -24,7 +26,15 @@
  * "result" event with the same JSON as a non-streaming response. Servers that don't stream answer
  * with JSON, as before. See smarter.apps.prompt.progress.
  */
-import type { ApiMessage, ChatConfig, ChatCookies, ClientContext, Contract, LLMClientConfig } from "../types";
+import type {
+  ApiMessage,
+  ChatConfig,
+  ChatCookies,
+  ClientContext,
+  Contract,
+  LLMClientConfig,
+  ProviderRequest,
+} from "../types";
 import { getCookie, setCookie } from "./cookie";
 import { SenderRoleEnum } from "./enums";
 import { gettext, interpolate, ngettext } from "./i18n";
@@ -440,4 +450,30 @@ export async function fetchPrompt(
     return promptResult(json, { status, statusText: "" });
   }
   return promptResult(await getJson(response), response);
+}
+
+/**
+ * The chat session's conversation, as the request body that Smarter sends to the LLM provider: its model, settings,
+ * tools and messages, without Smarter's own messages and fields. It can be sent with curl to the provider's
+ * v1/chat/completions api, or pasted into the Prompt Passthrough page. Only the platform's own urls, which the
+ * workbench uses, return it: a deployed LLMClient's host answers 404.
+ */
+export async function fetchProviderRequest(
+  apiUrl: string,
+  cookies: ChatCookies,
+  context: ClientContext,
+): Promise<ProviderRequest> {
+  const sessionKey = getCookie(cookies.sessionCookie, "");
+  const headers = requestHeadersFactory(cookies, context);
+  const init = requestInitFactory(headers, { session_key: sessionKey });
+  const response = await fetch(urlFactory(apiUrl, "provider-request/", sessionKey), init);
+  const json = await getJson(response);
+  if (!response.ok) {
+    throw new SmarterApiError(errorMessage(json, response), response.status);
+  }
+  const data = json.data as ProviderRequest | undefined;
+  if (!data || !Array.isArray(data.messages)) {
+    throw new SmarterApiError(gettext("The Smarter api returned an incomplete provider request."), response.status);
+  }
+  return data;
 }

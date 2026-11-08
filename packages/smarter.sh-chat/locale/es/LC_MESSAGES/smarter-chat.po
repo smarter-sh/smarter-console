@@ -107,6 +107,14 @@ msgid "Production"
 msgstr "Producción"
 
 #: src/components/SmarterChat/Component.tsx
+msgid "Download this chat as the JSON request that Smarter sends to the LLM provider, for curl or the Prompt Passthrough."
+msgstr "Descarga este chat como la solicitud JSON que Smarter envía al proveedor del LLM, para curl o el Prompt Passthrough."
+
+#: src/components/SmarterChat/Component.tsx
+msgid "Download the LLM provider request"
+msgstr "Descargar la solicitud al proveedor del LLM"
+
+#: src/components/SmarterChat/Component.tsx
 msgid "Start a new chat"
 msgstr "Iniciar un chat nuevo"
 
@@ -174,6 +182,10 @@ msgstr "El LLM alcanzó el máximo de tokens de este LLMClient, así que su resp
 #: src/lib/api.ts
 msgid "Raise defaultMaxTokens in the LLMClient's manifest."
 msgstr "Aumenta defaultMaxTokens en el manifiesto del LLMClient."
+
+#: src/lib/api.ts
+msgid "The Smarter api returned an incomplete provider request."
+msgstr "La api de Smarter devolvió una solicitud al proveedor incompleta."
 
 #. Translators: %(verb)s is a made-up English verb, e.g. "flabberjabber", and %(noun)s a silly English noun, e.g. "doohickey", sometimes after a scientific English adjective, e.g. "quantum doohickey". None of them is translated. Every noun and adjective starts with a consonant other than "h".
 #: src/lib/banter.ts

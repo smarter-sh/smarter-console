@@ -12,6 +12,7 @@ import type { ApiMessage, ChatConfig, Contract, SmarterChatProps } from "@/types
 export const API_URL = "http://localhost:9357/workbench/llm-clients/rMTAwMDAwMQx/";
 export const CONFIG_URL = `${API_URL}config/`;
 export const PROMPT_URL = "http://localhost:9357/api/v1/llm-clients/rMTAwMDAwMQx/prompt/";
+export const PROVIDER_REQUEST_URL = `${API_URL}provider-request/`;
 export const SESSION_KEY = "e019a5c1cb2c1cb87992d2d03bccaf44c9d98406b46de5516a4fa03650038ac8";
 
 /** The props of the chat in sandbox mode, as the web console's workbench renders it. */
@@ -286,6 +287,54 @@ export function promptErrorResponseV1(message = "Incorrect API key provided.", s
       statusCode,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ error: { status: statusCode, message }, response }),
+    },
+    ...ENVELOPE,
+  };
+}
+
+/**
+ * The provider request api's response: a chat session's conversation, as the request body that Smarter sends to the
+ * LLM provider, without Smarter's own messages and fields. See
+ * smarter.apps.prompt.views.detailviews.prompt_provider_request_view.PromptProviderRequestView.
+ */
+export function providerRequestResponse(): { data: Contract.PromptChatApiProviderRequest; api: string } {
+  return {
+    data: {
+      model: "gpt-4o-mini",
+      temperature: 0.5,
+      max_completion_tokens: 2048,
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "smarter_plugin_0000000001",
+            description: "Stackademy's course catalogue.",
+            parameters: { type: "object", properties: { description: { type: "string" } } },
+          },
+        },
+      ],
+      tool_choice: "auto",
+      messages: [
+        { role: "system", content: "You are a helpful assistant. DO NOT GUESS." },
+        { role: "user", content: "Do you offer any courses on AI?" },
+        {
+          role: "assistant",
+          tool_calls: [
+            {
+              id: "call_1",
+              type: "function",
+              function: { name: "smarter_plugin_0000000001", arguments: '{"description":"AI"}' },
+            },
+          ],
+        },
+        {
+          role: "tool",
+          name: "smarter_plugin_0000000001",
+          tool_call_id: "call_1",
+          content: '[{"course_code": "CS210"}]',
+        },
+        { role: "assistant", content: "Yes: CS210, Artificial Intelligence." },
+      ],
     },
     ...ENVELOPE,
   };

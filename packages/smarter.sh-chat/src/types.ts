@@ -39,6 +39,12 @@ export type ChatbotConfig = LLMClientConfig;
 /** The chat session's history. Only chat_history is returned to clients that can't read the LLMClient. */
 export type ChatHistory = Contract.PromptChatApiHistory;
 
+/**
+ * The chat session's conversation, as the request body that Smarter sends to the LLM provider, without Smarter's own
+ * messages and fields. See fetchProviderRequest() in lib/api.ts.
+ */
+export type ProviderRequest = Contract.PromptChatApiProviderRequest;
+
 /** The LLMClient's state. */
 export type ChatMetaData = Contract.PromptChatApiMetaData;
 

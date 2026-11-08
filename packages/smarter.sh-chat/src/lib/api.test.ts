@@ -6,6 +6,7 @@ import {
   API_URL,
   CONFIG_URL,
   PROMPT_URL,
+  PROVIDER_REQUEST_URL,
   SESSION_KEY,
   apiErrorResponse,
   config,
@@ -19,6 +20,7 @@ import {
   promptEventStream,
   promptResponse,
   promptResponseV1,
+  providerRequestResponse,
   responseMessages,
 } from "@/mocks/fixtures";
 import type { ChatCookies, ClientContext } from "@/types";
@@ -31,6 +33,7 @@ import {
   fetchConfig,
   VERBOSE_PARAMETER,
   fetchPrompt,
+  fetchProviderRequest,
   maxTokensMessage,
   normalizeConfig,
   readEventStream,
@@ -38,7 +41,7 @@ import {
   urlFactory,
   type PromptProgressEvent,
 } from "./api";
-import { cookieMetaFactory, getCookie } from "./cookie";
+import { cookieMetaFactory, getCookie, setCookie } from "./cookie";
 import { activateLanguage } from "./i18n";
 
 const cookies: ChatCookies = {
@@ -143,6 +146,35 @@ describe("fetchConfig", () => {
   it("throws when the configuration is incomplete", async () => {
     server.use(http.post(CONFIG_URL, () => HttpResponse.json({ data: {} })));
     await expect(fetchConfig(API_URL, cookies, context)).rejects.toThrow("incomplete");
+  });
+});
+
+describe("fetchProviderRequest", () => {
+  it("returns the chat session's request to the LLM provider", async () => {
+    setCookie(cookies.sessionCookie, SESSION_KEY);
+    let url = "";
+    let body: unknown;
+    server.use(
+      http.post(PROVIDER_REQUEST_URL, async ({ request }) => {
+        url = request.url;
+        body = await request.json();
+        return HttpResponse.json(providerRequestResponse());
+      }),
+    );
+    const result = await fetchProviderRequest(API_URL, cookies, context);
+    expect(result).toEqual(providerRequestResponse().data);
+    expect(new URL(url).searchParams.get("session_key")).toBe(SESSION_KEY);
+    expect(body).toEqual({ session_key: SESSION_KEY });
+  });
+
+  it("throws the api's error", async () => {
+    server.use(http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json(apiErrorResponse(), { status: 404 })));
+    await expect(fetchProviderRequest(API_URL, cookies, context)).rejects.toThrow("LLMClient not found.");
+  });
+
+  it("throws when the request is incomplete", async () => {
+    server.use(http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json({ data: { model: "gpt-4o-mini" } })));
+    await expect(fetchProviderRequest(API_URL, cookies, context)).rejects.toThrow("incomplete");
   });
 });
 
