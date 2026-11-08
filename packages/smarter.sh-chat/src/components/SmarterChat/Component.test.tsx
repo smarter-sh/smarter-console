@@ -590,6 +590,139 @@ describe("SmarterChat", () => {
     );
     expect(screen.getByText(WELCOME)).toBeInTheDocument();
   });
+
+  it("keeps the latest configuration when an earlier reload finishes after it", async () => {
+    server.use(...chatHandlers);
+    const { rerender } = render(<SmarterChat {...props} reloadKey={0} />);
+    await screen.findByText("Stackademy v1.0.0");
+
+    let finishSlow: () => void = () => {};
+    const slow = new Promise<void>((resolve) => (finishSlow = resolve));
+    const named = (app_name: string) => ({ ...config, llmclient: { ...config.llmclient, app_name } });
+    let requests = 0;
+    server.use(
+      http.post(CONFIG_URL, async () => {
+        requests += 1;
+        if (requests === 1) {
+          await slow;
+          return HttpResponse.json({ data: named("Stackademy Old") });
+        }
+        return HttpResponse.json({ data: named("Stackademy New") });
+      }),
+    );
+    rerender(<SmarterChat {...props} reloadKey={1} />);
+    await waitFor(() => expect(requests).toBe(1));
+    rerender(<SmarterChat {...props} reloadKey={2} />);
+    expect(await screen.findByText("Stackademy New v1.0.0")).toBeInTheDocument();
+    await act(async () => finishSlow());
+    expect(screen.getByText("Stackademy New v1.0.0")).toBeInTheDocument();
+    expect(screen.queryByText("Stackademy Old v1.0.0")).not.toBeInTheDocument();
+  });
+
+  it("logs its steps in debug mode", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    server.use(...chatHandlers);
+    render(<SmarterChat {...props} debugMode />);
+    await screen.findByText(WELCOME);
+    await waitFor(() => expect(log).toHaveBeenCalledWith(expect.any(String), "chat started", expect.anything()));
+  });
+
+  it("logs its steps when the LLMClient's configuration is in debug mode", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    server.use(
+      http.post(CONFIG_URL, () => HttpResponse.json({ data: { ...config, debug_mode: true } })),
+      http.post(PROMPT_URL, () => HttpResponse.json(promptResponse())),
+    );
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    await send(user, "Any courses on AI?");
+    await screen.findByText("We offer CS210 Artificial Intelligence, for $700.00.");
+    expect(log).toHaveBeenCalledWith(expect.any(String), "prompt response", expect.anything());
+  });
+
+  it("starts without a welcome message, a system role or tools, and with a default version", async () => {
+    const bare = {
+      ...config,
+      llmclient: {
+        ...config.llmclient,
+        app_welcome_message: null,
+        default_system_role: null,
+        version: "",
+        total_tools: 0,
+      },
+    };
+    server.use(http.post(CONFIG_URL, () => HttpResponse.json({ data: bare })));
+    render(<SmarterChat {...props} />);
+    expect(await screen.findByText("Stackademy v1.0.0")).toBeInTheDocument();
+    expect(screen.getByText("openai gpt-4o-mini")).toBeInTheDocument();
+    expect(screen.queryByText(WELCOME)).not.toBeInTheDocument();
+  });
+
+  it("hides the response's backend messages in production mode", async () => {
+    server.use(...chatHandlers);
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    await user.click(screen.getByRole("button", { name: "Production" }));
+    await send(user, "Any courses on AI?");
+    expect(await screen.findByText("We offer CS210 Artificial Intelligence, for $700.00.")).toBeInTheDocument();
+    expect(screen.queryByText("Smarter selected the stackademy_sql plugin.")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Sandbox" }));
+    expect(screen.getByText("Smarter selected the stackademy_sql plugin.")).toBeInTheDocument();
+  });
+
+  it("sends nothing when no file is chosen", async () => {
+    const prompt = vi.fn();
+    server.use(
+      http.post(CONFIG_URL, () =>
+        HttpResponse.json({ data: { ...config, llmclient: { ...config.llmclient, app_file_attachment: true } } }),
+      ),
+      http.post(PROMPT_URL, () => {
+        prompt();
+        return HttpResponse.json(promptResponse());
+      }),
+    );
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    fireEvent.change(screen.getByLabelText("Attach a file"), { target: { files: [] } });
+    expect(prompt).not.toHaveBeenCalled();
+  });
+
+  it("ignores errors of other elements, and an avatar's image that fails to load again", async () => {
+    server.use(http.post(CONFIG_URL, () => HttpResponse.json({ data: configWithStyles })));
+    render(<SmarterChat {...props} />);
+    await screen.findByText("CS301 Applied AI");
+    fireEvent.error(screen.getByRole("textbox", { name: "Message" }));
+    expect(screen.getByRole("img", { name: "You" })).toBeInTheDocument();
+    // the image fails twice before the avatar is hidden.
+    const avatar = screen.getByRole("img", { name: "You" });
+    act(() => {
+      avatar.dispatchEvent(new Event("error"));
+      avatar.dispatchEvent(new Event("error"));
+    });
+    await waitFor(() => expect(screen.queryByRole("img", { name: "You" })).not.toBeInTheDocument());
+    expect(screen.getByRole("img", { name: "Stackademy" })).toBeInTheDocument();
+  });
+
+  it("puts the assistant's avatar beside its banter", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      server.use(
+        http.post(CONFIG_URL, () => HttpResponse.json({ data: configWithStyles })),
+        http.post(PROMPT_URL, () => new Promise<Response>(() => {})),
+      );
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<SmarterChat {...props} />);
+      await screen.findByText("CS301 Applied AI");
+      const avatars = screen.getAllByRole("img", { name: "Stanley" }).length;
+      await send(user, "Any courses on AI?");
+      await act(() => vi.advanceTimersByTimeAsync(BANTER_DELAY_MS));
+      await waitFor(() => expect(screen.getAllByRole("img", { name: "Stanley" })).toHaveLength(avatars + 1));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("SmarterChat's verbose configuration", () => {

@@ -46,6 +46,19 @@ describe("DetailView", () => {
     );
   });
 
+  it("shows a model's vision and reasoning, and an unknown status as it is", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(3, { status: "hibernating" as never, supportsVision: true, supportsReasoning: true })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getAllByText("hibernating").length).toBeGreaterThan(0);
+    expect(screen.getByText("Vision")).toBeInTheDocument();
+    expect(screen.getByText("Reasoning")).toBeInTheDocument();
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

@@ -90,6 +90,18 @@ describe("DetailView", () => {
     expect(screen.queryByText(/"appLogoUrl"/)).not.toBeInTheDocument();
   });
 
+  it("leaves out a function without a name", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(4, { functions: [{ name: "" }, null, { name: "get_time" }] as never })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getByText("get_time()")).toBeInTheDocument();
+    expect(screen.queryByText("()")).not.toBeInTheDocument();
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

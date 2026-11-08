@@ -1,4 +1,6 @@
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -41,6 +43,10 @@ describe("extractFromSource", () => {
     expect(extractFromSource("App.tsx", source).map((m) => m.singular)).toEqual(["Title", "Long message"]);
   });
 
+  it("extracts a parenthesized message", () => {
+    expect(extractFromSource("App.tsx", 'gettext(("Long " + "message"));')[0].singular).toBe("Long message");
+  });
+
   it("ignores other functions, and methods named gettext", () => {
     const source = `window.django.gettext(msgid); translate("x"); obj.gettext("y");`;
     expect(extractFromSource("i18n.tsx", source)).toEqual([]);
@@ -74,6 +80,7 @@ describe("extractFromSource", () => {
     expect(() => extractFromSource("App.tsx", "gettext(`Hello ${name}`);")).toThrow(/App.tsx:1:1: argument 1/);
     expect(() => extractFromSource("App.tsx", 'ngettext("one", plural, n);')).toThrow(/argument 2 of ngettext/);
     expect(() => extractFromSource("App.tsx", "gettext();")).toThrow(ExtractionError);
+    expect(() => extractFromSource("App.tsx", 'gettext("Hello " + name);')).toThrow(ExtractionError);
   });
 
   it("refuses an HTML entity in a React message, but not in plain JavaScript", () => {
@@ -87,6 +94,25 @@ describe("extractFromSource", () => {
       "Salt & pepper; to taste",
     );
     expect(extractFromSource("static.js", 'gettext("Build one &rarr;");')[0].singular).toBe("Build one &rarr;");
+  });
+});
+
+describe("extractMessages", () => {
+  it("merges a message's files and comments, each once", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "smarter-i18n-"));
+    try {
+      const source = '// Translators: a verb\nconst a = gettext("Rename");\n';
+      const files = ["a.tsx", "b.tsx"].map((name) => {
+        const file = path.join(root, name);
+        fs.writeFileSync(file, source);
+        return file;
+      });
+      expect(extractMessages([...files, files[0]], root)).toEqual([
+        { singular: "Rename", files: ["a.tsx", "b.tsx"], comments: ["Translators: a verb"] },
+      ]);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 

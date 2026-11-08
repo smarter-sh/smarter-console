@@ -124,3 +124,18 @@ describe("Modal", () => {
     expect(() => render(<Modal show title="Nothing" />)).toThrow(/requires at least one/);
   });
 });
+
+describe("Modal's options", () => {
+  it("has an input with its label, and both Close and OK, of which OK is the default", async () => {
+    const onOk = vi.fn();
+    const onClose = vi.fn();
+    const user = userEvent.setup();
+    render(<Modal show title="Rename" inputLabel="New name" onOk={onOk} onClose={onClose} />);
+    expect(screen.getByText("New name")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "OK" })).toHaveFocus();
+    await user.click(screen.getAllByRole("button", { name: "Close" })[1]);
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(onOk).not.toHaveBeenCalled();
+  });
+});

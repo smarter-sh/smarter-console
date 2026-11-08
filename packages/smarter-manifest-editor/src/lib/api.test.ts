@@ -16,6 +16,18 @@ describe("callCli", () => {
     expect(await callCli(sessionContext, URL, {}, "saved")).toEqual({ ok: true, message: "saved" });
   });
 
+  it("sends an empty object without a body", async () => {
+    let sent: unknown;
+    server.use(
+      http.post(URL, async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json({});
+      }),
+    );
+    expect(await callCli(sessionContext, URL, undefined, "deleted")).toEqual({ ok: true, message: "deleted" });
+    expect(sent).toEqual({});
+  });
+
   it.each([
     ["a string", { error: "Bad manifest" }, "Bad manifest"],
     ["a description", { error: { description: "Invalid spec" } }, "Invalid spec"],

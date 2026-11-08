@@ -241,6 +241,10 @@ describe("WelcomeDialog", () => {
     expect(close).toHaveFocus();
     await user.tab({ shift: true });
     expect(next).toHaveFocus();
+    // from the first, Tab moves on as it would anyway.
+    close.focus();
+    await user.tab();
+    expect(close).not.toHaveFocus();
   });
 
   it("keeps the page behind it from scrolling while it's open", () => {

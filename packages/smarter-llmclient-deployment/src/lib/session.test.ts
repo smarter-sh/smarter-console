@@ -36,5 +36,9 @@ describe("readContext", () => {
     expect(() => readContext(render({ "smarter-deployment-data-id": "missing" }))).toThrow(/was not found/);
     document.body.innerHTML = "";
     expect(() => readContext(render({ "smarter-deployment-data-id": DATA_ID }, null))).toThrow(/is empty/);
+    document.body.innerHTML = "";
+    const view = render({ "smarter-deployment-data-id": DATA_ID });
+    document.getElementById(DATA_ID)!.textContent = "";
+    expect(() => readContext(view)).toThrow(/is empty/);
   });
 });

@@ -52,6 +52,18 @@ describe("TerminalSession", () => {
     expect(socket.readyState).toBe(FakeWebSocket.CLOSED);
   });
 
+  it("ignores a message of a type that it doesn't know", async () => {
+    const h = handlers();
+    const session = new TerminalSession(sessionContext, h);
+    await session.connect(80, 24);
+    const socket = FakeWebSocket.latest();
+    socket.open();
+    socket.emitJson({ type: "resize", cols: 100, rows: 30 });
+    expect(h.onOpen).not.toHaveBeenCalled();
+    expect(h.onOutput).not.toHaveBeenCalled();
+    expect(h.onExit).not.toHaveBeenCalled();
+  });
+
   it("sends nothing until the WebSocket is open", async () => {
     const session = new TerminalSession(sessionContext, handlers());
     await session.connect(80, 24);

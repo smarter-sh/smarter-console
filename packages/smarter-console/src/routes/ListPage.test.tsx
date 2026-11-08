@@ -86,4 +86,9 @@ describe("the list pages", () => {
       expect(CONSOLE_PAGE_PATHS).toContain(page.path);
     }
   });
+
+  it("keep the infrastructure resources from a session without a user", () => {
+    const infrastructure = LIST_PAGES.find((page) => page.path === "/infrastructure")!;
+    expect(infrastructure.visible?.({ ...userSession, user: null })).toBe(false);
+  });
 });

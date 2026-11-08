@@ -113,3 +113,31 @@ describe("load", () => {
     await expect(load(sessionContext, false, "owned", {}, aborted.signal)).rejects.toThrow();
   });
 });
+
+describe("load's urls and failures", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  it("requests an api url without a trailing slash, and an absolute one", async () => {
+    const urls: string[] = [];
+    server.use(
+      http.post("/api/listview/owned/", ({ request }) => {
+        urls.push(request.url);
+        return HttpResponse.json({ objects: [] });
+      }),
+    );
+    await load({ ...sessionContext, ApiUrl: "/api/listview" }, false, "/owned/");
+    await load({ ...sessionContext, ApiUrl: "http://localhost:9357/api/listview/" }, false, "owned");
+    expect(urls).toEqual([
+      "http://localhost:9357/api/listview/owned/?invalidate_cache=false",
+      "http://localhost:9357/api/listview/owned/?invalidate_cache=false",
+    ]);
+  });
+
+  it("throws an Error of its own when the request fails with something else", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValueOnce("offline");
+    await expect(load(sessionContext, false, "owned")).rejects.toThrow("Unable to load objects.");
+  });
+});

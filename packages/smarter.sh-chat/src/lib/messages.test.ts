@@ -177,6 +177,11 @@ describe("chatInit", () => {
     expect(messages).toHaveLength(chatHistory.length);
     expect(messages.filter((message) => message.display)).toHaveLength(chatHistory.length - 1);
   });
+
+  it("introduces a new chat session without a history", () => {
+    expect(chatInit("Welcome!", "You are helpful.", [], null)).toHaveLength(2);
+    expect(chatInit("Welcome!", "You are helpful.", [], undefined)).toHaveLength(2);
+  });
 });
 
 describe("chatMessages2RequestMessages", () => {

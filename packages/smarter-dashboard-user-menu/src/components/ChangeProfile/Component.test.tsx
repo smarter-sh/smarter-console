@@ -101,4 +101,30 @@ describe("ChangeProfile", () => {
     await user.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalled();
   });
+
+  it.each([
+    ["profiles", () => HttpResponse.json(userProfiles)],
+    ["error", () => HttpResponse.json({ error: "Service unavailable" }, { status: 503 })],
+  ])("ignores the %s that arrive after the dialog has closed", async (_, answer) => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    let answered = false;
+    server.use(
+      http.get(appContext.urls.userProfilesApi, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        answered = true;
+        return answer();
+      }),
+    );
+    const { unmount } = render(
+      <ChangeProfile
+        sessionContext={sessionContext}
+        userProfilesApiUrl={appContext.urls.userProfilesApi}
+        userProfileSelectApiUrl={appContext.urls.userProfileSelectApi}
+        onClose={vi.fn()}
+      />,
+    );
+    unmount();
+    await vi.waitFor(() => expect(answered).toBe(true));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  });
 });

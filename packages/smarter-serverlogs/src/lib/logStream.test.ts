@@ -112,6 +112,8 @@ describe("useLogStream", () => {
   it("accepts records that are plain text, and ignores a malformed history", () => {
     const { result } = renderHook(() => useLogStream(LOG_STREAM_URL));
     act(() => FakeEventSource.latest().emit("{not json", "bulk"));
+    // a history that isn't a list of records.
+    act(() => FakeEventSource.latest().emit({ message: "not a list" }, "bulk"));
     act(() => FakeEventSource.latest().emit("plain text line"));
     act(() => FakeEventSource.latest().emit({ no: "message" }));
     expect(result.current.logs).toEqual([{ message: "plain text line" }, { message: '{"no":"message"}' }]);

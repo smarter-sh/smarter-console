@@ -119,6 +119,15 @@ describe("styleVariables", () => {
     expect(variables["--smarter-chat-background-repeat"]).toBe("repeat");
   });
 
+  it("covers the chat with a background image without a size", () => {
+    const variables = styleVariables({ app_background_image_url: "https://cdn.smarter.sh/tile.png" }) as Record<
+      string,
+      string
+    >;
+    expect(variables["--smarter-chat-background-size"]).toBe("cover");
+    expect(variables["--smarter-chat-background-repeat"]).toBe("no-repeat");
+  });
+
   it("makes the chat container transparent over the main container's color", () => {
     const variables = styleVariables({ main_container: { background_color: "#000" } }) as Record<string, string>;
     expect(variables["--smarter-chat-main-container-bg"]).toBe("#000");

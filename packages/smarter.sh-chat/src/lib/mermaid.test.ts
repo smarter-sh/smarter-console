@@ -117,6 +117,19 @@ describe("renderMermaidDiagrams", () => {
     expect(figure(element)).not.toBeNull();
   });
 
+  it("leaves a mermaid code block without its copy button, or its code, as it is", async () => {
+    const withoutCopy = message(diagram("withoutCopy"));
+    withoutCopy.querySelector("button")?.remove();
+    await renderMermaidDiagrams(withoutCopy);
+    expect(figure(withoutCopy)).toBeNull();
+    expect(code(withoutCopy)).toBeVisible();
+
+    const withoutCode = message(diagram("withoutCode"));
+    withoutCode.querySelector("pre code")?.remove();
+    await renderMermaidDiagrams(withoutCode);
+    expect(figure(withoutCode)).toBeNull();
+  });
+
   it("does nothing without a root", async () => {
     await expect(renderMermaidDiagrams(null)).resolves.toBeUndefined();
   });

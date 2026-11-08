@@ -63,6 +63,10 @@ describe("applySgr", () => {
       backgroundColor: undefined,
     });
   });
+
+  it("ignores codes that it doesn't know, e.g. blink", () => {
+    expect(applySgr({ bold: true }, [5])).toEqual({ bold: true });
+  });
 });
 
 describe("ansiCss", () => {

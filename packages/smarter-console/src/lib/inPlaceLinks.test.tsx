@@ -1,7 +1,7 @@
 /** Plain links to the console's own pages, which open in place instead of loading the whole console again. */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createMemoryRouter } from "react-router";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { dashboardHandlers } from "@smarter/dashboard/mocks";
 import { listHandlers } from "@smarter/guardrail-list/mocks";
@@ -9,7 +9,7 @@ import { listHandlers } from "@smarter/guardrail-list/mocks";
 import { server } from "@test/server";
 
 import App from "@/App";
-import { consolePath } from "@/lib/inPlaceLinks";
+import { consolePath, inPlaceLinkListener } from "@/lib/inPlaceLinks";
 import { userSession } from "@/mocks/fixtures";
 import { sessionHandler } from "@/mocks/handlers";
 import { routes } from "@/router";
@@ -35,6 +35,20 @@ describe("consolePath()", () => {
     expect(consolePath("https://docs.smarter.sh/guardrail", routes, ORIGIN)).toBeNull();
     expect(consolePath("http://localhost:5173/guardrail", routes, ORIGIN)).toBeNull();
     expect(consolePath("mailto:someone@example.com", routes, ORIGIN)).toBeNull();
+  });
+
+  it("leaves a url that doesn't parse, or that no route matches, to the browser", () => {
+    expect(consolePath("http://[not-a-host/guardrail", routes, ORIGIN)).toBeNull();
+    expect(consolePath(`${ORIGIN}/guardrail`, [], ORIGIN)).toBeNull();
+  });
+
+  it("ignores a click on something other than an element", () => {
+    const navigate = vi.fn();
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "target", { value: document });
+    inPlaceLinkListener({ routes, navigate })(event);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
   });
 });
 

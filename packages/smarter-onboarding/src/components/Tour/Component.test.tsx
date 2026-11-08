@@ -69,6 +69,10 @@ describe("Tour", () => {
     expect(skip).toHaveFocus();
     await user.tab({ shift: true });
     expect(next).toHaveFocus();
+    // from the first, Tab moves on as it would anyway.
+    skip.focus();
+    await user.tab();
+    expect(skip).not.toHaveFocus();
   });
 
   it("clicks the element of a step that activates it, e.g. a tab, when the step shows", async () => {

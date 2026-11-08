@@ -2,7 +2,7 @@
  * The docs pages: public, in their own frame, with the kinds from the session, and a kind's documents from the
  * cli api.
  */
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, type HttpHandler } from "msw";
 import { createMemoryRouter } from "react-router";
@@ -146,6 +146,33 @@ describe("a kind's pages", () => {
       http.post("/api/v1/cli/json-schema/:kind/", () => HttpResponse.json({}, { status: 500 })),
     );
     expect(await screen.findByRole("alert")).toHaveTextContent("Secret JSON Schema couldn't be loaded.");
+  });
+
+  it.each([
+    ["answers", () => HttpResponse.json({ data: SECRET_MANIFEST })],
+    ["fails", () => HttpResponse.json({}, { status: 500 })],
+  ])("drops a kind's document that %s after the user has moved on", async (_name, answer) => {
+    let release = () => {};
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let answered = false;
+    mountAt(
+      "/docs/manifest/secret/",
+      visitorSession,
+      http.post("/api/v1/cli/example-manifest/:kind/", async () => {
+        await released;
+        answered = true;
+        return answer();
+      }),
+    );
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("link", { name: "Secret JSON Schema" }));
+    expect(await screen.findByLabelText("Secret JSON Schema")).toHaveTextContent('"title": "SAMSecret"');
+    release();
+    await waitFor(() => expect(answered).toBe(true));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Secret example manifest")).not.toBeInTheDocument();
   });
 
   it("says so when the api answers without a document", async () => {

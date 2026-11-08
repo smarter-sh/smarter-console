@@ -1,9 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, type JsonBodyType } from "msw";
 import { describe, expect, it } from "vitest";
 
-import { manyResources, resources, sessionContext } from "@/mocks/fixtures";
+import { makeResource, manyResources, resources, sessionContext } from "@/mocks/fixtures";
 import { listErrorHandlers, listForbiddenHandlers, listHandlers, listResponseFor } from "@/mocks/handlers";
 import { server } from "@test/server";
 
@@ -149,6 +149,57 @@ describe("InfrastructureResourceList", () => {
     await user.click(await screen.findByRole("button", { name: "Refresh" }));
     await screen.findByLabelText("Summary");
     expect(requests).toBe(2);
+  });
+
+  it("shows a destroyed resource without the time it was destroyed", async () => {
+    server.use(...listHandlers([makeResource({ status: "destroyed", destroyedAt: null })]));
+    const user = userEvent.setup();
+    render(<InfrastructureResourceList sessionContext={sessionContext} />);
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Status" }), "destroyed");
+    expect(await screen.findByText("Destroyed", { selector: "span.badge" })).toHaveAttribute("title", "");
+  });
+
+  it("shows no range of a page whose count is zero", async () => {
+    server.use(
+      http.post(sessionContext.ApiUrl, () =>
+        HttpResponse.json({
+          ...listResponseFor(resources, {}),
+          pagination: { page: 1, pageSize: 50, numPages: 1, count: 0 },
+        }),
+      ),
+    );
+    render(<InfrastructureResourceList sessionContext={sessionContext} />);
+    expect(await screen.findByText("Showing 0–0 of 0 resources")).toBeInTheDocument();
+  });
+
+  it.each([
+    ["a response", () => HttpResponse.json(listResponseFor(resources, { status: "destroyed" }))],
+    ["an error", () => HttpResponse.json({ error: "Too late." } as JsonBodyType, { status: 500 })],
+  ])("ignores %s that arrives after a later request's", async (_, slowResponse) => {
+    let release = () => {};
+    const released = new Promise<void>((resolve) => (release = resolve));
+    let slowAnswered = false;
+    server.use(
+      http.post(sessionContext.ApiUrl, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if (body.status !== "destroyed") return HttpResponse.json(listResponseFor(resources, body));
+        await released;
+        slowAnswered = true;
+        return slowResponse();
+      }),
+    );
+    const user = userEvent.setup();
+    render(<InfrastructureResourceList sessionContext={sessionContext} />);
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Status" }), "destroyed");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Status" }), "all");
+    expect(await screen.findByText("Showing 1–7 of 7 resources")).toBeInTheDocument();
+
+    release();
+    await waitFor(() => expect(slowAnswered).toBe(true));
+    // let the slow response reach the component, which ignores it.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByText("Showing 1–7 of 7 resources")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("explains that the platform has not recorded any resources", async () => {

@@ -126,6 +126,36 @@ describe("App, when things go wrong", () => {
     expect(await screen.findByRole("dialog", { name: "Save Failed" })).toHaveTextContent("apiVersion is missing");
   });
 
+  it.each([
+    ["problems", () => HttpResponse.json({ data: { valid: false, errors: [{ loc: [], message: "stale problem" }] } })],
+    ["failure", () => HttpResponse.error()],
+  ])("ignores the %s of a manifest that has since changed", async (_, earlier) => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let requests = 0;
+    server.use(
+      http.post(VALIDATE_API_URL, async () => {
+        requests += 1;
+        if (requests === 1) {
+          await gate;
+          return earlier();
+        }
+        return HttpResponse.json({ data: { valid: true, errors: [] } });
+      }),
+    );
+    render(<App {...appProps} />);
+    // the first validation is under way when the user edits the manifest.
+    await vi.waitFor(() => expect(requests).toBe(1), VALIDATION);
+    edit(appProps.initialManifest.replace("An example secret.", "An edited secret."));
+    expect(await screen.findByText("No problems", {}, VALIDATION)).toBeInTheDocument();
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByText("No problems")).toBeInTheDocument();
+    expect(screen.queryByText(/stale problem/)).not.toBeInTheDocument();
+  });
+
   it("validates YAML that isn't a mapping", async () => {
     let validated: unknown;
     server.use(

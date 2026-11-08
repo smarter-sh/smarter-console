@@ -87,4 +87,9 @@ describe("the api client", () => {
     expect(csrf).toBe("token");
     expect(listResponse.objects.length).toBeGreaterThan(0);
   });
+
+  it("gives the message of anything that was thrown", () => {
+    expect(api.errorText(new Error("broken"))).toBe("broken");
+    expect(api.errorText("not an Error")).toBe("not an Error");
+  });
 });

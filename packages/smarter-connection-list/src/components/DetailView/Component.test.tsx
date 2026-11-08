@@ -40,6 +40,14 @@ describe("DetailView", () => {
     expect(screen.getAllByText("OtherConnection").length).toBeGreaterThan(0);
   });
 
+  it("shows a connection without a kind", () => {
+    render(
+      <DetailView sessionContext={sessionContext} object={makeObject(3, { kind: "" as never })} onRequery={() => {}} />,
+    );
+    expect(screen.queryByText("SQL database")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Connection" })).toBeInTheDocument();
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

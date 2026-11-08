@@ -48,6 +48,17 @@ describe("DetailView", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
+  it("shows an orchestrator whose harnesses are missing", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(4, { harnesses: undefined as never })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

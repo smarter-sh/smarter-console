@@ -185,6 +185,16 @@ describe("App", () => {
     expect(posted).toHaveLength(1);
   });
 
+  it("doesn't start the tour once the workbench has closed before the chat is ready", async () => {
+    layOutThePage();
+    const startTour = vi.spyOn(window, "requestAnimationFrame");
+    const { unmount } = render(<App workbench={plainWorkbench} onboarding={onboarding} />);
+    unmount();
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    expect(startTour).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   it("doesn't start the tour by itself for a user who has taken it", async () => {
     layOutThePage();
     render(<App workbench={plainWorkbench} onboarding={{ ...onboarding, seen: ["workbench_tour"] }} />);

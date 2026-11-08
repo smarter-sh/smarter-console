@@ -57,6 +57,23 @@ describe("resolveLanguage", () => {
     vi.spyOn(navigator, "languages", "get").mockReturnValue(["de-DE"]);
     expect(resolveLanguage()).toBe("en");
   });
+
+  it("falls back to the browser's language, without its list of languages", () => {
+    vi.spyOn(navigator, "languages", "get").mockReturnValue(undefined as never);
+    vi.spyOn(navigator, "language", "get").mockReturnValue("pt-PT");
+    expect(resolveLanguage()).toBe("pt-br");
+  });
+
+  it("resolves the requested language, or English, outside a browser", () => {
+    vi.stubGlobal("document", undefined);
+    vi.stubGlobal("navigator", undefined);
+    try {
+      expect(resolveLanguage("fr")).toBe("fr");
+      expect(resolveLanguage()).toBe("en");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 describe("activateLanguage", () => {
@@ -123,6 +140,21 @@ describe("gettext and friends", () => {
       delete messages["list\u0004one row"];
     }
   });
+
+  it("fall back to English for an empty translation, or an empty singular form", () => {
+    const messages = CATALOGS.fr.messages;
+    messages["An untranslated message"] = "";
+    messages["one cell"] = ["", "des cellules"];
+    try {
+      activateLanguage("fr");
+      expect(gettext("An untranslated message")).toBe("An untranslated message");
+      expect(ngettext("one cell", "%(count)s cells", 1)).toBe("one cell");
+      expect(ngettext("one cell", "%(count)s cells", 2)).toBe("des cellules");
+    } finally {
+      delete messages["An untranslated message"];
+      delete messages["one cell"];
+    }
+  });
 });
 
 describe("interpolate", () => {
@@ -144,5 +176,10 @@ describe("interpolateNodes", () => {
     render(<p>{interpolateNodes("Delete %(name)s now, %(missing)s?", { name: <strong>Stanley</strong> })}</p>);
     expect(screen.getByText("Stanley").tagName).toBe("STRONG");
     expect(screen.getByText(/Delete/)).toHaveTextContent("Delete Stanley now, %(missing)s?");
+  });
+
+  it("puts React nodes at the start and the end of a sentence", () => {
+    render(<p>{interpolateNodes("%(name)s and %(other)s", { name: <em>Stanley</em>, other: <em>Ada</em> })}</p>);
+    expect(screen.getByText(/and/)).toHaveTextContent("Stanley and Ada");
   });
 });

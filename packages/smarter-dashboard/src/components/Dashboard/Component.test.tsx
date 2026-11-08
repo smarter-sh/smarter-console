@@ -43,6 +43,15 @@ describe("Dashboard", () => {
     expect(alert).toHaveTextContent("The daily token budget is exhausted.");
   });
 
+  it("leaves out the budgets, and widens the usage chart, on a platform without them", async () => {
+    server.use(...dashboardHandlers);
+    render(<Dashboard appContext={{ ...appContext, budgetsApiUrl: "" }} />);
+    await screen.findByRole("link", { name: "2 pending" });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Budget vs Actual")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("User Usage")).toHaveClass("col-xl-12");
+  });
+
   it("shows each widget's error, and still renders the others", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     server.use(...dashboardErrorHandlers);

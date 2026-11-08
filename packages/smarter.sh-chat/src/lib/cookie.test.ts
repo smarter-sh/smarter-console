@@ -53,4 +53,23 @@ describe("getCookie and setCookie", () => {
     expect(getCookie(cookie)).toBe("false");
     setCookie(cookie, null);
   });
+
+  it("returns the default for a cookie without a value", () => {
+    document.cookie = "empty=; path=/";
+    expect(getCookie(cookieMetaFactory("empty", null, "localhost"), "default")).toBe("default");
+  });
+
+  it("sets a cookie in any domain without one", () => {
+    const cookie = cookieMetaFactory("session_key", 60_000, undefined);
+    expect(cookie.domain).toBe("");
+    setCookie(cookie, "the-session");
+    expect(getCookie(cookie)).toBe("the-session");
+    setCookie(cookie, "");
+  });
+
+  it("expires a cookie without an expiration at once", () => {
+    const cookie = cookieMetaFactory("session_key", null, "localhost");
+    setCookie(cookie, "the-session");
+    expect(getCookie(cookie)).toBeNull();
+  });
 });

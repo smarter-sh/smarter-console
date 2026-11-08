@@ -46,3 +46,9 @@ describe("highlightYaml", () => {
     expect(lines[4]).toContain(span("yaml-key", "next"));
   });
 });
+
+describe("highlightYamlLine's edge cases", () => {
+  it("leaves a line that isn't YAML, e.g. with a carriage return, as it is", () => {
+    expect(html("a\rb")).toBe("a\rb");
+  });
+});

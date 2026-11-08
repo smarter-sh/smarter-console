@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -68,5 +68,12 @@ describe("ProfileImageItems", () => {
     server.use(http.delete(apiUrl, () => new HttpResponse("oops", { status: 500 })));
     await user.click(screen.getByRole("button", { name: "Remove Profile Image" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("The profile image could not be saved.");
+  });
+
+  it("sends nothing when no file is chosen", () => {
+    // an unhandled request would fail the test.
+    const onChange = setup();
+    fireEvent.change(screen.getByLabelText("Change Profile Image"), { target: { files: [] } });
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

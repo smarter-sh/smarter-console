@@ -79,6 +79,14 @@ describe("DropZone", () => {
     );
   });
 
+  it("shows an unknown error when reading the file fails without an Error", async () => {
+    const file = manifestFile();
+    file.text = () => Promise.reject("unreadable");
+    render(<DropZone sessionContext={sessionContext} />);
+    await userEvent.upload(screen.getByLabelText("Manifest file"), file);
+    expect(await screen.findByRole("dialog", { name: "Manifest Apply Failed" })).toHaveTextContent("Unknown error");
+  });
+
   it("opens the file dialog", async () => {
     const click = vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(() => {});
     render(<DropZone sessionContext={sessionContext} />);

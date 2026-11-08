@@ -123,6 +123,16 @@ describe("ApiKeys", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(/^unattached is created\.$/);
   });
 
+  it("names a created key by the form's name when the response doesn't name it", async () => {
+    server.use(...actionHandlers({ page: workbenchPage } as never));
+    const user = userEvent.setup();
+    showApiKeys();
+    await user.type(screen.getByLabelText("Name"), "unnamed_key");
+    await user.click(screen.getByRole("button", { name: "Create the api key" }));
+    expect(await screen.findByRole("status")).toHaveTextContent(/^unnamed_key is created/);
+    expect(screen.queryByRole("heading", { name: "Copy its secret now" })).not.toBeInTheDocument();
+  });
+
   it("explains why an action failed, and keeps the form", async () => {
     server.use(...errorHandlers(duplicateNameError));
     const user = userEvent.setup();

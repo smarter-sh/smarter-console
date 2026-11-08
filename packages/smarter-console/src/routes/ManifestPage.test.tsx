@@ -97,6 +97,24 @@ describe("a manifest page", () => {
     expect(await screen.findByText("The manifest could not be loaded.")).toBeInTheDocument();
   });
 
+  it("names an unnamed resource by its kind, and explains a manifest that the api gave no reason for", async () => {
+    server.use(
+      http.get(resourceUrl("secret-rMTAwx"), () =>
+        HttpResponse.json({
+          kind: "Secret",
+          name: null,
+          recordLocator: "secret-rMTAwx",
+          manifest: null,
+          manifestError: "",
+        }),
+      ),
+    );
+    mountAt("/secret/secrets/rMTAwx/");
+    expect(await screen.findByRole("heading", { name: "Secret" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Secret" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("The manifest could not be loaded.");
+  });
+
   it("is not found while its feature is off", async () => {
     mountAt("/proxy/proxies/rMTAwx/");
     expect(await screen.findByRole("heading", { name: "Page not found" })).toBeInTheDocument();

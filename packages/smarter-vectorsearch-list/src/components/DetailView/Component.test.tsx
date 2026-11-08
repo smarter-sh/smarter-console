@@ -57,6 +57,17 @@ describe("DetailView", () => {
     expect(screen.getByText("0.75")).toBeInTheDocument();
   });
 
+  it("shows a search type that it doesn't know as it is", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(4, { searchType: "hybrid" as never })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getAllByText("hybrid").length).toBeGreaterThan(0);
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

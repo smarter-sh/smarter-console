@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
@@ -45,5 +45,17 @@ describe("ArchitectureTab", () => {
     server.use(...tabErrorHandlers);
     render(<ArchitectureTab workbench={workbench} />);
     expect(await screen.findByRole("alert")).toHaveTextContent("The request failed: 404 Not Found");
+  });
+
+  it("requests the page's own url, without one of its own", async () => {
+    const requested: string[] = [];
+    server.use(
+      http.get("*", ({ request }) => {
+        requested.push(request.url);
+        return new Promise<Response>(() => {});
+      }),
+    );
+    render(<ArchitectureTab workbench={{ ...workbench, architectureUrl: null }} />);
+    await waitFor(() => expect(requested).toEqual([window.location.href]));
   });
 });

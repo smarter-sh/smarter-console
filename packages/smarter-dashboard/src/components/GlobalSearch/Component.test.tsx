@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
@@ -68,6 +68,40 @@ describe("GlobalSearch", () => {
     await user.type(box, "support");
     expect(await screen.findByRole("alert")).toHaveTextContent("Search failed: Request failed: 503");
     await user.clear(box);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["answer", () => HttpResponse.json({ ...globalSearchResponse, count: 99 })],
+    ["failure", () => HttpResponse.json({}, { status: 503 })],
+  ])("shows the latest search, not an earlier one's late %s", async (_, earlier) => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const queries: string[] = [];
+    server.use(
+      http.post(apiUrl, async ({ request }) => {
+        const { query } = (await request.json()) as { query: string };
+        queries.push(query);
+        if (query === "first") {
+          await gate;
+          return earlier();
+        }
+        return HttpResponse.json(globalSearchResponse);
+      }),
+    );
+    const { user, box } = setup();
+    await user.type(box, "first");
+    // the first search is under way.
+    await waitFor(() => expect(queries).toEqual(["first"]));
+    expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
+    await user.clear(box);
+    await user.type(box, "second");
+    expect(await screen.findByText(/7 resources match\./)).toBeInTheDocument();
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByText(/7 resources match\./)).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

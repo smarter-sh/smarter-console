@@ -45,6 +45,11 @@ describe("mountChat", () => {
     expect(element?.hasAttribute("bad name")).toBe(false);
   });
 
+  it("adds a configuration without a chatbot, once, for its element to explain", () => {
+    expect(mountChat({ mode: "inline" })?.getAttribute(AUTO_ATTRIBUTE)).toBe("");
+    expect(mountChat({ mode: "inline" })).toBeNull();
+  });
+
   it("adds a chatbot once", () => {
     expect(mountChat({ chatbot: CHATBOT })).not.toBeNull();
     expect(mountChat({ chatbot: CHATBOT })).toBeNull();

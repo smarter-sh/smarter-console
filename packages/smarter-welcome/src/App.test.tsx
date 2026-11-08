@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -147,6 +147,26 @@ describe("App", () => {
     );
     await user.click(screen.getByRole("button", { name: "Elsewhere" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // a click whose target is the document itself, not an element.
+    fireEvent.click(document);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens when the focus is on an element that can't take it back, e.g. an svg's", async () => {
+    useWelcomeApis();
+    render(
+      <>
+        <svg tabIndex={0} aria-label="Picture" role="img" />
+        <button type="button" {...{ [OPEN_ATTRIBUTE]: "true" }}>
+          Welcome Tour
+        </button>
+        <App appContext={{ ...appContext, show: false }} />
+      </>,
+    );
+    screen.getByRole("img", { name: "Picture" }).focus();
+    // fireEvent leaves the focus where it is, on the svg.
+    fireEvent.click(screen.getByRole("button", { name: "Welcome Tour" }));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
   it("shows why the links failed to load", async () => {

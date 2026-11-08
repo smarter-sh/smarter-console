@@ -77,6 +77,13 @@ describe("MyResources", () => {
     expect(within(more).getAllByRole("link")).toHaveLength(5);
   });
 
+  it("counts none of a kind whose count is missing", async () => {
+    server.use(http.post(apiUrl, () => HttpResponse.json({ ...myResources, guardrails_qty: undefined })));
+    render(<MyResources sessionContext={sessionContext} apiUrl={apiUrl} />);
+    const more = await screen.findByRole("list", { name: "More resources" });
+    expect(within(more).getByRole("link", { name: /Guardrails/ })).toHaveTextContent(/^0/);
+  });
+
   it("counts nothing for a response without counts", async () => {
     server.use(http.post(apiUrl, () => HttpResponse.json({})));
     render(<MyResources sessionContext={sessionContext} apiUrl={apiUrl} />);

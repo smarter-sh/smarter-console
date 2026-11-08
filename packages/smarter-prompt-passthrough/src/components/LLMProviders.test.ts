@@ -11,7 +11,9 @@ describe("LLMProviders", () => {
     ["{ providers: [...] }", { providers }],
     ["a list", providers],
   ])("accepts %s, and drops entries that are not providers", async (_, body) => {
-    const payload = Array.isArray(body) ? [...body, { id: "x" }] : { providers: [...body.providers, { id: "x" }] };
+    const payload = Array.isArray(body)
+      ? [...body, { id: "x" }, null]
+      : { providers: [...body.providers, { id: "x" }, null] };
     server.use(http.post(PROVIDER_API_URL, () => HttpResponse.json(payload)));
     expect((await LLMProviders(PROVIDER_API_URL)).map((p) => p.name)).toEqual(["openai", "anthropic"]);
   });
@@ -19,6 +21,11 @@ describe("LLMProviders", () => {
   it("accepts a single provider", async () => {
     server.use(http.post(PROVIDER_API_URL, () => HttpResponse.json(providers[0])));
     expect(await LLMProviders(PROVIDER_API_URL)).toEqual([providers[0]]);
+  });
+
+  it("finds none in a single object that isn't a provider", async () => {
+    server.use(http.post(PROVIDER_API_URL, () => HttpResponse.json({ id: 1, name: "openai" })));
+    expect(await LLMProviders(PROVIDER_API_URL)).toEqual([]);
   });
 
   it("throws when the api fails", async () => {

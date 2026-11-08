@@ -135,6 +135,11 @@ describe("fetchConfig", () => {
     await expect(fetchConfig(API_URL, cookies, context)).rejects.toBeInstanceOf(SmarterApiError);
   });
 
+  it("throws when the api's response has no content type", async () => {
+    server.use(http.post(CONFIG_URL, () => new HttpResponse(null, { status: 502 })));
+    await expect(fetchConfig(API_URL, cookies, context)).rejects.toThrow("Unexpected response");
+  });
+
   it("throws when the configuration is incomplete", async () => {
     server.use(http.post(CONFIG_URL, () => HttpResponse.json({ data: {} })));
     await expect(fetchConfig(API_URL, cookies, context)).rejects.toThrow("incomplete");
@@ -166,6 +171,13 @@ describe("normalizeConfig", () => {
 describe("fetchPrompt with version 1 of the contract", () => {
   it("returns the response's messages", async () => {
     server.use(http.post(PROMPT_URL, () => HttpResponse.json(promptResponseV1())));
+    expect(await fetchPrompt(config, [], cookies, context)).toEqual({ messages: responseMessages, error: null });
+  });
+
+  it("reads a body that is an object, rather than a JSON string", async () => {
+    const response = promptResponseV1();
+    const body = JSON.parse(response.data.body) as Record<string, unknown>;
+    server.use(http.post(PROMPT_URL, () => HttpResponse.json({ ...response, data: { ...response.data, body } })));
     expect(await fetchPrompt(config, [], cookies, context)).toEqual({ messages: responseMessages, error: null });
   });
 
@@ -241,6 +253,26 @@ describe("fetchPrompt", () => {
     const result = await fetchPrompt(config, [], cookies, context);
     expect(result.error).toBe("The Smarter api returned http 200 OK");
   });
+
+  it("treats a version 1 response without a body, or whose body isn't an object, as an error", async () => {
+    server.use(http.post(PROMPT_URL, () => HttpResponse.json({ data: { statusCode: 200 } })));
+    expect((await fetchPrompt(config, [], cookies, context)).error).toBe("The Smarter api returned http 200 OK");
+    server.use(http.post(PROMPT_URL, () => HttpResponse.json({ data: { statusCode: 200, body: 42 } })));
+    expect((await fetchPrompt(config, [], cookies, context)).error).toBe("The Smarter api returned http 200 OK");
+  });
+
+  it("returns no messages for a version 2 response without them", async () => {
+    const response = promptResponse();
+    server.use(
+      http.post(PROMPT_URL, () => HttpResponse.json({ ...response, data: { ...response.data, messages: undefined } })),
+    );
+    expect(await fetchPrompt(config, [], cookies, context)).toEqual({ messages: [], error: null });
+  });
+
+  it("throws when the api's response has no content type", async () => {
+    server.use(http.post(PROMPT_URL, () => new HttpResponse(null, { status: 502 })));
+    await expect(fetchPrompt(config, [], cookies, context)).rejects.toThrow("Unexpected response");
+  });
 });
 
 /** A text/event-stream response, sent in the given chunks. */
@@ -306,6 +338,15 @@ describe("fetchPrompt, streaming its progress", () => {
     const result = await fetchPrompt(config, [], cookies, context, () => {});
     expect(result.error).toBeTruthy();
     expect(result.messages).toEqual([expect.objectContaining({ role: "smarter_error" })]);
+  });
+
+  it("ignores events other than progress and result", async () => {
+    const stream = "data: an unnamed event\n\nevent: other\ndata: {}\n\n" + promptEventStream([]);
+    server.use(http.post(PROMPT_URL, () => eventStreamResponse(stream)));
+    const steps: PromptProgressEvent[] = [];
+    const result = await fetchPrompt(config, [], cookies, context, (event) => steps.push(event));
+    expect(steps).toEqual([]);
+    expect(result.error).toBeNull();
   });
 
   it("throws when the stream has no body", async () => {

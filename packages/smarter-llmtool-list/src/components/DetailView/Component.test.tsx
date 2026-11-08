@@ -78,6 +78,54 @@ describe("DetailView", () => {
     expect(screen.getByRole("heading", { name: "Data" })).toBeInTheDocument();
   });
 
+  it("shows a SQL plugin without a query or parameters, and a plain test value", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(5, {
+          pluginClass: "sql",
+          staticData: null,
+          sqlData: {
+            connection: "example_sql_connection",
+            description: "Looks up courses.",
+            parameters: null as never,
+            sqlQuery: "",
+            testValues: 42 as never,
+            limit: 10,
+          },
+        })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.queryByLabelText("SQL")).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText("JSON")).toHaveLength(1);
+    expect(screen.getByLabelText("JSON")).toHaveTextContent("42");
+  });
+
+  it("shows what is inside a static plugin's staticData key", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(6, { staticData: { staticData: "An everlasting gobstopper." } as never })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getByText(/An everlasting gobstopper\./)).toBeInTheDocument();
+    expect(screen.queryByText(/staticData/)).not.toBeInTheDocument();
+  });
+
+  it("shows empty static data as missing", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(7, { staticData: {} as never })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Static data" })).toBeInTheDocument();
+    expect(screen.queryByText(/An example static plugin\./)).not.toBeInTheDocument();
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

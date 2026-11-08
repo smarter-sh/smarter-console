@@ -70,6 +70,7 @@ describe("<smarter-chat>", () => {
     expect(error).toHaveBeenCalledTimes(1);
     expect(error.mock.calls[0].join(" ")).toContain('"chatbot" must be');
     expect(element.shadowRoot!.querySelector(".SmarterChat")).toBeNull();
+    expect(element.isOpen).toBe(false);
   });
 
   it("renders a launcher, which renders the chat only once it is opened, and keeps it when it closes", async () => {

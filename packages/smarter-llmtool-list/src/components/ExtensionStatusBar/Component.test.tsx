@@ -24,6 +24,18 @@ describe("ExtensionStatusBar", () => {
     expect(screen.getByTitle(trustBadgeLabel)).toBeInTheDocument();
   });
 
+  it("shows an unknown trust badge with the unverified icon", () => {
+    render(
+      <ExtensionStatusBar extension={makeExtension(1, { trustBadge: "unverified", trustBadgeLabel: "Unverified" })} />,
+    );
+    render(
+      <ExtensionStatusBar
+        extension={makeExtension(2, { trustBadge: "mystery" as never, trustBadgeLabel: "Mystery" })}
+      />,
+    );
+    expect(screen.getByTitle("Mystery").innerHTML).toBe(screen.getByTitle("Unverified").innerHTML);
+  });
+
   it("shows where it was installed from", () => {
     render(<ExtensionStatusBar extension={makeExtension(1, { source: "registry" })} />);
     expect(screen.getByTitle("Installed from the extension registry")).toBeInTheDocument();

@@ -30,6 +30,10 @@ describe("logLines", () => {
     expect(lines[1][0].style.color).toBeDefined();
     expect(lines[2][1].style.color).toBeUndefined();
   });
+
+  it("keeps an empty line empty", () => {
+    expect(logLines("a\n\nb").map(text)).toEqual(["a", "", "b"]);
+  });
 });
 
 describe("logNodes", () => {

@@ -44,6 +44,27 @@ describe("DetailView", () => {
     expect(screen.getByLabelText("JSON")).toHaveTextContent(/"namespaces": 1/);
   });
 
+  it("shows an unknown backend, hosting and status as they are, and missing counts as 0", () => {
+    render(
+      <DetailView
+        sessionContext={sessionContext}
+        object={makeObject(3, {
+          backend: "weaviate" as never,
+          hosting: "edge" as never,
+          status: "hibernating" as never,
+          vectorCount: null as never,
+          documentCount: undefined as never,
+          snapshotCount: null as never,
+        })}
+        onRequery={() => {}}
+      />,
+    );
+    expect(screen.getByText("weaviate")).toBeInTheDocument();
+    expect(screen.getByText("edge")).toBeInTheDocument();
+    expect(screen.getByText("hibernating")).toBeInTheDocument();
+    expect(screen.getAllByText("0")).toHaveLength(3);
+  });
+
   it("narrows the list by a tag that is clicked", async () => {
     const onTag = vi.fn();
     render(

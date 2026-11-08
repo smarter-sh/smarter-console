@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getCookie, setCookie } from "./cookie";
+import { cookieMetaFactory, getCookie, setCookie } from "./cookie";
 
 describe("getCookie", () => {
   it("reads a cookie of the page's domain", () => {
@@ -22,5 +22,17 @@ describe("setCookie", () => {
     expect(getCookie(cookie)).toBe("dark");
     setCookie(cookie, null);
     expect(getCookie(cookie)).toBe("");
+  });
+});
+
+describe("cookieMetaFactory", () => {
+  it("describes a cookie, without a value by default", () => {
+    expect(cookieMetaFactory("theme", null, "localhost")).toEqual({
+      name: "theme",
+      expiration: null,
+      domain: "localhost",
+      value: null,
+    });
+    expect(cookieMetaFactory("theme", 60_000, "localhost", "dark").value).toBe("dark");
   });
 });

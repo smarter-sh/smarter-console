@@ -4,7 +4,15 @@ import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FakeEventSource, installFakes } from "@smarter/serverlogs/fakes";
-import { API_URL, LOG_STREAM_URL, PROVIDER_API_URL, bulkLogs, completion, sessionContext } from "@/mocks/fixtures";
+import {
+  API_URL,
+  LOG_STREAM_URL,
+  PROVIDER_API_URL,
+  bulkLogs,
+  completion,
+  sessionContext,
+  sparseProvider,
+} from "@/mocks/fixtures";
 import { passthroughErrorHandlers, providerHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
@@ -98,6 +106,29 @@ describe("Prompt", () => {
     expect(await screen.findByRole("region", { name: "Reply" })).toBeInTheDocument();
   });
 
+  it("shows that the request is on its way on the request tab too, and doesn't send it again", async () => {
+    let requests = 0;
+    let respond: () => void = () => {};
+    server.use(
+      ...providerHandlers,
+      http.post(`${API_URL}:provider/`, async () => {
+        requests += 1;
+        await new Promise<void>((resolve) => (respond = resolve));
+        return HttpResponse.json(completion);
+      }),
+    );
+    const user = setup();
+    await screen.findByRole("option", { name: "anthropic" });
+
+    await user.click(screen.getByRole("button", { name: "SEND" }));
+    await user.click(screen.getByRole("tab", { name: "Request" }));
+    expect(screen.getByRole("button", { name: "SENDING..." })).toBeDisabled();
+    await vi.waitFor(() => expect(requests).toBe(1));
+    respond();
+    expect(await screen.findByRole("button", { name: "SEND" })).toBeEnabled();
+    expect(requests).toBe(1);
+  });
+
   it("shows a response that isn't JSON as it is", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     server.use(
@@ -168,6 +199,42 @@ describe("Prompt", () => {
     setup();
     await vi.waitFor(() => expect(warn).toHaveBeenCalledWith(expect.anything(), "No LLM providers found from API"));
     expect(screen.getByLabelText("Request JSON")).toHaveValue("");
+  });
+
+  it("leaves the request empty, and logs why, when the default provider has no default model", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    server.use(
+      http.post(PROVIDER_API_URL, () => HttpResponse.json({ providers: [{ ...sparseProvider, isDefault: true }] })),
+    );
+    setup();
+    expect(await screen.findByRole("option", { name: "localllm" })).toBeInTheDocument();
+    await vi.waitFor(() =>
+      expect(error).toHaveBeenCalledWith(expect.anything(), "Error fetching LLM providers:", expect.any(Error)),
+    );
+    expect(screen.getByLabelText("Request JSON")).toHaveValue("");
+  });
+
+  it("stops loading the providers, quietly, when it closes", async () => {
+    const error = vi.spyOn(console, "error");
+    let requested = false;
+    server.use(
+      http.post(PROVIDER_API_URL, () => {
+        requested = true;
+        return new Promise<Response>(() => {});
+      }),
+    );
+    const { unmount } = render(
+      <Prompt
+        sessionContext={sessionContext}
+        defaultLLMProviderId={1}
+        defaultTemplateId={1}
+        providerApiUrl={PROVIDER_API_URL}
+      />,
+    );
+    await vi.waitFor(() => expect(requested).toBe(true));
+    unmount();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(error).not.toHaveBeenCalledWith(expect.anything(), "Error fetching LLM providers:", expect.anything());
   });
 
   it("logs a failure to load the providers", async () => {

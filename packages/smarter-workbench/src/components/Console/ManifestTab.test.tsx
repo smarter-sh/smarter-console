@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -64,5 +64,17 @@ describe("ManifestTab", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "This tab couldn't load. Reload the page to try again. The request failed: 500 Internal Server Error",
     );
+  });
+
+  it("requests the page's own url, without one of its own", async () => {
+    const requested: string[] = [];
+    server.use(
+      http.get("*", ({ request }) => {
+        requested.push(request.url);
+        return new Promise<Response>(() => {});
+      }),
+    );
+    render(<ManifestTab workbench={{ ...workbench, manifestUrl: null }} />);
+    await waitFor(() => expect(requested).toEqual([window.location.href]));
   });
 });

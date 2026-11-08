@@ -73,6 +73,28 @@ describe("the OpenAPI page", () => {
     await expect(second).rejects.toThrow("failed to load");
   });
 
+  it("does nothing with Scalar's script once the page has closed", async () => {
+    const createApiReference = vi.fn();
+    const { unmount } = mount();
+    await waitFor(() => expect(scalarScript()).not.toBeNull());
+    const loading = loadScalar();
+    unmount();
+    window.Scalar = { createApiReference };
+    scalarScript()?.dispatchEvent(new Event("load"));
+    await loading;
+    expect(createApiReference).not.toHaveBeenCalled();
+  });
+
+  it("says nothing of a script that fails once the page has closed", async () => {
+    const { unmount } = mount();
+    await waitFor(() => expect(scalarScript()).not.toBeNull());
+    const loading = loadScalar();
+    unmount();
+    scalarScript()?.dispatchEvent(new Event("error"));
+    await expect(loading).rejects.toThrow("failed to load");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("resolves when the script defines Scalar, and fails when it doesn't", async () => {
     const loading = loadScalar();
     const script = scalarScript();

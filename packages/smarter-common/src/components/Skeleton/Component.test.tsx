@@ -2,7 +2,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Skeleton, SkeletonCode, SkeletonRegion, SkeletonRows, SkeletonText } from "./Component";
+import { Skeleton, SkeletonChart, SkeletonCode, SkeletonRegion, SkeletonRows, SkeletonText } from "./Component";
 
 describe("Skeleton", () => {
   it("is a bar by default, sized in rem or any CSS length, and hidden from screen readers", () => {
@@ -103,5 +103,18 @@ describe("SkeletonRows", () => {
     expect(name).toHaveClass("p-1");
     // eslint-disable-next-line testing-library/no-node-access -- shapes have no role.
     expect(empty.querySelector(".smarter-skeleton")).toBeNull();
+  });
+});
+
+describe("SkeletonChart", () => {
+  it("is a chart's shape, with the control above it if it has one", () => {
+    const { container, rerender } = render(<SkeletonChart height={200} />);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- shapes have no role.
+    const shapes = () => Array.from(container.querySelectorAll<HTMLElement>(".smarter-skeleton"));
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument();
+    expect(shapes()).toHaveLength(1);
+    expect([shapes()[0].style.width, shapes()[0].style.height]).toEqual(["100%", "200px"]);
+    rerender(<SkeletonChart height={200} controls />);
+    expect(shapes()).toHaveLength(2);
   });
 });

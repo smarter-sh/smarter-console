@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { renderToString } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
 
 import McpServer from "@/components/McpServer/Component";
 
@@ -24,5 +25,18 @@ describe("McpServer", () => {
     expect(screen.getByLabelText("Add this platform's MCP server to Claude Code")).toHaveTextContent(
       "claude mcp add --transport http smarter-project https://platform.smarter.sh/api/v1/mcp/smarter-project/",
     );
+  });
+
+  it("shows the server's path when rendered without a browser", () => {
+    vi.stubGlobal("window", undefined);
+    try {
+      // renderToString is react-dom's, not testing-library's render, whose result the rule names.
+      // eslint-disable-next-line testing-library/render-result-naming-convention
+      const html = renderToString(<McpServer />);
+      expect(html).toContain("/api/v1/mcp/smarter-project/");
+      expect(html).not.toContain("http://localhost");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

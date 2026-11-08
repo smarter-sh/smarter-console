@@ -119,4 +119,9 @@ describe("UserMenu", () => {
     expect(menuButton()).toHaveFocus();
     expect(onSwitched).not.toHaveBeenCalled();
   });
+
+  it("names the menu by the username of a user without an email", () => {
+    render(<UserMenu appContext={{ ...appContext, user: { ...appContext.user, email: "" } }} />);
+    expect(screen.getByRole("button", { name: "ada" })).toBeInTheDocument();
+  });
 });

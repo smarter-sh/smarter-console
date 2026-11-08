@@ -68,3 +68,13 @@ describe("useDropdown", () => {
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 });
+
+describe("useDropdown's keys", () => {
+  it("stays open on a key other than Escape", async () => {
+    const user = userEvent.setup();
+    render(<Menu />);
+    await user.click(screen.getByRole("button", { name: "Help" }));
+    await user.keyboard("a");
+    expect(screen.getByRole("button", { name: "Help" })).toHaveAttribute("aria-expanded", "true");
+  });
+});

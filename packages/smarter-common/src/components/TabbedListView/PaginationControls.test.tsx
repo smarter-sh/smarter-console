@@ -67,3 +67,10 @@ describe("PaginationControls", () => {
     expect(screen.getByLabelText("Page number")).toBeDisabled();
   });
 });
+
+describe("PaginationControls of an empty list", () => {
+  it("shows that it has no objects", () => {
+    setup({ pagination: { ...pagination, page: 1, numPages: 1, count: 0 } });
+    expect(screen.getByText("Showing 0–0 of 0")).toBeInTheDocument();
+  });
+});

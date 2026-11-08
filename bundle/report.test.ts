@@ -57,6 +57,11 @@ describe("the build's size report", () => {
     expect(initialFiles(manifest)).toEqual(["assets/index.css", "assets/index.js", "assets/shared.js"]);
   });
 
+  it("skips an import that the manifest doesn't have", () => {
+    const entry = { file: "assets/index.js", isEntry: true, imports: ["_missing.js"] };
+    expect(initialFiles({ "index.html": entry })).toEqual(["assets/index.js"]);
+  });
+
   it("counts what a lazy page adds to the first load, and leaves out a library's own lazy chunks", () => {
     const chunks = lazyChunks(manifest, sizeOf);
     expect(chunks).toEqual([

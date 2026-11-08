@@ -282,6 +282,17 @@ describe("Console", () => {
     expect(onSelect).toHaveBeenLastCalledWith(MenuItems.CHAT_TOOL_CALL_HISTORY);
   });
 
+  it("selects no tab when the selected one goes away", () => {
+    installFakes();
+    const { rerender } = render(<Console workbench={logsWorkbench} config={config} />);
+    expect(screen.getByRole("button", { name: "Server Logs" })).toHaveAttribute("aria-pressed", "true");
+    rerender(<Console workbench={plainWorkbench} config={config} />);
+    const tabs = within(screen.getByRole("navigation", { name: "Console" })).getAllByRole("button");
+    expect(tabs.map((button) => button.getAttribute("aria-pressed"))).toEqual(["false", "false"]);
+    expect(screen.getByRole("log", { name: "Console output" })).not.toHaveTextContent("in this chat session yet");
+    vi.unstubAllGlobals();
+  });
+
   it("displays only the shell's prompt before the configuration loads", () => {
     render(<Console workbench={plainWorkbench} config={null} />);
     expect(screen.getByRole("log", { name: "Console output" })).toHaveTextContent(/Last login: .* from 192\.168\./);

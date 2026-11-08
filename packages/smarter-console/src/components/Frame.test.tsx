@@ -1,7 +1,7 @@
 /** The signed-in frame: the sidebar's links, its active item and badge, the drawer, and the theme's layout. */
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createMemoryRouter } from "react-router";
+import { createMemoryRouter, MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { dashboardHandlers } from "@smarter/dashboard/mocks";
@@ -11,7 +11,7 @@ import { server } from "@test/server";
 
 import App from "@/App";
 import type { ConsoleSession } from "@/contract.gen";
-import { activeSidebarItem, CHANGELOG_URL } from "@/lib/sidebar";
+import { activeSidebarItem, CHANGELOG_URL, consolePath } from "@/lib/sidebar";
 import {
   APP_BODY_CLASS,
   APP_LAYOUT_ATTRIBUTES,
@@ -22,6 +22,7 @@ import {
   themeMode,
 } from "@/lib/theme";
 import { userMenuContext } from "@/lib/userMenu";
+import { Sidebar } from "@/components/Sidebar";
 import { onboardingContext, welcomeContext } from "@/lib/welcome";
 import { userSession, userSidebar } from "@/mocks/fixtures";
 import { sessionHandler } from "@/mocks/handlers";
@@ -121,6 +122,29 @@ describe("the sidebar", () => {
     expect(activeSidebarItem("/", userSidebar)).toBeNull();
     // a console route has no trailing slash.
     expect(activeSidebarItem("/dashboard", userSidebar)).toBe("dashboard");
+    expect(consolePath("/")).toBe("/");
+  });
+
+  it("marks the item of a backend page, which it loads rather than opening in place", () => {
+    const session = { ...userSession, badges: null, sidebar: { ...userSidebar, admin: "/admin/" } };
+    render(
+      <MemoryRouter initialEntries={["/admin/"]}>
+        <Sidebar session={session} open={false} drawer={false} onClose={() => {}} />
+      </MemoryRouter>,
+    );
+    const admin = screen.getByRole("link", { name: "Django Admin" });
+    expect(admin).toHaveAttribute("href", "/admin/");
+    expect(admin).toHaveAttribute("aria-current", "page");
+    expect(admin).not.toHaveAttribute("target");
+  });
+
+  it("is left out of a session without its links", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Sidebar session={{ ...userSession, sidebar: null }} open={false} drawer={false} onClose={() => {}} />
+      </MemoryRouter>,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });
 
@@ -152,6 +176,9 @@ describe("the theme's layout", () => {
     expect(aside).not.toHaveClass("drawer-on");
 
     await user.click(screen.getByRole("button", { name: "Show the sidebar" }));
+    expect(aside).toHaveClass("drawer-on");
+    // another key leaves it open.
+    await user.keyboard("{Enter}");
     expect(aside).toHaveClass("drawer-on");
     await user.keyboard("{Escape}");
     expect(aside).not.toHaveClass("drawer-on");
@@ -242,6 +269,17 @@ describe("the welcome dialog", () => {
     expect(welcomeContext({ ...userSession, welcome: null })).toBeNull();
     expect(onboardingContext({ ...userSession, onboarding: null })).toBeNull();
   });
+
+  it("uses the page's host without a cookie domain, and no first name without a user", () => {
+    const context = welcomeContext({
+      ...userSession,
+      user: null,
+      cookies: { ...userSession.cookies, cookieDomain: "" },
+    });
+    expect(context?.firstName).toBe("");
+    expect(context?.sessionContext.cookieDomain).toBe(window.location.hostname);
+    expect(context?.onboarding?.cookieDomain).toBe(window.location.hostname);
+  });
 });
 
 describe("the header", () => {
@@ -294,5 +332,15 @@ describe("the header", () => {
     expect(resolveThemeMode("light")).toBe("light");
     localStorage.setItem(THEME_MODE_KEY, "nonsense");
     expect(themeMode()).toBe("light");
+  });
+
+  it("is light for System when the system prefers light, or the browser can't say", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    expect(resolveThemeMode("system")).toBe("light");
+    vi.stubGlobal("matchMedia", undefined);
+    expect(resolveThemeMode("system")).toBe("light");
   });
 });

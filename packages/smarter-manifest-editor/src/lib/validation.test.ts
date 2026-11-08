@@ -42,6 +42,12 @@ describe("yamlKeys", () => {
     expect(yamlKeys(yaml).get("kind")).toEqual({ start: 0, end: "kind: Secret".length });
   });
 
+  it("records the first of duplicate keys' sequence items", () => {
+    const yaml = "tags:\n  - a\ntags:\n  - b\n";
+    const first = yaml.indexOf("- a") + 2;
+    expect(yamlKeys(yaml).get("tags.0")).toEqual({ start: first, end: first + 1 });
+  });
+
   it("follows aliases", () => {
     const keys = yamlKeys("a: &x 1\nb: *x\nc: 3\n");
     expect(keys.get("b")).toEqual({ start: "a: &x 1\n".length });

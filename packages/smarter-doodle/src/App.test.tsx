@@ -95,6 +95,14 @@ describe("browserTimeZone", () => {
     expect(typeof browserTimeZone()).toBe("string");
   });
 
+  it("is empty when the browser has no time zone", () => {
+    const resolvedOptions = Intl.DateTimeFormat.prototype.resolvedOptions;
+    vi.spyOn(Intl.DateTimeFormat.prototype, "resolvedOptions").mockImplementation(function (this: Intl.DateTimeFormat) {
+      return { ...resolvedOptions.call(this), timeZone: "" };
+    });
+    expect(browserTimeZone()).toBe("");
+  });
+
   it("is empty when the browser can't say", () => {
     const spy = vi.spyOn(Intl, "DateTimeFormat").mockImplementation(() => {
       throw new Error("no Intl");

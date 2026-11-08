@@ -17,3 +17,15 @@ describe("list count cookies", () => {
     expect(getUrlPath("https://example.com/a/b/?q=1")).toBe("/a/b/");
   });
 });
+
+describe("list count cookies' values", () => {
+  it("returns undefined for a cookie that isn't a number", () => {
+    vi.spyOn(console, "debug").mockImplementation(() => {});
+    setCookieForUrl("/api/web/secret/listview/shared/", 3, 7);
+    document.cookie = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.includes("/api/web/secret/listview/shared/"))!
+      .replace(/=3$/, "=many");
+    expect(getCookieForUrl("/api/web/secret/listview/shared/")).toBeUndefined();
+  });
+});

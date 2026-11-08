@@ -197,3 +197,30 @@ describe("asYaml", () => {
     expect(asYaml("not json")).toBe("not json");
   });
 });
+
+describe("DetailValue's code types", () => {
+  it("shows YAML, SQL and source code in code blocks", () => {
+    render(
+      <>
+        <DetailValue value={{ a: 1 }} type="yaml" />
+        <DetailValue value="SELECT 1" type="sql" />
+        <DetailValue value="print('hi')" type="source" />
+      </>,
+    );
+    expect(screen.getByLabelText("YAML")).toHaveTextContent("a: 1");
+    expect(screen.getByLabelText("SQL")).toHaveTextContent("SELECT 1");
+    expect(screen.getByLabelText("Code")).toHaveTextContent("print('hi')");
+  });
+});
+
+describe("styleObjectAsCss and prettyJson's edge cases", () => {
+  it("writes only rules for a style object of objects, and a nested rule first in its rule", () => {
+    expect(styleObjectAsCss({ messageList: { bubble: { padding: 4 } } })).toBe(
+      [".message-list {", "  .bubble {", "    padding: 4;", "  }", "}", ""].join("\n"),
+    );
+  });
+
+  it("writes a value that JSON can't, e.g. undefined, as null", () => {
+    expect(prettyJson(undefined)).toBe("null");
+  });
+});

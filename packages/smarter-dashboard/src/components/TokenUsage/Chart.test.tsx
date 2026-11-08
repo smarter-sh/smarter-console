@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -86,6 +86,7 @@ describe("TokenUsageChart", () => {
       "(404): Not Found",
     ],
     [new HttpResponse("not json", { status: 500, statusText: "Server Error" }), "(500): Server Error"],
+    [new HttpResponse(null, { status: 200 }), "(200): the server didn't answer with JSON"],
     [
       new HttpResponse("<!DOCTYPE html><html></html>", { status: 200, headers: { "Content-Type": "text/html" } }),
       "(200): the server didn't answer with JSON",
@@ -95,5 +96,26 @@ describe("TokenUsageChart", () => {
     server.use(http.post(apiUrl, () => response.clone()));
     render(<TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} />);
     expect(await screen.findByText(`Failed to load token usage ${message}`)).toBeInTheDocument();
+  });
+
+  it("shows a period's usage on hover, hourly by default, and a value that isn't a number as it is", async () => {
+    const [first, second] = tokenUsage.points.slice(2, 4);
+    const points = [first, { ...second, prompt_tokens: "n/a", completion_tokens: null }];
+    // without a period, the series is hourly.
+    server.use(http.post(apiUrl, () => HttpResponse.json({ periodicity: "24_hours", points })));
+    const { container } = render(<TokenUsageChart sessionContext={sessionContext} apiUrl={apiUrl} />);
+    expect(await screen.findByText("02:00 AM")).toBeInTheDocument();
+    /* eslint-disable testing-library/no-container, testing-library/no-node-access -- Recharts' chart and tooltip have no roles. */
+    const chart = container.querySelector(".recharts-wrapper")!;
+    // the chart is 800 pixels wide, with two periods: the first is on the left, the second on the right.
+    fireEvent.mouseMove(chart, { clientX: 100, clientY: 150 });
+    const tooltip = await waitFor(() => {
+      const element = container.querySelector(".recharts-tooltip-wrapper");
+      expect(element).toHaveTextContent(/1,200/);
+      return element!;
+    });
+    fireEvent.mouseMove(chart, { clientX: 780, clientY: 150 });
+    await waitFor(() => expect(tooltip).toHaveTextContent(/n\/a/));
+    /* eslint-enable testing-library/no-container, testing-library/no-node-access */
   });
 });

@@ -1,5 +1,5 @@
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { delay, http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -877,5 +877,72 @@ describe("TabbedListView's resource detail", () => {
     await user.click(cell);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     selection.mockRestore();
+  });
+});
+
+describe("TabbedListView's edge cases", () => {
+  afterEach(() => {
+    window.history.replaceState(null, "", "/");
+  });
+
+  /** Answers the list api, and records whether each request invalidates the backend's cache. */
+  function recordInvalidations(respond: () => Promise<Response> | Response = () => HttpResponse.json(exampleList)) {
+    const invalidations: (string | null)[] = [];
+    server.use(
+      http.post(`${API_URL}:tab/`, ({ request }) => {
+        invalidations.push(new URL(request.url).searchParams.get("invalidate_cache"));
+        return respond();
+      }),
+    );
+    return invalidations;
+  }
+  const exampleList = { objects: [{ id: 1, name: "first_example" }] };
+
+  it("queries again only once, for two clicks in quick succession", async () => {
+    const invalidations = recordInvalidations();
+    const user = setup();
+    await screen.findByText("first_example");
+    await vi.waitFor(() => expect(invalidations).toEqual(["false", "false"]));
+    await user.click(screen.getByRole("button", { name: "Requery" }));
+    await user.click(screen.getByRole("button", { name: "Requery" }));
+    await vi.waitFor(() => expect(invalidations).toEqual(["false", "false", "true", "true"]));
+  });
+
+  it("doesn't query again while the list loads", async () => {
+    const invalidations = recordInvalidations(() => new Promise<Response>(() => {}));
+    const user = setup();
+    await vi.waitFor(() => expect(invalidations).toEqual(["false", "false"]));
+    await user.click(screen.getByRole("button", { name: "Requery" }));
+    // a click on a loading row opens nothing.
+    await user.click(screen.getByText(/^Loading \d+ rows$/));
+    expect(invalidations).toEqual(["false", "false"]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens nothing for a click or a key outside the rows, or another key of a row", async () => {
+    server.use(...listHandlers(), detailHandler());
+    setup();
+    await screen.findByText("first_example");
+    const table = screen.getByRole("table", { name: "Examples" });
+    await userEvent.setup().click(table);
+    fireEvent.keyDown(rows()[0], { key: "a" });
+    fireEvent.keyDown(table, { key: "Enter" });
+    // the header's row isn't an object's.
+    fireEvent.keyDown(within(table).getAllByRole("row")[0], { key: "Enter" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("applies the page's filter when the list api doesn't say which applies", async () => {
+    window.history.replaceState(null, "", "/examples/?filter=even");
+    server.use(
+      http.post(`${API_URL}:tab/`, ({ request }) => {
+        const page = examplePage(manyExamples(4), request.url);
+        const { filter: _filter, ...pagination } = page.pagination;
+        return HttpResponse.json({ ...page, pagination });
+      }),
+    );
+    setup();
+    expect(await screen.findByText("example_2")).toBeInTheDocument();
+    expect(screen.getByText("Showing: Even examples")).toBeInTheDocument();
   });
 });

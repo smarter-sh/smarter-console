@@ -23,6 +23,24 @@ describe("BudgetAlerts", () => {
     );
   });
 
+  it.each([
+    ["hour", "hourly"],
+    ["day", "daily"],
+    ["week", "weekly"],
+  ] as const)("names a %s budget's limit as %s", async (period, adjective) => {
+    renderWith([makeBudgetStatus({ period, periodic_percent: 90, periodic_actual: 90 })]);
+    expect(await screen.findByRole("alert")).toHaveTextContent(`has spent 90% of its ${adjective} limit`);
+  });
+
+  it("warns about a budget with only a total limit", async () => {
+    renderWith([
+      makeBudgetStatus({ periodic_percent: null, absolute_limit: 200, absolute_actual: 180, absolute_percent: 90 }),
+    ]);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveClass("alert-warning");
+    expect(alert).toHaveTextContent("has spent 90% of its total limit ($180.00 of $200.00).");
+  });
+
   it("warns about a budget whose total is the most spent", async () => {
     renderWith([
       makeBudgetStatus({

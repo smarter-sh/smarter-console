@@ -59,6 +59,14 @@ describe("pastePlainText", () => {
     expect(event.preventDefault).toHaveBeenCalled();
     expect(element.innerHTML).toBe("Hi");
   });
+
+  it("pastes nothing without the clipboard's data", () => {
+    const element = editor("Hi");
+    const event = { ...pasteEvent(element, {}), clipboardData: null } as unknown as ReturnType<typeof pasteEvent>;
+    pastePlainText(event);
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(element.innerHTML).toBe("Hi");
+  });
 });
 
 describe("insertPlainText", () => {

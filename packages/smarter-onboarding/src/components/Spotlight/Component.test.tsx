@@ -46,6 +46,8 @@ describe("Spotlight", () => {
 
     removeTargets();
     const { onDone: onDoneAgain } = renderSpotlight();
+    await user.keyboard("a");
+    expect(onDoneAgain).not.toHaveBeenCalled();
     await user.keyboard("{Escape}");
     expect(onDoneAgain).toHaveBeenCalledWith("dismissed");
   });

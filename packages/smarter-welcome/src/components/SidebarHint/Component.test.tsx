@@ -94,4 +94,17 @@ describe("SidebarHint", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(posted).toEqual([]);
   });
+
+  it("stops waiting for a link that isn't on screen when it goes away", async () => {
+    // a link without a layout isn't on screen.
+    const link = document.createElement("a");
+    link.setAttribute("data-smarter-onboarding", "sidebar-llmclients");
+    document.body.append(link);
+    links.push(link);
+    const { unmount } = render(<Hint onboarding={context} />);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    unmount();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(posted).toEqual([]);
+  });
 });

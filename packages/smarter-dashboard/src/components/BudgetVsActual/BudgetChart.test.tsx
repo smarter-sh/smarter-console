@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/no-container, testing-library/no-node-access -- Recharts draws its lines and bars as SVG shapes, without roles or text. */
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { budgetSeries } from "@/mocks/fixtures";
@@ -37,5 +37,22 @@ describe("BudgetChart", () => {
       bar.getAttribute("fill"),
     );
     expect(fills).toEqual(["#F8285A", "#17C653", "#17C653"]);
+  });
+
+  it("shows a period's amounts on hover, and a value that isn't a number as it is", async () => {
+    const series = costSeries.series.map((row, i) =>
+      i === 1 ? { ...row, actual: "n/a" as unknown as number, budget: null as unknown as number } : row,
+    );
+    const { container } = render(<BudgetChart series={series} unit="cost" period="month" periodicLimit={100} />);
+    const chart = container.querySelector(".recharts-wrapper")!;
+    // the chart is 800 pixels wide, with three periods: the first is on the left, the second in the middle.
+    fireEvent.mouseMove(chart, { clientX: 150, clientY: 150 });
+    const tooltip = await waitFor(() => {
+      const element = container.querySelector(".recharts-tooltip-wrapper");
+      expect(element).toHaveTextContent("Apr 2026Actual : $64.00Budget : $100.00");
+      return element!;
+    });
+    fireEvent.mouseMove(chart, { clientX: 430, clientY: 150 });
+    await waitFor(() => expect(tooltip).toHaveTextContent(/^May 2026Actual : n\/a/));
   });
 });

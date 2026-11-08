@@ -21,6 +21,33 @@ describe("ListView", () => {
     }
   });
 
+  it("links the LLMClient that a custom domain serves", async () => {
+    const customDomain = makeObject(1, {
+      llmclient: {
+        id: 7,
+        name: "stackademy",
+        deployed: true,
+        url: "https://chat.example.com/",
+        sandboxUrl: "/workbench/llm-clients/7/",
+        manifestUrl: "/llmclient/7/manifest/",
+        owner: "admin@example.com",
+      },
+    });
+    render(
+      <ListView
+        isLoading={false}
+        ghostRows={3}
+        sessionContext={sessionContext}
+        objects={[customDomain]}
+        onRequery={() => {}}
+      />,
+    );
+    expect(await screen.findByRole("link", { name: "stackademy" })).toHaveAttribute(
+      "href",
+      "/workbench/llm-clients/7/",
+    );
+  });
+
   it("shows skeleton rows while loading", () => {
     render(<ListView isLoading ghostRows={4} sessionContext={sessionContext} objects={[]} onRequery={() => {}} />);
     // the header row, and a skeleton row for each of the ghostRows.

@@ -72,3 +72,10 @@ describe("ResourceCard", () => {
     expect(screen.getByRole("link", { name: "hello_world" })).toHaveAttribute("target", "_blank");
   });
 });
+
+describe("ResourceCard's name", () => {
+  it("calls a resource without a name or a record locator by its kind", () => {
+    render(<ResourceCard node={{ ...leafTree, name: null, recordLocator: null }} />);
+    expect(screen.getByRole("article", { name: "LLMClient LLMClient" })).toBeInTheDocument();
+  });
+});

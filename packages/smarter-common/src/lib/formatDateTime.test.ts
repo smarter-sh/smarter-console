@@ -51,3 +51,28 @@ describe("formatDateTime", () => {
     expect(() => formatDateTime("2026-06-01T12:00:00Z", "relative")).toThrow(/referenceValue/);
   });
 });
+
+describe("formatDateTime's edge cases", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: new Date("2026-06-15T12:00:00Z") });
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("formats a relative time in English for a language it has no locale for", () => {
+    const lang = document.documentElement.lang;
+    try {
+      document.documentElement.lang = "xx-YY";
+      expect(formatDateTime("2026-06-14T12:00:00Z", "relative", "2026-06-01T12:00:00Z")).toBe("1 day ago");
+    } finally {
+      document.documentElement.lang = lang;
+    }
+  });
+
+  it("rejects a format that it doesn't know", () => {
+    expect(() => formatDateTime("2026-06-14T12:00:00Z", "weekday" as never)).toThrow(
+      "Unsupported format type: weekday",
+    );
+  });
+});

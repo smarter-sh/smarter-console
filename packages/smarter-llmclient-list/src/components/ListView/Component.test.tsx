@@ -105,6 +105,15 @@ describe("ListView", () => {
     expect(row).toHaveTextContent("default");
   });
 
+  it("leaves out a tool without a name", async () => {
+    const llmclient = makeObject(1, {
+      tools: [{ name: "get_time" }, { name: "" }, null, { name: "get_date" }],
+    } as unknown as Partial<ReturnType<typeof makeObject>>);
+    render(<ListView isLoading={false} sessionContext={sessionContext} objects={[llmclient]} onRequery={() => {}} />);
+    const row = await screen.findByRole("row", { name: /example_1/ });
+    expect(row).toHaveTextContent("get_time, get_date");
+  });
+
   it("logs a list that isn't an array", () => {
     const debug = vi.spyOn(console, "debug").mockImplementation(() => {});
     render(<ListView isLoading sessionContext={sessionContext} objects={undefined as never} onRequery={() => {}} />);

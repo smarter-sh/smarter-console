@@ -64,6 +64,22 @@ describe("BudgetList", () => {
     expect(screen.getByTitle("The daily token budget is exhausted.")).toHaveTextContent("Blocked");
   });
 
+  it("shows a blocked resource without a reason", async () => {
+    const budget = makeBudget(3, {
+      name: "unexplained_budget",
+      locked: 1,
+      resourceStatus: [makeResourceStatus({ budget: "unexplained_budget", isLocked: true, lockReason: null })],
+    });
+    server.use(...listHandlers({ ...listResponse, objects: [budget] }));
+    const user = userEvent.setup();
+    render(<BudgetList sessionContext={sessionContext} />);
+
+    const row = await screen.findByRole("row", { name: /unexplained_budget/ });
+    await user.click(within(row).getByRole("button", { name: "Show resources" }));
+    const badge = screen.getAllByText("Blocked").find((element) => element.classList.contains("badge"));
+    expect(badge).toHaveAttribute("title", "");
+  });
+
   it("deletes a budget, when a superuser confirms", async () => {
     let deleted = "";
     server.use(

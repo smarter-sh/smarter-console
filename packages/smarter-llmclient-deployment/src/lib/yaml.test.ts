@@ -39,6 +39,12 @@ describe("highlightYaml", () => {
     expect(kinds(lines[3])).toContain("key:next");
   });
 
+  it("starts a literal block at a list item's key, indented past its dash", () => {
+    const lines = highlightYaml("- role: |\n    line one\n  next: b");
+    expect(kinds(lines[1])).toEqual(["string:    line one"]);
+    expect(kinds(lines[2])).toContain("key:next");
+  });
+
   it("keeps the text exactly, html and all", () => {
     const text = "a: <script>x</script>\n- <b>\n  <i>: |\n    <u>\n<p>\nkey:   ";
     expect(

@@ -36,6 +36,22 @@ describe("Toolbar", () => {
     expect(onRequery).toHaveBeenCalledOnce();
   });
 
+  it("clones, with the clone's name in the url", async () => {
+    server.use(...actionHandlers);
+    const { onRequery, user } = renderToolbar();
+
+    await user.click(screen.getByRole("button", { name: /^Clone:/ }));
+    expect(screen.getByRole("dialog", { name: "Clone LLMHostCompute" })).toHaveTextContent("first_example");
+    await user.type(screen.getByPlaceholderText("Enter new name"), "cloned_example");
+    await user.click(screen.getByRole("button", { name: "OK" }));
+
+    expect(await screen.findByRole("dialog", { name: /Success/ })).toHaveTextContent(
+      "Successfully cloned LLMHostCompute",
+    );
+    await user.click(screen.getAllByRole("button", { name: "Close" })[0]);
+    expect(onRequery).toHaveBeenCalledOnce();
+  });
+
   it("does nothing when deleting is cancelled", async () => {
     const { onRequery, user } = renderToolbar();
     await user.click(screen.getByRole("button", { name: /^Delete:/ }));

@@ -67,6 +67,13 @@ describe("WeatherHint", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("stops waiting for the name when it is unmounted before the name appears", async () => {
+    const { unmount } = render(<Hint onboarding={context} />);
+    unmount();
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(posted).toEqual([]);
+  });
+
   it("shows nothing once seen", () => {
     addWeatherLink();
     render(<Hint onboarding={{ ...context, seen: ["llmclient_weather"] }} />);

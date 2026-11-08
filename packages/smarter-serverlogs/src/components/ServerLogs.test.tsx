@@ -42,6 +42,12 @@ describe("ServerLogs", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Streaming server logs...");
   });
 
+  it("shows a record without a message as an empty line", () => {
+    setup({ logs: [{ message: "first" }, {} as (typeof logs)[number]] });
+    expect(lines().children).toHaveLength(2);
+    expect(lines()).toHaveTextContent("first");
+  });
+
   it("collapses blocks of JSON, and expands them one by one, or all of them", async () => {
     const message = 'chat_response request: {\n  "model": "gpt",\n  "messages": [\n    "hi"\n  ]\n}\ndone';
     const user = setup({ logs: [{ message }, { message: "a plain line" }] });

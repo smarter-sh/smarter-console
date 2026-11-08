@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import SettingsForm from "@/components/SettingsForm";
-import { configureRequest } from "@/lib/settings";
+import { configureRequest, initialValue } from "@/lib/settings";
 import { detail, makeDetail } from "@/mocks/fixtures";
 
 describe("SettingsForm", () => {
@@ -46,9 +46,44 @@ describe("SettingsForm", () => {
     expect(onSave).toHaveBeenLastCalledWith({ values: {}, secrets: { google_maps_api_key: {} } });
   });
 
+  it("starts a boolean setting without a value or a default as off", () => {
+    const [verbose] = detail.settings.filter((setting) => setting.type === "boolean");
+    expect(initialValue({ ...verbose, value: null, default: null })).toBe(false);
+  });
+
   it("resets a cleared value to its default", () => {
     const request = configureRequest(detail.settings, { retries: "" }, {});
     expect(request.values).toEqual({ retries: null });
+  });
+
+  it("shows text, float and choice settings without defaults, and an unset secret", async () => {
+    const base = { description: "", required: false, value: null, secretId: null, secretName: null, isSet: false };
+    const extension = makeDetail({
+      settings: [
+        { ...base, name: "region", type: "string", default: null, choices: null },
+        { ...base, name: "threshold", type: "float", default: 0.5, choices: null },
+        { ...base, name: "mode", type: "choice", default: null, choices: null },
+        { ...base, name: "api_token", type: "secret", required: true, default: null, choices: null },
+      ],
+    });
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    render(<SettingsForm extension={extension} busy={false} onSave={onSave} />);
+    expect(screen.getByLabelText(/region/)).toHaveAttribute("type", "text");
+    expect(screen.getByLabelText(/region/)).toHaveAttribute("placeholder", "");
+    expect(screen.getByLabelText(/threshold/)).toHaveAttribute("step", "any");
+    expect(screen.getByRole("option", { name: "---" })).toBeInTheDocument();
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Leave it unset" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Clear it" })).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText(/threshold/), "0.75");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+    expect(onSave).toHaveBeenCalledWith({ values: { threshold: 0.75 }, secrets: {} });
+  });
+
+  it("shows that it is saving", () => {
+    render(<SettingsForm extension={detail} busy={true} onSave={vi.fn()} />);
+    expect(screen.getByRole("button", { name: /Save settings/ })).toBeDisabled();
   });
 
   it("says when there are no settings", () => {

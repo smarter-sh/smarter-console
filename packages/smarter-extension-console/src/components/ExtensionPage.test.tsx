@@ -1,10 +1,12 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 
 import ExtensionPage from "@/components/ExtensionPage";
+import type { ExtensionDetail } from "@/lib/types";
 import {
+  accounts,
   API_URL,
   brokenDetail,
   detailContext,
@@ -194,8 +196,119 @@ describe("ExtensionPage", () => {
 
   it("shows why the extension can't be loaded", async () => {
     server.use(...errorHandlers);
+    const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText("Database unavailable")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to Extensions" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByText("Database unavailable")).not.toBeInTheDocument();
+  });
+
+  it("dismisses an action's message", async () => {
+    server.use(...detailHandlers());
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("button", { name: "Disable" }));
+    expect(await screen.findByText("Disabled Weather.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByText("Disabled Weather.")).not.toBeInTheDocument();
+  });
+
+  it("shows what is unknown about an uploaded extension", async () => {
+    server.use(
+      ...detailHandlers(
+        makeDetail({
+          installedVersion: null,
+          publisher: "",
+          source: "upload",
+          // a badge that this console doesn't know yet, as from a newer backend.
+          trustBadge: "experimental" as ExtensionDetail["trustBadge"],
+          trustBadgeLabel: "Experimental",
+          license: "",
+          homepage: "",
+          latestCheckedAt: null,
+          updateAvailable: false,
+          tools: [],
+          switches: [{ name: "ext_weather_verbose", description: "Log the raw forecast.", active: true }],
+          resources: [{ kind: "Secret", name: "weather_example", owner: "admin", version: "0.1.0", managed: false }],
+          versions: [{ ...makeDetail().versions[1], createdAt: null }],
+        }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderPage();
+    expect(await screen.findByText("Not installed")).toBeInTheDocument();
+    expect(screen.getByText("Unknown")).toBeInTheDocument();
+    expect(screen.getByText("Experimental")).toHaveClass("badge-light-secondary");
+    expect(screen.getByText("An uploaded archive")).toBeInTheDocument();
+    expect(screen.queryByText("License")).not.toBeInTheDocument();
+    expect(screen.queryByText("Homepage")).not.toBeInTheDocument();
+    expect(screen.queryByText("Updates checked")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Tools" }));
+    expect(screen.getByText("This extension has no tools.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Resources" }));
+    expect(screen.getByText("On")).toBeInTheDocument();
+    expect(screen.getByText(/, by a lifecycle hook/)).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Versions" }));
+    expect(screen.getByRole("button", { name: "Roll back to 0.0.9" })).toBeInTheDocument();
+  });
+
+  it("changes the accounts it is restricted to, then makes it available to every account", async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(`${API_URL}accounts/`, () =>
+        HttpResponse.json({ objects: [...accounts, { id: 3, accountNumber: "1414-2135-6237", companyName: "" }] }),
+      ),
+      http.post(`${API_URL}:slug/availability/`, async ({ request }) => {
+        bodies.push(await request.json());
+        return HttpResponse.json({ message: "Saved the availability.", extension: null });
+      }),
+      ...detailHandlers(makeDetail({ allAccounts: false, accounts: [accounts[0]] })),
+    );
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("tab", { name: "Availability" }));
+    expect(await screen.findByLabelText(/3141-5926-5359/)).toBeChecked();
+    expect(screen.getByLabelText("1414-2135-6237")).not.toBeChecked();
+    await user.click(screen.getByLabelText(/3141-5926-5359/));
+    expect(screen.getByText("0 selected.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Save availability" }));
+    expect(await screen.findByText("Saved the availability.")).toBeInTheDocument();
+    await user.click(screen.getByLabelText("Every account may use it"));
+    expect(screen.queryByLabelText("Filter accounts")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Save availability" }));
+    await waitFor(() => expect(bodies).toHaveLength(2));
+    expect(bodies).toEqual([
+      { allAccounts: false, accountIds: [] },
+      { allAccounts: true, accountIds: [] },
+    ]);
+  });
+
+  it("stays on the page when uninstalling fails", async () => {
+    server.use(
+      http.post(`${API_URL}:slug/uninstall/`, () =>
+        HttpResponse.json({ error: "pre_uninstall refused" }, { status: 400 }),
+      ),
+      ...detailHandlers(),
+    );
+    const navigate = vi.fn();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const user = userEvent.setup();
+    renderPage({ navigate });
+    await user.click(await screen.findByRole("button", { name: "Uninstall Weather" }));
+    expect(await screen.findByText("pre_uninstall refused")).toBeInTheDocument();
+    expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining("Uninstall Weather?"));
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("returns to the list, by default, once uninstalled", async () => {
+    server.use(...detailHandlers());
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const user = userEvent.setup();
+    // a fragment's url, which jsdom can navigate to.
+    renderPage({ context: { ...detailContext, listUrl: "#extensions" } });
+    await user.click(await screen.findByRole("button", { name: "Uninstall Weather" }));
+    await waitFor(() => expect(window.location.hash).toBe("#extensions"));
+    window.location.hash = "";
   });
 });
