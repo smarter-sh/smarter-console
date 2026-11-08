@@ -457,13 +457,17 @@ export async function fetchPrompt(
  * tools and messages, without Smarter's own messages and fields. It can be sent with curl to the provider's
  * v1/chat/completions api, or pasted into the Prompt Passthrough page. Only the platform's own urls, which the
  * workbench uses, return it: a deployed LLMClient's host answers 404.
+ *
+ * The session is the cookie's, else the configuration's, as fetchPrompt() finds it. Without a session key, the
+ * platform would start a new session, and return its empty conversation instead of this chat's.
  */
 export async function fetchProviderRequest(
   apiUrl: string,
   cookies: ChatCookies,
   context: ClientContext,
+  config: ChatConfig | null = null,
 ): Promise<ProviderRequest> {
-  const sessionKey = getCookie(cookies.sessionCookie, "");
+  const sessionKey = getCookie(cookies.sessionCookie, "") || config?.session_key || "";
   const headers = requestHeadersFactory(cookies, context);
   const init = requestInitFactory(headers, { session_key: sessionKey });
   const response = await fetch(urlFactory(apiUrl, "provider-request/", sessionKey), init);

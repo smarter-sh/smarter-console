@@ -335,7 +335,7 @@ function SmarterChat({
   async function downloadProviderRequest() {
     setIsDownloading(true);
     try {
-      const request = await fetchProviderRequest(apiUrl, cookies, context);
+      const request = await fetchProviderRequest(apiUrl, cookies, context, config);
       saveJson(request, providerRequestFilename(config?.llmclient.name));
       debug("provider request downloaded", request);
     } catch (error) {

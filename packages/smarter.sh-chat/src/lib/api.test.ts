@@ -167,6 +167,22 @@ describe("fetchProviderRequest", () => {
     expect(body).toEqual({ session_key: SESSION_KEY });
   });
 
+  it("sends the configuration's session key when the cookie has none", async () => {
+    setCookie(cookies.sessionCookie, "");
+    let url = "";
+    let body: unknown;
+    server.use(
+      http.post(PROVIDER_REQUEST_URL, async ({ request }) => {
+        url = request.url;
+        body = await request.json();
+        return HttpResponse.json(providerRequestResponse());
+      }),
+    );
+    await fetchProviderRequest(API_URL, cookies, context, config);
+    expect(new URL(url).searchParams.get("session_key")).toBe(config.session_key);
+    expect(body).toEqual({ session_key: config.session_key });
+  });
+
   it("throws the api's error", async () => {
     server.use(http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json(apiErrorResponse(), { status: 404 })));
     await expect(fetchProviderRequest(API_URL, cookies, context)).rejects.toThrow("LLMClient not found.");

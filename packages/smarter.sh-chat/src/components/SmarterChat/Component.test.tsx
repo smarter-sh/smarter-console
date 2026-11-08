@@ -235,6 +235,31 @@ describe("SmarterChat", () => {
     expect(screen.getByRole("button", { name: "Download the LLM provider request" })).toBeEnabled();
   });
 
+  it("downloads this chat's provider request when the session cookie can't be read", async () => {
+    let sessionKey: string | null | undefined;
+    server.use(
+      http.post(PROVIDER_REQUEST_URL, ({ request }) => {
+        sessionKey = new URL(request.url).searchParams.get("session_key");
+        return HttpResponse.json(providerRequestResponse());
+      }),
+      ...chatHandlers,
+    );
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    URL.createObjectURL = vi.fn(() => "blob:http://localhost/request") as typeof URL.createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    // e.g. a cookie path or domain that the page can't read back: the prompt api still gets the
+    // configuration's session key, and so must the download, or the platform starts a new session.
+    const expired = new Date(0).toUTCString();
+    document.cookie = `${props.sessionCookieName}=; path=/; expires=${expired}`;
+    document.cookie = `${props.sessionCookieName}=; path=${window.location.pathname}; expires=${expired}`;
+
+    await user.click(screen.getByRole("button", { name: "Download the LLM provider request" }));
+    await waitFor(() => expect(sessionKey).toBe(config.session_key));
+  });
+
   it("displays a failed download of the LLM provider request in the thread", async () => {
     server.use(
       http.post(PROVIDER_REQUEST_URL, () => HttpResponse.json(apiErrorResponse(), { status: 404 })),
