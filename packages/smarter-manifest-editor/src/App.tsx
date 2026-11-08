@@ -7,6 +7,12 @@
  * As the user edits it, it checks the manifest's YAML syntax, and then validates it against its
  * SAM model with the cli api's validate command, and marks the errors in the editor.
  *
+ * With schemaApiUrl, it shows what each field is, from its kind's JSON Schema: as Monaco's hover, and for the
+ * field under the cursor, above the problems.
+ *
+ * For a new manifest (isNew), e.g. the console's Apply Manifest page, the editor applies whatever manifest it
+ * holds: its apiVersion, kind and name aren't locked, and there is no resource to clone or delete.
+ *
  * The web console's Prompt Engineer's Workbench (@smarter/workbench) renders it too, in its Console's
  * Manifest tab, for the LLMClient's manifest: it reloads the chat's configuration when the editor
  * saves (onSaved), and leaves for the LLM Clients list when it deletes the LLMClient (onDeleted).
@@ -18,12 +24,14 @@ import type * as monaco from "monaco-editor";
 import { gettext, interpolate, interpolateNodes, Modal } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 
+import FieldHelp from "./components/FieldHelp";
 import ManifestEditor from "./components/ManifestEditor";
 import Problems from "./components/Problems";
 import Toolbar from "./components/Toolbar";
 import { callCli, type CliResult } from "./lib/api";
 import { cloneManifest, manifestDependencies, manifestToApply, parseManifest, type Manifest } from "./lib/manifest";
-import { samErrors, syntaxErrors, type ManifestError } from "./lib/validation";
+import { fieldHelp, loadSchema, type JsonSchema } from "./lib/schemaHelp";
+import { headerErrors, samErrors, syntaxErrors, type ManifestError } from "./lib/validation";
 
 // how long the user pauses typing before the manifest is validated.
 const VALIDATE_DELAY_MS = 600;
@@ -33,12 +41,25 @@ export interface AppProps {
   initialManifest: string;
   applyApiUrl: string;
   validateApiUrl: string;
-  deleteApiUrl: string;
+  /** The cli api's delete url, with kindPlaceholder for the kind. Required unless isNew. */
+  deleteApiUrl?: string;
   kindPlaceholder: string;
   /** Called with the manifest's kind and name after it is saved. */
   onSaved?: (saved: { kind: string; name: string }) => void;
   /** Called after the resource is deleted, in place of leaving the page for the one that the user came from. */
   onDeleted?: () => void;
+  /** Whether the manifest is a new one, to apply, rather than an existing resource's. */
+  isNew?: boolean;
+  /** The cli api's json-schema url, with kindPlaceholder for the kind, for the fields' help; or none, for no help. */
+  schemaApiUrl?: string;
+  /** The SAM kinds, e.g. the session's samKinds, to check the manifest's kind against. Keep the array stable. */
+  kinds?: string[];
+  /** What the footer says while the editor is empty. */
+  emptyMessage?: string;
+  /** The editor's least height, in pixels. */
+  minHeight?: number;
+  /** Called with the manifest's YAML as it changes. */
+  onChange?: (yaml: string) => void;
 }
 
 type ModalState =
@@ -114,6 +135,12 @@ function App({
   kindPlaceholder,
   onSaved,
   onDeleted = leavePage,
+  isNew = false,
+  schemaApiUrl,
+  kinds,
+  emptyMessage,
+  minHeight,
+  onChange,
 }: AppProps) {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [savedYaml, setSavedYaml] = useState(initialManifest);
@@ -122,12 +149,21 @@ function App({
   const [modal, setModal] = useState<ModalState>({ type: null });
   const [errors, setErrors] = useState<ManifestError[]>([]);
   const [isValidating, setIsValidating] = useState(true);
+  // the manifest's kind, as of its last valid YAML; its JSON Schema, by kind; and the field under the cursor.
+  const [currentKind, setCurrentKind] = useState<string | null>(null);
+  const [loadedSchema, setLoadedSchema] = useState<{ kind: string; schema: JsonSchema | null } | null>(null);
+  const [cursorPath, setCursorPath] = useState<string[] | null>(null);
 
   // when the user pauses typing: check the YAML's syntax, then validate it against its SAM model.
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(async () => {
       setIsValidating(true);
+      if (!yaml.trim()) {
+        setErrors([]);
+        setIsValidating(false);
+        return;
+      }
       const syntax = syntaxErrors(yaml);
       if (syntax.length) {
         setErrors(syntax);
@@ -135,6 +171,17 @@ function App({
         return;
       }
       const parsed = load(yaml);
+      const parsedKind = parsed && typeof parsed === "object" ? (parsed as { kind?: unknown }).kind : undefined;
+      setCurrentKind(
+        typeof parsedKind === "string" && (!kinds?.length || kinds.includes(parsedKind)) ? parsedKind : null,
+      );
+      // without its header, the cli api can't tell which SAM model to validate the manifest with.
+      const header = headerErrors(yaml, kinds);
+      if (header.length) {
+        setErrors(header);
+        setIsValidating(false);
+        return;
+      }
       const manifest = parsed && typeof parsed === "object" ? manifestToApply(parsed as Manifest) : parsed;
       try {
         const found = await samErrors(sessionContext, validateApiUrl, yaml, manifest);
@@ -150,7 +197,22 @@ function App({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [yaml, sessionContext, validateApiUrl]);
+  }, [yaml, sessionContext, validateApiUrl, kinds]);
+
+  // load the JSON Schema of the manifest's kind, for the fields' help.
+  useEffect(() => {
+    if (!currentKind || !schemaApiUrl) return;
+    let cancelled = false;
+    const url = schemaApiUrl.replace(kindPlaceholder, encodeURIComponent(currentKind.toLowerCase()));
+    void loadSchema(sessionContext, url).then((schema) => {
+      if (!cancelled) setLoadedSchema({ kind: currentKind, schema });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentKind, schemaApiUrl, kindPlaceholder, sessionContext]);
+  const schema = currentKind && schemaApiUrl && loadedSchema?.kind === currentKind ? loadedSchema.schema : null;
+  const help = schema && cursorPath ? fieldHelp(schema, cursorPath) : null;
 
   // the saved resource's manifest, which identifies the resource to clone and delete.
   const saved = useMemo(() => tryParse(savedYaml), [savedYaml]);
@@ -158,6 +220,12 @@ function App({
   const name = saved?.metadata.name ?? "";
   const dependencies = manifestDependencies(saved);
   const isDirty = yaml !== savedYaml;
+  const isEmpty = !yaml.trim();
+
+  const handleChange = (value: string) => {
+    setYaml(value);
+    onChange?.(value);
+  };
 
   const deleteTitle = dependencies.length
     ? interpolate(
@@ -189,7 +257,7 @@ function App({
     try {
       manifest = parseManifest(yaml);
     } catch (error) {
-      showResult(gettext("Save Failed"), {
+      showResult(isNew ? gettext("Apply Failed") : gettext("Save Failed"), {
         ok: false,
         message: error instanceof Error ? error.message : String(error),
       });
@@ -200,19 +268,26 @@ function App({
         sessionContext,
         applyApiUrl,
         manifestToApply(manifest),
-        interpolate(gettext("%(kind)s %(name)s saved"), { kind: manifest.kind, name: manifest.metadata.name }),
+        interpolate(isNew ? gettext("%(kind)s %(name)s applied") : gettext("%(kind)s %(name)s saved"), {
+          kind: manifest.kind,
+          name: manifest.metadata.name,
+        }),
       ),
     );
     if (result.ok) {
       setSavedYaml(yaml);
       onSaved?.({ kind: manifest.kind, name: manifest.metadata.name });
     }
-    showResult(result.ok ? gettext("Saved") : gettext("Save Failed"), result);
+    if (isNew) {
+      showResult(result.ok ? gettext("Applied") : gettext("Apply Failed"), result);
+    } else {
+      showResult(result.ok ? gettext("Saved") : gettext("Save Failed"), result);
+    }
   };
 
   const handleRevert = () => {
     editor?.setValue(savedYaml);
-    setYaml(savedYaml);
+    handleChange(savedYaml);
   };
 
   const handleClone = async (newName: string) => {
@@ -231,7 +306,7 @@ function App({
 
   const handleDelete = async () => {
     setModal({ type: null });
-    if (!saved) return;
+    if (!saved || !deleteApiUrl) return;
     const url = `${deleteApiUrl.replace(kindPlaceholder, encodeURIComponent(kind))}?name=${encodeURIComponent(name)}`;
     const result = await run(() =>
       callCli(sessionContext, url, {}, interpolate(gettext("%(kind)s %(name)s deleted"), { kind, name })),
@@ -260,13 +335,31 @@ function App({
           onRevert={handleRevert}
           onClone={() => setModal({ type: "clone" })}
           onDelete={() => setModal({ type: "delete" })}
+          isNew={isNew}
+          isEmpty={isEmpty}
         />
       </div>
       <div className="card-body p-0">
-        <ManifestEditor value={yaml} errors={errors} editor={editor} onEditorDidMount={setEditor} onChange={setYaml} />
+        <ManifestEditor
+          value={yaml}
+          errors={errors}
+          editor={editor}
+          onEditorDidMount={setEditor}
+          onChange={handleChange}
+          schema={schema}
+          onCursorPath={setCursorPath}
+          lockFields={!isNew}
+          minHeight={minHeight}
+        />
       </div>
       <div className="card-footer py-3 px-4">
-        <Problems errors={errors} isValidating={isValidating} editor={editor} />
+        {schemaApiUrl && !isEmpty && <FieldHelp help={help} />}
+        <Problems
+          errors={errors}
+          isValidating={isValidating}
+          editor={editor}
+          emptyMessage={isEmpty ? (emptyMessage ?? gettext("The manifest is empty.")) : null}
+        />
       </div>
 
       {modal.type === "clone" && (

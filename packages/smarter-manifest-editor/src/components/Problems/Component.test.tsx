@@ -57,4 +57,17 @@ describe("Problems", () => {
     await user.click(problem);
     expect(problem).toBeInTheDocument();
   });
+
+  it("says what to do while the editor is empty, in place of its problems", () => {
+    render(
+      <Problems
+        errors={[{ source: "yaml", message: "stale", offset: 0, loc: [] }]}
+        isValidating={false}
+        editor={null}
+        emptyMessage="Paste a manifest."
+      />,
+    );
+    expect(screen.getByText("Paste a manifest.")).toBeInTheDocument();
+    expect(screen.queryByText(/stale/)).not.toBeInTheDocument();
+  });
 });

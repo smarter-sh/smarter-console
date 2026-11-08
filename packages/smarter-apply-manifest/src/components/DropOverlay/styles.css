@@ -1,0 +1,25 @@
+/* The drop zone, over the editor while a file is dragged over the page. */
+.apply-manifest-drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed var(--bs-primary, #ccc);
+  border-radius: var(--bs-card-border-radius, 0.625rem);
+  background-color: rgba(var(--bs-body-bg-rgb, 255, 255, 255), 0.92);
+}
+
+/* the drop zone's text doesn't take the drag from it. */
+.apply-manifest-drop-overlay * {
+  pointer-events: none;
+}
+
+.apply-manifest-drop-overlay-title {
+  font-family: Arial, sans-serif;
+  font-size: 84px;
+  font-weight: bold;
+  color: #999;
+}

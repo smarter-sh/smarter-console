@@ -1,0 +1,9 @@
+/* The help of the field under the cursor, above the problems in the editor card's footer. */
+.manifest-editor-field-help {
+  font-size: 0.925rem;
+  min-height: 1.5rem;
+}
+
+.manifest-editor-field-help code {
+  font-size: 0.85rem;
+}

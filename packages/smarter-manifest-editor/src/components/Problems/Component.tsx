@@ -15,6 +15,8 @@ interface ProblemsProps {
   errors: ManifestError[];
   isValidating: boolean;
   editor: monaco.editor.IStandaloneCodeEditor | null;
+  /** What to say when the editor is empty, in place of its problems; or nothing, to list them as usual. */
+  emptyMessage?: string | null;
 }
 
 /** The label of an error's path, e.g. spec.config.stage, or nothing for a syntax error. */
@@ -22,7 +24,7 @@ function locLabel(error: ManifestError): string {
   return error.loc.length ? `${error.loc.join(".")}: ` : "";
 }
 
-function Problems({ errors, isValidating, editor }: ProblemsProps) {
+function Problems({ errors, isValidating, editor, emptyMessage = null }: ProblemsProps) {
   const model = editor?.getModel();
 
   const reveal = (error: ManifestError) => {
@@ -32,6 +34,15 @@ function Problems({ errors, isValidating, editor }: ProblemsProps) {
     editor.setPosition(position);
     editor.focus();
   };
+
+  if (emptyMessage) {
+    return (
+      <div className="manifest-editor-problems text-muted">
+        <i className="bi bi-info-circle me-2" />
+        {emptyMessage}
+      </div>
+    );
+  }
 
   if (!errors.length) {
     return (

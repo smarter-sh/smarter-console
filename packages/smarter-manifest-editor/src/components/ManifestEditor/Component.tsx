@@ -4,17 +4,21 @@
  * A Monaco YAML editor for a Smarter manifest, with a copy button on its top right. It marks the
  * manifest's errors, i.e. its YAML syntax errors, and the errors of its SAM model.
  *
+ * Hovering over a field shows what it is, from its kind's JSON Schema (lib/schemaHelp), and the path of the
+ * field under the cursor goes to onCursorPath, for the help under the editor.
+ *
  * It uses the same editor options as @smarter/prompt-passthrough's editor, with a theme
  * that matches the read-only manifest of the Smarter web console: rounded corners,
  * a charcoal background and a white foreground (see .code-sample-body in common-styles.css).
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { type BeforeMount, type Monaco, type OnMount } from "@monaco-editor/react";
 import type * as monaco from "monaco-editor";
 
 import { useCopy } from "../../lib/useCopy";
+import { fieldHelp, helpMarkdown, type JsonSchema } from "../../lib/schemaHelp";
 import { useLockedFields } from "../../lib/useLockedFields";
-import type { ManifestError } from "../../lib/validation";
+import { keyPathAt, type ManifestError } from "../../lib/validation";
 
 import "./styles.css";
 import { gettext } from "@smarter/common";
@@ -26,9 +30,9 @@ const MIN_HEIGHT = 300;
 const PADDING = 15;
 const MARKER_OWNER = "smarter-manifest";
 
-/** The editor's height: its content's height, between MIN_HEIGHT and 75% of the window's height. */
-function editorHeight(contentHeight: number): number {
-  return Math.max(MIN_HEIGHT, Math.min(contentHeight, Math.round(window.innerHeight * 0.75)));
+/** The editor's height: its content's height, between minHeight and 75% of the window's height. */
+function editorHeight(contentHeight: number, minHeight: number): number {
+  return Math.max(minHeight, Math.min(contentHeight, Math.round(window.innerHeight * 0.75)));
 }
 
 const defineTheme: BeforeMount = (monacoInstance) => {
@@ -50,13 +54,67 @@ interface ManifestEditorProps {
   editor: monaco.editor.IStandaloneCodeEditor | null;
   onEditorDidMount: (editor: monaco.editor.IStandaloneCodeEditor) => void;
   onChange: (value: string) => void;
+  /** The JSON Schema of the manifest's kind, for the help of the field under the mouse. */
+  schema?: JsonSchema | null;
+  /** Called with the path of the field under the cursor, or null when the cursor isn't on a field. */
+  onCursorPath?: (path: string[] | null) => void;
+  /** Whether apiVersion, kind and metadata.name are locked, as they are for an existing resource. */
+  lockFields?: boolean;
+  /** The editor's least height, in pixels. */
+  minHeight?: number;
 }
 
-function ManifestEditor({ value, errors, editor, onEditorDidMount, onChange }: ManifestEditorProps) {
-  const [height, setHeight] = useState(MIN_HEIGHT);
+function ManifestEditor({
+  value,
+  errors,
+  editor,
+  onEditorDidMount,
+  onChange,
+  schema = null,
+  onCursorPath,
+  lockFields = true,
+  minHeight = MIN_HEIGHT,
+}: ManifestEditorProps) {
+  const [height, setHeight] = useState(minHeight);
   const [monacoInstance, setMonacoInstance] = useState<Monaco | null>(null);
   const { copied, copy } = useCopy(editor);
-  useLockedFields(editor, monacoInstance);
+  useLockedFields(lockFields ? editor : null, monacoInstance);
+
+  // the hover provider is Monaco's, for every YAML editor of the page: it reads the current schema from a ref.
+  const schemaRef = useRef(schema);
+  const onCursorPathRef = useRef(onCursorPath);
+  useEffect(() => {
+    schemaRef.current = schema;
+    onCursorPathRef.current = onCursorPath;
+  });
+
+  // show a field's help when the mouse is over it.
+  useEffect(() => {
+    if (!editor || !monacoInstance) return;
+    const provider = monacoInstance.languages.registerHoverProvider("yaml", {
+      provideHover: (model: monaco.editor.ITextModel, position: monaco.Position) => {
+        if (model !== editor.getModel() || !schemaRef.current) return null;
+        const path = keyPathAt(model.getValue(), model.getOffsetAt(position));
+        const help = path ? fieldHelp(schemaRef.current, path) : null;
+        if (!help) return null;
+        return { contents: [{ value: helpMarkdown(help) }] };
+      },
+    });
+    return () => provider.dispose();
+  }, [editor, monacoInstance]);
+
+  // report the field under the cursor.
+  useEffect(() => {
+    if (!editor) return;
+    const report = () => {
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      if (!model || !position) return;
+      onCursorPathRef.current?.(keyPathAt(model.getValue(), model.getOffsetAt(position)));
+    };
+    const cursor = editor.onDidChangeCursorPosition(report);
+    return () => cursor.dispose();
+  }, [editor]);
 
   // mark each error in the editor, from its position to the end of its line.
   useEffect(() => {
@@ -79,8 +137,8 @@ function ManifestEditor({ value, errors, editor, onEditorDidMount, onChange }: M
 
   const handleMount: OnMount = (editorInstance, monacoFromEditor) => {
     setMonacoInstance(monacoFromEditor);
-    setHeight(editorHeight(editorInstance.getContentHeight()));
-    editorInstance.onDidContentSizeChange((e) => setHeight(editorHeight(e.contentHeight)));
+    setHeight(editorHeight(editorInstance.getContentHeight(), minHeight));
+    editorInstance.onDidContentSizeChange((e) => setHeight(editorHeight(e.contentHeight, minHeight)));
     onEditorDidMount(editorInstance);
   };
 

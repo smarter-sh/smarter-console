@@ -14,6 +14,13 @@ export function fakeModel(text: string) {
   return {
     getValue: () => text,
     getPositionAt: vi.fn(positionAt),
+    getOffsetAt: ({ lineNumber, column }: { lineNumber: number; column: number }) =>
+      text
+        .split("\n")
+        .slice(0, lineNumber - 1)
+        .reduce((total, line) => total + line.length + 1, 0) +
+      column -
+      1,
     getLineMaxColumn: (lineNumber: number) => text.split("\n")[lineNumber - 1].length + 1,
     getValueInRange: () => "",
     onDidChangeContent: () => ({ dispose: () => {} }),
@@ -23,6 +30,8 @@ export function fakeModel(text: string) {
 export function fakeEditor(text: string, { withModel = true } = {}) {
   const model = fakeModel(text);
   const contentSizeListeners: ((e: { contentHeight: number }) => void)[] = [];
+  const cursorListeners: (() => void)[] = [];
+  let position = { lineNumber: 1, column: 1 };
   const editor = {
     getModel: () => (withModel ? model : null),
     getValue: () => text,
@@ -32,6 +41,16 @@ export function fakeEditor(text: string, { withModel = true } = {}) {
     focus: vi.fn(),
     setValue: vi.fn(),
     setPosition: vi.fn(),
+    getPosition: () => position,
+    onDidChangeCursorPosition: (listener: () => void) => {
+      cursorListeners.push(listener);
+      return { dispose: () => {} };
+    },
+    /** Move the cursor, as the user does. */
+    moveCursor: (lineNumber: number, column: number) => {
+      position = { lineNumber, column };
+      cursorListeners.forEach((listener) => listener());
+    },
     revealLineInCenter: vi.fn(),
     getContentHeight: () => 400,
     onDidContentSizeChange: (listener: (e: { contentHeight: number }) => void) => {

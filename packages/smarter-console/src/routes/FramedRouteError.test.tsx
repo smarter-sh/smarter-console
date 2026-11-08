@@ -13,10 +13,10 @@ import { DROPZONE_PATH } from "@/lib/tools";
 import { userSessionHandler } from "@/mocks/handlers";
 import { routes } from "@/router";
 
-// the Manifest Dropzone page fails as it renders.
+// the Apply Manifest page fails as it renders.
 vi.mock("@/routes/ToolPages", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/routes/ToolPages")>()),
-  DropzonePage: () => {
+  ApplyManifestPage: () => {
     throw new Error("Cannot read properties of undefined");
   },
 }));

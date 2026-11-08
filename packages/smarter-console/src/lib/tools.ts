@@ -7,7 +7,7 @@ export const PASSTHROUGH_PATH = "/dashboard/passthrough";
 export const TERMINAL_PATH = "/dashboard/terminal";
 
 export const toolUrls = {
-  /** The cli api's apply, which the drop zone sends each dropped manifest to. */
+  /** The cli api's apply, with which the Apply Manifest page applies its manifest. */
   apply: "/api/v1/cli/apply/",
   /** The Prompt Passthrough's api, to which it appends the provider's name. */
   passthrough: "/api/v1/prompts/passthrough/",

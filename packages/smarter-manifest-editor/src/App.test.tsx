@@ -3,7 +3,16 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APPLY_API_URL, SECRET_IN_USE_YAML, VALIDATE_API_URL, appProps } from "@/mocks/fixtures";
+import { clearSchemas } from "@/lib/schemaHelp";
+import {
+  APPLY_API_URL,
+  KINDS,
+  SCHEMA_API_URL,
+  SECRET_IN_USE_YAML,
+  SECRET_YAML,
+  VALIDATE_API_URL,
+  appProps,
+} from "@/mocks/fixtures";
 import { cliHandlers, invalidHandler, validHandler } from "@/mocks/handlers";
 import { server } from "@test/server";
 
@@ -113,15 +122,26 @@ describe("App, when things go wrong", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
-  it("lets the user save when the api can't validate, and reports what's wrong", async () => {
+  it("lets the user save when the api can't validate", async () => {
     server.use(
       http.post(VALIDATE_API_URL, () => HttpResponse.error()),
       ...cliHandlers,
     );
     const user = userEvent.setup();
     render(<App {...appProps} />);
-    edit("just: a mapping\n");
+    edit(`${SECRET_YAML}# edited\n`);
     await screen.findByText("No problems", {}, VALIDATION);
+    await user.click(screen.getByRole("button", { name: /^Save:/ }));
+    expect(await screen.findByRole("dialog", { name: "Saved" })).toBeInTheDocument();
+  });
+
+  it("reports what's wrong with a manifest that is saved before it is checked", async () => {
+    server.use(...cliHandlers);
+    const user = userEvent.setup();
+    render(<App {...appProps} />);
+    await screen.findByText("No problems", {}, VALIDATION);
+    // save at once, before the edit is checked.
+    edit("just: a mapping\n");
     await user.click(screen.getByRole("button", { name: /^Save:/ }));
     expect(await screen.findByRole("dialog", { name: "Save Failed" })).toHaveTextContent("apiVersion is missing");
   });
@@ -156,18 +176,22 @@ describe("App, when things go wrong", () => {
     expect(screen.queryByText(/stale problem/)).not.toBeInTheDocument();
   });
 
-  it("validates YAML that isn't a mapping", async () => {
-    let validated: unknown;
+  it("finds YAML that isn't a mapping without asking the api", async () => {
+    // a validate request would be answered by the default handler; none is made.
+    let requests = 0;
     server.use(
-      http.post(VALIDATE_API_URL, async ({ request }) => {
-        validated = await request.json();
-        return HttpResponse.json({ data: { valid: false, errors: [{ loc: [], message: "not a manifest" }] } });
+      http.post(VALIDATE_API_URL, () => {
+        requests += 1;
+        return HttpResponse.json({ data: { valid: true, errors: [] } });
       }),
     );
     render(<App {...appProps} />);
+    await screen.findByText("No problems", {}, VALIDATION);
+    requests = 0;
     edit("just a string\n");
     expect(await screen.findByText("1 problem", {}, VALIDATION)).toBeInTheDocument();
-    expect(validated).toBe("just a string");
+    expect(screen.getByRole("button", { name: /A manifest is a YAML mapping/ })).toBeInTheDocument();
+    expect(requests).toBe(0);
   });
 
   it("reports the api's error when a save fails", async () => {
@@ -320,5 +344,94 @@ describe("App, when things go wrong", () => {
     render(<App {...appProps} initialManifest={"kind: [unclosed"} />);
     expect(screen.getByRole("button", { name: "Delete: Delete this resource" })).toBeDisabled();
     expect(screen.getByRole("button", { name: /^Download: Save this manifest as manifest.yaml/ })).toBeInTheDocument();
+  });
+});
+
+describe("App, for a new manifest", () => {
+  const newProps = {
+    ...appProps,
+    initialManifest: "",
+    isNew: true,
+    kinds: KINDS,
+    schemaApiUrl: SCHEMA_API_URL,
+    emptyMessage: "Paste a manifest.",
+  };
+
+  beforeEach(() => {
+    clearSchemas();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  it("says what to do while it is empty, and can't apply nothing", async () => {
+    server.use(...cliHandlers);
+    render(<App {...newProps} />);
+    expect(await screen.findByText("Paste a manifest.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Apply/ })).toBeDisabled();
+    expect(screen.queryByRole("group", { name: "Resource" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Move the cursor/)).not.toBeInTheDocument();
+  });
+
+  it("checks a pasted manifest's header, then applies it, and tells its page", async () => {
+    let applied: unknown;
+    const onChange = vi.fn();
+    const onSaved = vi.fn();
+    server.use(
+      http.post(APPLY_API_URL, async ({ request }) => {
+        applied = await request.json();
+        return HttpResponse.json({});
+      }),
+      ...cliHandlers,
+    );
+    const user = userEvent.setup();
+    render(<App {...newProps} onChange={onChange} onSaved={onSaved} />);
+
+    edit("apiVersion: smarter.sh/v1\nkind: Secrett\nmetadata:\n  name: x\n");
+    expect(await screen.findByText(/Secrett is not a kind of Smarter resource/, {}, VALIDATION)).toBeInTheDocument();
+    expect(onChange).toHaveBeenLastCalledWith(expect.stringContaining("Secrett"));
+
+    edit(SECRET_YAML);
+    await screen.findByText("No problems", {}, VALIDATION);
+    // the field help, once the kind's schema loads.
+    expect(await screen.findByText(/Move the cursor to a field/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Apply/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Applied" });
+    expect(dialog).toHaveTextContent("Secret example_secret applied");
+    expect(applied).toMatchObject({ kind: "Secret", metadata: { name: "example_secret" } });
+    expect(applied).not.toHaveProperty("status");
+    expect(onSaved).toHaveBeenCalledWith({ kind: "Secret", name: "example_secret" });
+
+    // it can apply the same manifest again.
+    await user.click(within(dialog).getAllByRole("button")[0]);
+    expect(screen.getByRole("button", { name: /Apply/ })).toBeEnabled();
+  });
+
+  it("reports an apply that fails", async () => {
+    server.use(
+      http.post(APPLY_API_URL, () => HttpResponse.json({ error: "Secret is invalid" }, { status: 400 })),
+      ...cliHandlers,
+    );
+    const user = userEvent.setup();
+    render(<App {...newProps} initialManifest={SECRET_YAML} />);
+    await screen.findByText("No problems", {}, VALIDATION);
+    await user.click(screen.getByRole("button", { name: /Apply/ }));
+    expect(await screen.findByRole("dialog", { name: "Apply Failed" })).toHaveTextContent("Secret is invalid");
+  });
+
+  it("reports a manifest that is applied before it is checked", async () => {
+    server.use(...cliHandlers);
+    const user = userEvent.setup();
+    render(<App {...newProps} initialManifest={SECRET_YAML} />);
+    await screen.findByText("No problems", {}, VALIDATION);
+    edit("just: a mapping\n");
+    await user.click(screen.getByRole("button", { name: /Apply/ }));
+    expect(await screen.findByRole("dialog", { name: "Apply Failed" })).toHaveTextContent("apiVersion is missing");
+  });
+
+  it("doesn't lock the manifest's header", async () => {
+    server.use(...cliHandlers);
+    render(<App {...newProps} initialManifest={SECRET_YAML} />);
+    await screen.findByText("No problems", {}, VALIDATION);
+    edit(SECRET_YAML.replace("example_secret", "another_secret"));
+    expect(screen.getByLabelText("Manifest YAML")).toHaveValue(SECRET_YAML.replace("example_secret", "another_secret"));
   });
 });

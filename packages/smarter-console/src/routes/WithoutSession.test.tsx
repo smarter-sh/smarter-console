@@ -29,7 +29,7 @@ import { ManifestPage } from "@/routes/ManifestPage";
 import { PasswordResetPage } from "@/routes/PasswordResetPage";
 import { PasswordResetRequestPage } from "@/routes/PasswordResetRequestPage";
 import { RegisterPage } from "@/routes/RegisterPage";
-import { DropzonePage, PassthroughPage, TerminalPage } from "@/routes/ToolPages";
+import { ApplyManifestPage, PassthroughPage, TerminalPage } from "@/routes/ToolPages";
 import { WorkbenchPage } from "@/routes/WorkbenchPage";
 import { SessionContext, type SessionState } from "@/session/context";
 
@@ -84,7 +84,7 @@ const PAGES: [string, ComponentType][] = [
   ["the inactive account page", InactivePage],
   ["the password reset request page", PasswordResetRequestPage],
   ["the password reset page", PasswordResetPage],
-  ["the drop zone", DropzonePage],
+  ["Apply Manifest", ApplyManifestPage],
   ["the Prompt Passthrough", PassthroughPage],
   ["the Terminal", TerminalPage],
   ["the workbench", WorkbenchPage],

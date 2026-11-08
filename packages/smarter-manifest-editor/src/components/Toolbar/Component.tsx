@@ -4,6 +4,9 @@
  * The manifest editor's toolbar: a Bootstrap button toolbar, of button groups for save; undo and redo;
  * copy and paste; revert and download; and clone and delete. It is the header of the editor's card.
  *
+ * For a new manifest (isNew), save is a labelled Apply button, which applies whatever manifest the editor
+ * holds, and there is no resource to clone or delete.
+ *
  * Saving, cloning and deleting are handled by the parent, with the cli api. The other
  * buttons work on the Monaco editor directly.
  */
@@ -22,22 +25,25 @@ interface ToolbarButtonProps {
   title: string;
   iconClass: string;
   disabled?: boolean;
+  /** The button's text, beside its icon, for a primary button; or none, for an icon button. */
+  label?: string;
 }
 
-function ToolbarButton({ onClick, title, iconClass, disabled = false }: ToolbarButtonProps) {
+function ToolbarButton({ onClick, title, iconClass, disabled = false, label }: ToolbarButtonProps) {
   return (
     <button
       type="button"
-      className="btn btn-sm btn-icon btn-outline-secondary"
+      className={label ? "btn btn-sm btn-primary" : "btn btn-sm btn-icon btn-outline-secondary"}
       onClick={onClick}
       title={title}
       disabled={disabled}
     >
-      <i className={iconClass}>
+      <i className={label ? `${iconClass} me-1` : iconClass}>
         {DUOTONE_PATHS.map((n) => (
           <span key={n} className={`path${n}`}></span>
         ))}
       </i>
+      {label}
     </button>
   );
 }
@@ -64,6 +70,29 @@ interface ToolbarProps {
   onRevert: () => void;
   onClone: () => void;
   onDelete: () => void;
+  /** Whether the manifest is a new one, to apply, rather than an existing resource's. */
+  isNew?: boolean;
+  /** Whether the editor is empty. */
+  isEmpty?: boolean;
+}
+
+/** The save button's title: why it is disabled, or what it does. */
+function saveTitle(isNew: boolean, isEmpty: boolean, isDirty: boolean, problemCount: number): string {
+  if (isEmpty) return gettext("Apply: Paste, type or open a manifest first");
+  if (!isNew && !isDirty) return gettext("Save: There are no changes to save");
+  if (problemCount) {
+    return interpolate(
+      ngettext(
+        "Save: Fix this manifest's problem first",
+        "Save: Fix this manifest's %(problemCount)s problems first",
+        problemCount,
+      ),
+      { problemCount },
+    );
+  }
+  return isNew
+    ? gettext("Apply: Create the resource that this manifest describes, or update it if it exists")
+    : gettext("Save: Apply your changes to this manifest");
 }
 
 function Toolbar({
@@ -78,6 +107,8 @@ function Toolbar({
   onRevert,
   onClone,
   onDelete,
+  isNew = false,
+  isEmpty = false,
 }: ToolbarProps) {
   const { copied, copy } = useCopy(editor);
 
@@ -114,22 +145,10 @@ function Toolbar({
       <div className="btn-group me-2" role="group" aria-label={gettext("Save")}>
         <ToolbarButton
           onClick={onSave}
-          title={
-            !isDirty
-              ? gettext("Save: There are no changes to save")
-              : problemCount
-                ? interpolate(
-                    ngettext(
-                      "Save: Fix this manifest's problem first",
-                      "Save: Fix this manifest's %(problemCount)s problems first",
-                      problemCount,
-                    ),
-                    { problemCount },
-                  )
-                : gettext("Save: Apply your changes to this manifest")
-          }
-          iconClass="bi bi-floppy fs-2"
-          disabled={!isDirty || problemCount > 0 || isBusy}
+          title={saveTitle(isNew, isEmpty, isDirty, problemCount)}
+          iconClass={isNew ? "bi bi-cloud-upload fs-4" : "bi bi-floppy fs-2"}
+          label={isNew ? gettext("Apply") : undefined}
+          disabled={isEmpty || (!isNew && !isDirty) || problemCount > 0 || isBusy}
         />
       </div>
       <div className="btn-group me-2" role="group" aria-label={gettext("History")}>
@@ -161,20 +180,22 @@ function Toolbar({
           iconClass="ki-duotone ki-file-down fs-2"
         />
       </div>
-      <div className="btn-group" role="group" aria-label={gettext("Resource")}>
-        <ToolbarButton
-          onClick={onClone}
-          title={gettext("Clone: Create a copy of this resource, with a new name")}
-          iconClass="ki-duotone ki-file-added fs-2"
-          disabled={isBusy}
-        />
-        <ToolbarButton
-          onClick={onDelete}
-          title={deleteTitle}
-          iconClass="ki-duotone ki-trash fs-2"
-          disabled={!canDelete || isBusy}
-        />
-      </div>
+      {!isNew && (
+        <div className="btn-group" role="group" aria-label={gettext("Resource")}>
+          <ToolbarButton
+            onClick={onClone}
+            title={gettext("Clone: Create a copy of this resource, with a new name")}
+            iconClass="ki-duotone ki-file-added fs-2"
+            disabled={isBusy}
+          />
+          <ToolbarButton
+            onClick={onDelete}
+            title={deleteTitle}
+            iconClass="ki-duotone ki-trash fs-2"
+            disabled={!canDelete || isBusy}
+          />
+        </div>
+      )}
       <CopiedMessage show={copied} />
     </div>
   );

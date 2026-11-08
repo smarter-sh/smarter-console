@@ -5,7 +5,7 @@ import { invalidHandler } from "@/mocks/handlers";
 import { server } from "@test/server";
 import { http, HttpResponse } from "msw";
 
-import { keyOffsets, locOffset, samErrors, syntaxErrors, yamlKeys } from "./validation";
+import { headerErrors, keyOffsets, keyPathAt, locOffset, samErrors, syntaxErrors, yamlKeys } from "./validation";
 
 describe("syntaxErrors", () => {
   it("finds none in valid YAML", () => {
@@ -105,6 +105,84 @@ describe("samErrors", () => {
     server.use(http.post(VALIDATE_API_URL, () => HttpResponse.json({ data: { valid: false, errors: [{}] } })));
     expect(await samErrors(sessionContext, VALIDATE_API_URL, SECRET_YAML, {})).toEqual([
       { source: "sam", message: "Invalid value", offset: 0, loc: [] },
+    ]);
+  });
+});
+
+describe("keyPathAt", () => {
+  const at = (yaml: string, text: string, delta = 0) => keyPathAt(yaml, yaml.indexOf(text) + delta);
+
+  it("finds the key on the cursor's line, wherever the cursor is on it", () => {
+    expect(at(SECRET_YAML, "value:")).toEqual(["spec", "config", "value"]);
+    expect(at(SECRET_YAML, "not-a-real-secret", 4)).toEqual(["spec", "config", "value"]);
+    // in the line's indentation.
+    expect(at(SECRET_YAML, "    value:")).toEqual(["spec", "config", "value"]);
+    expect(at(SECRET_YAML, "kind:")).toEqual(["kind"]);
+  });
+
+  it("finds a sequence's items, and the keys of its mappings", () => {
+    const yaml = "tags:\n  - a\nitems:\n  - name: x\n";
+    expect(at(yaml, "a\n")).toEqual(["tags", "0"]);
+    expect(at(yaml, "x\n")).toEqual(["items", "0", "name"]);
+  });
+
+  it("keeps the dots of a key, e.g. an annotation's", () => {
+    const yaml = "metadata:\n  annotations:\n    acme.com/id: A-1\n";
+    expect(at(yaml, "A-1")).toEqual(["metadata", "annotations", "acme.com/id"]);
+  });
+
+  it("finds nothing on a line without a key, or in YAML that doesn't parse", () => {
+    expect(at("text: |\n  more\n", "more")).toBeNull();
+    expect(at("kind: [unclosed", "unclosed")).toBeNull();
+    expect(keyPathAt("", 0)).toBeNull();
+  });
+});
+
+describe("headerErrors", () => {
+  it("finds none in a manifest with its header", () => {
+    expect(headerErrors(SECRET_YAML, ["Secret"])).toEqual([]);
+    expect(headerErrors(SECRET_YAML)).toEqual([]);
+  });
+
+  it("finds none in YAML that doesn't parse", () => {
+    expect(headerErrors("kind: [unclosed")).toEqual([]);
+  });
+
+  it.each(["just a string\n", "- a list\n", "null\n"])("rejects YAML that isn't a mapping: %j", (yaml) => {
+    expect(headerErrors(yaml)).toEqual([expect.objectContaining({ loc: [], offset: 0 })]);
+  });
+
+  it("finds each missing field, at its parent if it has one", () => {
+    const yaml = "metadata:\n  description: x\n";
+    expect(headerErrors(yaml)).toEqual([
+      expect.objectContaining({ loc: ["apiVersion"], message: "Required. Use smarter.sh/v1.", offset: 0 }),
+      expect.objectContaining({ loc: ["kind"], offset: 0 }),
+      expect.objectContaining({ loc: ["metadata", "name"], offset: 0 }),
+    ]);
+    expect(headerErrors("apiVersion: smarter.sh/v1\nkind: Secret\nmetadata: 3\n")).toEqual([
+      expect.objectContaining({ loc: ["metadata", "name"] }),
+    ]);
+  });
+
+  it("rejects another apiVersion, at its key", () => {
+    const yaml = "kind: Secret\napiVersion: v1\nmetadata:\n  name: x\n";
+    expect(headerErrors(yaml)).toEqual([
+      expect.objectContaining({
+        loc: ["apiVersion"],
+        message: "Must be smarter.sh/v1.",
+        offset: yaml.indexOf("apiVersion"),
+      }),
+    ]);
+  });
+
+  it("rejects a kind that isn't one of the kinds", () => {
+    const yaml = "apiVersion: smarter.sh/v1\nkind: Secrett\nmetadata:\n  name: x\n";
+    expect(headerErrors(yaml, ["LLMClient", "Secret"])).toEqual([
+      expect.objectContaining({
+        loc: ["kind"],
+        message: "Secrett is not a kind of Smarter resource. The kinds are: LLMClient, Secret.",
+        offset: yaml.indexOf("kind"),
+      }),
     ]);
   });
 });

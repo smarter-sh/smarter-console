@@ -59,11 +59,16 @@ export function resourceUrl(locator: string): string {
   return `${DASHBOARD_API}/resource/${encodeURIComponent(locator)}/`;
 }
 
-/** The cli api, with which the manifest editor validates, saves, clones and deletes the manifest. */
+/**
+ * The cli api, with which the manifest editor validates, saves, clones and deletes the manifest, and reads a
+ * kind's JSON Schema, for the fields' help, and its example manifest.
+ */
 export const CLI_API = "/api/v1/cli";
 export const KIND_PLACEHOLDER = "__kind__";
 export const manifestEditorUrls = {
   apply: `${CLI_API}/apply/`,
   validate: `${CLI_API}/validate/`,
   delete: `${CLI_API}/delete/${KIND_PLACEHOLDER}/`,
+  schema: `${CLI_API}/json-schema/${KIND_PLACEHOLDER}/`,
+  example: `${CLI_API}/example-manifest/${KIND_PLACEHOLDER}/`,
 };

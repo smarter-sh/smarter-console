@@ -116,7 +116,7 @@ const consoleRoutes: RouteObject[] = [
       // the tool pages, each in a chunk of its own.
       {
         path: DROPZONE_PATH,
-        lazy: async () => ({ Component: (await import("@/routes/ToolPages")).DropzonePage }),
+        lazy: async () => ({ Component: (await import("@/routes/ToolPages")).ApplyManifestPage }),
       },
       {
         path: PASSTHROUGH_PATH,

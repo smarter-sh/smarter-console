@@ -1,5 +1,5 @@
 /**
- * Vite configuration of the manifest drop zone package, for its development page only (`npm run dev`). The package has
+ * Vite configuration of the Apply Manifest package, for its development page only (`npm run dev`). The package has
  * no build of its own: the single-page console (@smarter/console) imports its component, and its build bundles it.
  *
  * The development page calls the Django dev server's api, and the web console's global stylesheets, which

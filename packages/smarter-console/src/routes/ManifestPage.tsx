@@ -1,6 +1,7 @@
 /**
  * A resource's manifest page, e.g. /guardrail/guardrails/<hashed id>: the resource's name, and its manifest in
- * @smarter/manifest-editor, where it can be validated, saved, cloned and deleted with the cli api. The manifest
+ * @smarter/manifest-editor, where it can be validated, saved, cloned and deleted with the cli api, with each field's
+ * help from its kind's JSON Schema. The manifest
  * comes from the resource api, which finds the resource by its record locator if the user may read it, and
  * describes it as its owner does. After a delete, the page goes back to the resource's list.
  */
@@ -59,6 +60,7 @@ export function ManifestPage({ page }: { page: ManifestPageConfig }) {
             applyApiUrl={manifestEditorUrls.apply}
             validateApiUrl={manifestEditorUrls.validate}
             deleteApiUrl={manifestEditorUrls.delete}
+            schemaApiUrl={manifestEditorUrls.schema}
             kindPlaceholder={KIND_PLACEHOLDER}
             onDeleted={() => void navigate(page.listPath)}
           />

@@ -5,7 +5,7 @@
  */
 import { EVENT_ID, getScalarValue, load, parseEvents, YAMLException, type Event, type ScalarEvent } from "js-yaml";
 import type { SessionContext } from "@smarter/common";
-import { fetchDjangoUrl, gettext } from "@smarter/common";
+import { fetchDjangoUrl, gettext, interpolate } from "@smarter/common";
 
 import { loggerPrefix } from "../const";
 
@@ -55,7 +55,20 @@ export type YamlKey = {
  * items are numbered, e.g. "metadata.tags.0".
  */
 export function yamlKeys(yaml: string): Map<string, YamlKey> {
-  const keys = new Map<string, YamlKey>();
+  return new Map(
+    [...scanKeys(yaml)].map(([name, key]) => [
+      name,
+      key.end === undefined ? { start: key.start } : { start: key.start, end: key.end },
+    ]),
+  );
+}
+
+/** A key of {@link scanKeys}: where it is, and its path, whose segments may themselves contain dots. */
+type ScannedKey = YamlKey & { path: string[] };
+
+/** Return where each key is in the YAML, with its path. See {@link yamlKeys}. */
+function scanKeys(yaml: string): Map<string, ScannedKey> {
+  const keys = new Map<string, ScannedKey>();
   let events: Event[];
   try {
     events = parseEvents(yaml, {});
@@ -71,7 +84,7 @@ export function yamlKeys(yaml: string): Map<string, YamlKey> {
     if (top.kind === "sequence") {
       const path = [...top.path, String(top.index)];
       top.index += 1;
-      if (!keys.has(path.join("."))) keys.set(path.join("."), { start: offset });
+      if (!keys.has(path.join("."))) keys.set(path.join("."), { start: offset, path });
       return path;
     }
     if (top.key === null) return null; // a key, not a value
@@ -93,7 +106,7 @@ export function yamlKeys(yaml: string): Map<string, YamlKey> {
         // a mapping's key: record where it is.
         top.key = getScalarValue(yaml, scalar);
         const path = [...top.path, top.key];
-        if (!keys.has(path.join("."))) keys.set(path.join("."), { start: scalar.valueStart });
+        if (!keys.has(path.join("."))) keys.set(path.join("."), { start: scalar.valueStart, path });
       } else {
         // a scalar value: record where it ends.
         const path = nextValuePath(scalar.valueStart);
@@ -109,6 +122,25 @@ export function yamlKeys(yaml: string): Map<string, YamlKey> {
   return keys;
 }
 
+/**
+ * Return the path of the key on the line of an offset in the YAML, e.g. ["spec", "config", "value"]
+ * for the cursor anywhere on the line of spec.config.value: the last key that starts at or before
+ * the offset on that line, or the line's first key when the offset is in its indentation. Return
+ * null when the line has no key, e.g. a line of a multi-line string, or when the YAML doesn't parse.
+ */
+export function keyPathAt(yaml: string, offset: number): string[] | null {
+  const lineStart = yaml.lastIndexOf("\n", offset - 1) + 1;
+  const newline = yaml.indexOf("\n", offset);
+  const lineEnd = newline === -1 ? yaml.length : newline;
+  // the line's keys, in order. A sequence's mapping item and its first key start together: the key is last.
+  const onLine = [...scanKeys(yaml).values()]
+    .filter((key) => key.start >= lineStart && key.start <= lineEnd)
+    .sort((a, b) => a.start - b.start);
+  if (!onLine.length) return null;
+  const before = onLine.filter((key) => key.start <= offset);
+  return (before.length ? before[before.length - 1] : onLine[0]).path;
+}
+
 /** Return the offset of each key in the YAML, by its path. See {@link yamlKeys}. */
 export function keyOffsets(yaml: string): Map<string, number> {
   return new Map([...yamlKeys(yaml)].map(([path, key]) => [path, key.start]));
@@ -121,6 +153,65 @@ export function locOffset(offsets: Map<string, number>, loc: string[]): number {
     if (offset !== undefined) return offset;
   }
   return 0;
+}
+
+/** An error of a manifest's header, at its key's path, or its nearest parent's. */
+function headerError(offsets: Map<string, number>, loc: string[], message: string): ManifestError {
+  return { source: "sam", message, offset: locOffset(offsets, loc), loc };
+}
+
+/**
+ * Return the errors of the manifest's header: apiVersion, kind and metadata.name, which every
+ * manifest has, and without which the cli api can't choose the SAM model to validate it with.
+ * YAML that doesn't parse has none: its errors are {@link syntaxErrors}'.
+ *
+ * @param yaml - The manifest.
+ * @param kinds - The SAM kinds, e.g. the session's samKinds, to check the kind against; or none, to accept any.
+ */
+export function headerErrors(yaml: string, kinds?: string[]): ManifestError[] {
+  let manifest: unknown;
+  try {
+    manifest = load(yaml);
+  } catch {
+    return [];
+  }
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) {
+    return [
+      {
+        source: "sam",
+        message: gettext("A manifest is a YAML mapping that begins with apiVersion: smarter.sh/v1."),
+        offset: 0,
+        loc: [],
+      },
+    ];
+  }
+  const { apiVersion, kind, metadata } = manifest as Record<string, unknown>;
+  const offsets = keyOffsets(yaml);
+  const errors: ManifestError[] = [];
+  if (apiVersion === undefined || apiVersion === null) {
+    errors.push(headerError(offsets, ["apiVersion"], gettext("Required. Use smarter.sh/v1.")));
+  } else if (typeof apiVersion !== "string" || !apiVersion.startsWith("smarter.sh/v")) {
+    errors.push(headerError(offsets, ["apiVersion"], gettext("Must be smarter.sh/v1.")));
+  }
+  if (!kind) {
+    errors.push(headerError(offsets, ["kind"], gettext("Required. The kind of resource, e.g. Secret or LLMClient.")));
+  } else if (kinds?.length && !kinds.includes(String(kind))) {
+    errors.push(
+      headerError(
+        offsets,
+        ["kind"],
+        interpolate(gettext("%(kind)s is not a kind of Smarter resource. The kinds are: %(kinds)s."), {
+          kind: String(kind),
+          kinds: kinds.join(", "),
+        }),
+      ),
+    );
+  }
+  const name = metadata && typeof metadata === "object" ? (metadata as Record<string, unknown>).name : undefined;
+  if (!name) {
+    errors.push(headerError(offsets, ["metadata", "name"], gettext("Required. The resource's name.")));
+  }
+  return errors;
 }
 
 type ValidateResponseBody = {

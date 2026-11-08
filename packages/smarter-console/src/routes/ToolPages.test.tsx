@@ -1,5 +1,5 @@
 /**
- * The tool pages: the manifest drop zone, the Prompt Passthrough and the Terminal. Each package has its own tests;
+ * The tool pages: Apply Manifest, the Prompt Passthrough and the Terminal. Each package has its own tests;
  * here, a stand-in of each shows what the console gives it, so that these test the console's routes, gates and
  * props.
  */
@@ -19,12 +19,18 @@ import { routes } from "@/router";
 
 interface StandInProps {
   sessionContext: { ApiUrl: string };
+  kinds?: string[];
+  schemaApiUrl?: string;
   providerApiUrl?: string;
   logStreamUrl?: string;
 }
 
-vi.mock("@smarter/drop-zone", () => ({
-  ManifestDropzone: ({ sessionContext }: StandInProps) => <p>drop zone at {sessionContext.ApiUrl}</p>,
+vi.mock("@smarter/apply-manifest", () => ({
+  ApplyManifest: ({ sessionContext, kinds, schemaApiUrl }: StandInProps) => (
+    <p>
+      apply manifest at {sessionContext.ApiUrl}, kinds {kinds?.join(",")}, schemas at {schemaApiUrl}
+    </p>
+  ),
 }));
 vi.mock("@smarter/prompt-passthrough", () => ({
   PromptPassthrough: ({ sessionContext, providerApiUrl, logStreamUrl }: StandInProps) => (
@@ -48,10 +54,14 @@ beforeEach(() => {
   server.use(...dashboardHandlers);
 });
 
-describe("the manifest drop zone", () => {
+describe("Apply Manifest", () => {
   it("applies with the cli api while its feature is on", async () => {
     mountAt("/dashboard/dropzone/", { manifestDropZone: true });
-    expect(await screen.findByText("drop zone at /api/v1/cli/apply/")).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        `apply manifest at /api/v1/cli/apply/, kinds ${userSession.samKinds.join(",")}, schemas at /api/v1/cli/json-schema/__kind__/`,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("is not found while its feature is off", async () => {

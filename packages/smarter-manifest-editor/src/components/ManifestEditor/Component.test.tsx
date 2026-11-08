@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { fakeEditor } from "@/mocks/fakeEditor";
-import { SECRET_YAML } from "@/mocks/fixtures";
+import { SECRET_SCHEMA, SECRET_YAML } from "@/mocks/fixtures";
 import type { ManifestError } from "@/lib/validation";
 
 import ManifestEditor from "@/components/ManifestEditor/Component";
@@ -46,6 +46,7 @@ function fakeMonaco() {
     MarkerSeverity: { Error: 8 },
     Range: class {},
     KeyCode: {},
+    languages: { registerHoverProvider: vi.fn(() => ({ dispose: vi.fn() })) },
     editor: { defineTheme: vi.fn(), setModelMarkers: vi.fn(), TrackedRangeStickiness: {} },
   };
 }
@@ -55,14 +56,16 @@ const errors: ManifestError[] = [
   { source: "yaml", message: "bad indentation", offset: 0, loc: [] },
 ];
 
-function setUp({ withModel = true } = {}) {
+type ExtraProps = Partial<Parameters<typeof ManifestEditor>[0]>;
+
+function setUp({ withModel = true, ...extra }: { withModel?: boolean } & ExtraProps = {}) {
   const fake = fakeEditor(SECRET_YAML, { withModel });
   const monaco = fakeMonaco();
   mount.editor = fake.monacoEditor;
   mount.monaco = monaco;
   const onEditorDidMount = vi.fn();
   const onChange = vi.fn();
-  const props = { value: SECRET_YAML, errors, onEditorDidMount, onChange };
+  const props = { value: SECRET_YAML, errors, onEditorDidMount, onChange, ...extra };
   const { rerender } = render(<ManifestEditor {...props} editor={null} />);
   // the parent passes the editor back once it mounts.
   rerender(<ManifestEditor {...props} editor={fake.monacoEditor} />);
@@ -118,5 +121,53 @@ describe("ManifestEditor", () => {
     setUp();
     await user.click(screen.getByRole("button", { name: /^Copy:/ }));
     expect(await navigator.clipboard.readText()).toBe(SECRET_YAML);
+  });
+
+  it("grows from a least height of its parent's", () => {
+    const { editor } = setUp({ minHeight: 500 });
+    act(() => editor.resizeContent(100));
+    expect(screen.getByText("height 500px")).toBeInTheDocument();
+  });
+
+  /** The hover provider that the editor registered with Monaco. */
+  function hoverProvider(monaco: ReturnType<typeof fakeMonaco>) {
+    const calls = monaco.languages.registerHoverProvider.mock.calls as unknown as [
+      string,
+      { provideHover: (model: unknown, position: { lineNumber: number; column: number }) => unknown },
+    ][];
+    expect(calls.at(-1)?.[0]).toBe("yaml");
+    return calls.at(-1)![1].provideHover;
+  }
+
+  it("shows a field's help when the mouse is over it", () => {
+    const { monaco, model } = setUp({ schema: SECRET_SCHEMA });
+    const provideHover = hoverProvider(monaco);
+    // the line of spec.config.value, 1-based.
+    expect(provideHover(model, { lineNumber: 9, column: 8 })).toEqual({
+      contents: [{ value: "**spec.config.value** · `string` · required\n\nThe secret's value." }],
+    });
+    // status isn't in the schema.
+    expect(provideHover(model, { lineNumber: 10, column: 2 })).toBeNull();
+  });
+
+  it("shows no help without a schema, or for another editor's model", () => {
+    const { monaco, model } = setUp();
+    const provideHover = hoverProvider(monaco);
+    expect(provideHover(model, { lineNumber: 9, column: 8 })).toBeNull();
+    expect(provideHover({}, { lineNumber: 9, column: 8 })).toBeNull();
+  });
+
+  it("reports the field under the cursor", () => {
+    const onCursorPath = vi.fn();
+    const { editor } = setUp({ onCursorPath });
+    act(() => editor.moveCursor(2, 3));
+    expect(onCursorPath).toHaveBeenLastCalledWith(["kind"]);
+  });
+
+  it("reports nothing in an editor without a model", () => {
+    const onCursorPath = vi.fn();
+    const { editor } = setUp({ withModel: false, onCursorPath });
+    act(() => editor.moveCursor(2, 3));
+    expect(onCursorPath).not.toHaveBeenCalled();
   });
 });

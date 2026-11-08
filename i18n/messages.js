@@ -2,6 +2,40 @@
 // gettext() calls. Don't edit it: run `make i18n-messages`. Django's makemessages reads it
 // for the djangojs domain. It is never loaded by a browser.
 
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Apply Smarter YAML Manifest");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Paste or type a manifest, open a file, drag one onto this page, or start from an example. It is checked as you type, and hovering over a field shows what it is. Apply creates its resource, or updates it if it exists.");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx, packages/smarter-extension-console/src/components/common.tsx
+gettext("Dismiss");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Paste or type a manifest, open a file, drag one here, or start from an example.");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Replace the manifest?");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Replace the manifest in the editor with %(source)s?");
+// Translators: used in packages/smarter-apply-manifest/src/App.tsx
+gettext("Your changes to it will be lost. Download it first to keep them.");
+// Translators: used in packages/smarter-apply-manifest/src/components/Actions/Component.tsx
+gettext("Manifest file");
+// Translators: used in packages/smarter-apply-manifest/src/components/Actions/Component.tsx, packages/smarter-prompt-passthrough/src/components/Toolbar/Component.tsx
+gettext("File Open");
+// Translators: used in packages/smarter-apply-manifest/src/components/Actions/Component.tsx
+gettext("Start from an example");
+// Translators: used in packages/smarter-apply-manifest/src/components/Actions/Component.tsx
+gettext("Loading the example…");
+// Translators: used in packages/smarter-apply-manifest/src/components/Actions/Component.tsx
+gettext("Start from an example…");
+// Translators: used in packages/smarter-apply-manifest/src/components/DropOverlay/Component.tsx
+gettext("Drop Zone");
+// Translators: used in packages/smarter-apply-manifest/src/components/DropOverlay/Component.tsx
+gettext("Drop a manifest file to open it in the editor.");
+// Translators: used in packages/smarter-apply-manifest/src/lib/manifests.tsx
+gettext("%(name)s is too large to be a manifest.");
+// Translators: used in packages/smarter-apply-manifest/src/lib/manifests.tsx
+gettext("%(name)s could not be read.");
+// Translators: used in packages/smarter-apply-manifest/src/lib/manifests.tsx
+gettext("The example %(kind)s manifest could not be loaded.");
 // Translators: used in packages/smarter-authtoken-list/src/App.tsx
 gettext("Your AuthTokens");
 // Translators: used in packages/smarter-authtoken-list/src/App.tsx
@@ -207,7 +241,7 @@ gettext("Next (→)");
 gettext("Next");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("Close (Esc)");
-// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx, packages/smarter-workbench/src/components/DocsDialog/Component.tsx
+// Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/lib/modalDialogue.tsx, packages/smarter-dashboard-user-menu/src/components/DataExport/Component.tsx, packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx, packages/smarter-workbench/src/components/DocsDialog/Component.tsx
 gettext("Close");
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/Component.tsx
 gettext("Detail");
@@ -784,7 +818,7 @@ gettext("Not deployed");
 ngettext("%(recordCount)s DNS record", "%(recordCount)s DNS records", 1);
 // Translators: used in packages/smarter-custom-domain-list/src/components/StatusBar/VerificationBadge.tsx, packages/smarter-prompt-passthrough/src/components/LLMProviderMetaData/Component.tsx
 gettext("Verifying");
-// Translators: used in packages/smarter-custom-domain-list/src/components/StatusBar/VerificationBadge.tsx, packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx, packages/smarter-vectorstore-list/src/lib/format.tsx
+// Translators: used in packages/smarter-custom-domain-list/src/components/StatusBar/VerificationBadge.tsx, packages/smarter-vectorstore-list/src/lib/format.tsx
 gettext("Failed");
 // Translators: used in packages/smarter-custom-domain-list/src/components/StatusBar/VerificationBadge.tsx
 gettext("Not Verified");
@@ -1299,8 +1333,6 @@ gettext("Learn how");
 // Translators: used in packages/smarter-extension-console/src/components/common.tsx
 gettext("The publisher's trust badge");
 // Translators: used in packages/smarter-extension-console/src/components/common.tsx
-gettext("Dismiss");
-// Translators: used in packages/smarter-extension-console/src/components/common.tsx
 gettext("Working");
 // Translators: used in packages/smarter-extension-console/src/components/common.tsx
 gettext("This extension has no documentation.");
@@ -1334,7 +1366,7 @@ gettext("Trust");
 gettext("Source");
 // Translators: used in packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-llmtool-list/src/components/ExtensionDetailView/Component.tsx, packages/smarter-vectorsearch-list/src/components/DetailView/Component.tsx
 gettext("Enabled");
-// Translators: used in packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-llmhost-list/src/components/DetailView/Component.tsx, packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx, packages/smarter-prompt-passthrough/src/components/LLMProviderPassthroughResponse/ResponseSummary.tsx
+// Translators: used in packages/smarter-extension-console/src/components/ExtensionList.tsx, packages/smarter-llmhost-list/src/components/DetailView/Component.tsx, packages/smarter-prompt-passthrough/src/components/LLMProviderPassthroughResponse/ResponseSummary.tsx
 gettext("Error");
 // Translators: used in packages/smarter-extension-console/src/components/ExtensionList.tsx
 gettext("%(latestVersion)s available");
@@ -1420,7 +1452,7 @@ gettext("Uninstalling");
 gettext("Uninstall %(displayName)s");
 // Translators: used in packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-llmtool-list/src/components/ExtensionDetailView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-prompt-passthrough/src/components/LLMProviderMetaData/ProviderDetails.tsx
 gettext("Slug");
-// Translators: used in packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx
+// Translators: used in packages/smarter-extension-console/src/components/ExtensionPage.tsx
 gettext("Unknown");
 // Translators: used in packages/smarter-extension-console/src/components/ExtensionPage.tsx, packages/smarter-llmtool-list/src/components/ExtensionDetailView/Component.tsx
 gettext("The Smarter Extension registry");
@@ -2733,42 +2765,6 @@ gettext("Successfully renamed LLMTool");
 gettext("Failed to delete LLMTool (%(status)s): %(error)s");
 // Translators: used in packages/smarter-llmtool-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted LLMTool");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Manifest is not a valid object");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Missing metadata.name");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Missing apiVersion");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Invalid apiVersion");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Missing kind");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Manifest apply failed (%(status)s)");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Manifest Applied");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Manifest Apply Failed");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Unknown error");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Apply Smarter YAML Manifest");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Manifest file");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Uploading...");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx, packages/smarter-prompt-passthrough/src/components/Toolbar/Component.tsx
-gettext("File Open");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/DropZone/Component.tsx
-gettext("Drop Zone");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx
-gettext("No description provided");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx
-gettext("Name:");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx
-gettext("Version:");
-// Translators: used in packages/smarter-manifest-dropzone/src/components/Modal/Component.tsx
-gettext("Description:");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Clone %(kind)s");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
@@ -2784,9 +2780,15 @@ gettext("Delete: You can't delete this %(kind)s, because these resources depend 
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Delete: Delete this %(kind)s");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
+gettext("Apply Failed");
+// Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Save Failed");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
+gettext("%(kind)s %(name)s applied");
+// Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("%(kind)s %(name)s saved");
+// Translators: used in packages/smarter-manifest-editor/src/App.tsx
+gettext("Applied");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Saved");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
@@ -2802,11 +2804,21 @@ gettext("Deleted");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Delete Failed");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
+gettext("The manifest is empty.");
+// Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Delete %(kind)s");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Are you sure you want to delete %(kind)s %(name)s?");
 // Translators: used in packages/smarter-manifest-editor/src/App.tsx
 gettext("Your unsaved changes will be lost.");
+// Translators: used in packages/smarter-manifest-editor/src/components/FieldHelp/Component.tsx
+gettext("Move the cursor to a field, or hover over it, to see what it is.");
+// Translators: used in packages/smarter-manifest-editor/src/components/FieldHelp/Component.tsx
+gettext("Field help");
+// Translators: used in packages/smarter-manifest-editor/src/components/FieldHelp/Component.tsx
+gettext("required");
+// Translators: used in packages/smarter-manifest-editor/src/components/FieldHelp/Component.tsx
+gettext("One of: %(values)s");
 // Translators: used in packages/smarter-manifest-editor/src/components/ManifestEditor/Component.tsx
 gettext("Smarter manifest");
 // Translators: used in packages/smarter-manifest-editor/src/components/ManifestEditor/Component.tsx, packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
@@ -2820,15 +2832,21 @@ gettext("Line %(line)s");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx, packages/smarter-prompt-passthrough/src/components/LLMProviderPassthroughResponse/Component.tsx, packages/smarter-prompt-passthrough/src/components/Toolbar/Component.tsx
 gettext("Copied to clipboard");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
-gettext("Manifest editor");
-// Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
-gettext("Save");
+gettext("Apply: Paste, type or open a manifest first");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
 gettext("Save: There are no changes to save");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
 ngettext("Save: Fix this manifest's problem first", "Save: Fix this manifest's %(problemCount)s problems first", 1);
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
+gettext("Apply: Create the resource that this manifest describes, or update it if it exists");
+// Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
 gettext("Save: Apply your changes to this manifest");
+// Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
+gettext("Manifest editor");
+// Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
+gettext("Save");
+// Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
+gettext("Apply");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx
 gettext("History");
 // Translators: used in packages/smarter-manifest-editor/src/components/Toolbar/Component.tsx, packages/smarter-prompt-passthrough/src/components/Toolbar/Component.tsx
@@ -2859,6 +2877,18 @@ gettext("The manifest's metadata.name is missing.");
 gettext("This field identifies this resource and cannot be changed here. Also, status is read-only.");
 // Translators: used in packages/smarter-manifest-editor/src/lib/useLockedFields.tsx
 gettext("%(field)s is locked. %(reason)s");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("A manifest is a YAML mapping that begins with apiVersion: smarter.sh/v1.");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("Required. Use smarter.sh/v1.");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("Must be smarter.sh/v1.");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("Required. The kind of resource, e.g. Secret or LLMClient.");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("%(kind)s is not a kind of Smarter resource. The kinds are: %(kinds)s.");
+// Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
+gettext("Required. The resource's name.");
 // Translators: used in packages/smarter-manifest-editor/src/lib/validation.tsx
 gettext("Invalid value");
 // Translators: used in packages/smarter-mcpclient-list/src/App.tsx

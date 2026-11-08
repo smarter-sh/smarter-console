@@ -134,4 +134,28 @@ describe("Toolbar", () => {
     expect(click).not.toHaveBeenCalled();
     expect(screen.queryByText("Copied to clipboard")).not.toBeInTheDocument();
   });
+
+  describe("for a new manifest", () => {
+    it("applies, with a labelled button, and has no resource to clone or delete", async () => {
+      const user = userEvent.setup();
+      const { onSave } = renderToolbar({ isNew: true, isDirty: false });
+      const apply = screen.getByRole("button", { name: /Apply/ });
+      expect(apply).toHaveAttribute(
+        "title",
+        "Apply: Create the resource that this manifest describes, or update it if it exists",
+      );
+      await user.click(apply);
+      expect(onSave).toHaveBeenCalled();
+      expect(screen.queryByRole("group", { name: "Resource" })).not.toBeInTheDocument();
+    });
+
+    it("can't apply an empty manifest", () => {
+      renderToolbar({ isNew: true, isEmpty: true });
+      expect(screen.getByRole("button", { name: /Apply/ })).toHaveAttribute(
+        "title",
+        "Apply: Paste, type or open a manifest first",
+      );
+      expect(screen.getByRole("button", { name: /Apply/ })).toBeDisabled();
+    });
+  });
 });

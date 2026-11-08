@@ -1,15 +1,16 @@
 /**
- * The console's tool pages, which Django hosted until they moved here: the manifest drop zone, the Prompt
+ * The console's tool pages, which Django hosted until they moved here: Apply Manifest, the Prompt
  * Passthrough and the Terminal, each a package's component with a session context from the console's session,
- * whose ApiUrl is the page's api. Each shows only while the session's flag is on, as Django's page did: the drop
- * zone's and the Prompt Passthrough's platform settings, and the Terminal's, which is on for a superuser only.
+ * whose ApiUrl is the page's api. Each shows only while the session's flag is on, as Django's page did: Apply
+ * Manifest's (manifestDropZone) and the Prompt Passthrough's platform settings, and the Terminal's, which is on for a superuser only.
  */
-import { ManifestDropzone } from "@smarter/drop-zone";
+import { ApplyManifest } from "@smarter/apply-manifest";
 import { PromptPassthrough } from "@smarter/prompt-passthrough";
 import { TerminalEmulator } from "@smarter/terminal-emulator";
 import { useMemo, type ReactNode } from "react";
 
 import { djangoSessionContext } from "@/lib/djangoSession";
+import { KIND_PLACEHOLDER, manifestEditorUrls } from "@/lib/manifestPages";
 import { toolUrls } from "@/lib/tools";
 import { NotFoundPage } from "@/routes/NotFoundPage";
 import { useConsoleSession } from "@/session/context";
@@ -27,10 +28,21 @@ function gated(on: boolean, page: ReactNode) {
   return page;
 }
 
-export function DropzonePage() {
+export function ApplyManifestPage() {
   const { session, sessionContext } = usePageContext(toolUrls.apply);
   if (!session || !sessionContext) return null;
-  return gated(session.flags.manifestDropZone, <ManifestDropzone sessionContext={sessionContext} />);
+  return gated(
+    session.flags.manifestDropZone,
+    <ApplyManifest
+      sessionContext={sessionContext}
+      kinds={session.samKinds}
+      applyApiUrl={toolUrls.apply}
+      validateApiUrl={manifestEditorUrls.validate}
+      schemaApiUrl={manifestEditorUrls.schema}
+      exampleApiUrl={manifestEditorUrls.example}
+      kindPlaceholder={KIND_PLACEHOLDER}
+    />,
+  );
 }
 
 export function PassthroughPage() {
