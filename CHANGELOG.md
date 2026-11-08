@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.4](https://github.com/smarter-sh/smarter-console/compare/v1.1.3...v1.1.4) (2026-11-08)
+
+### Bug Fixes
+
+* **chat:** send the session key with the provider request download ([fe65a20](https://github.com/smarter-sh/smarter-console/commit/fe65a201d6780e784fca69bb0bbcc4de3df579fe))
+
 ## [1.1.3](https://github.com/smarter-sh/smarter-console/compare/v1.1.2...v1.1.3) (2026-11-08)
 
 ### Bug Fixes
