@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.5](https://github.com/smarter-sh/smarter-console/compare/v1.1.4...v1.1.5) (2026-11-08)
+
+### Bug Fixes
+
+* **apply-manifest:** make the drop zone page a SAM manifest editor ([b24e415](https://github.com/smarter-sh/smarter-console/commit/b24e41550e9fa86cff7dd2938c8fa77f4820f5b1))
+
 ## [1.1.4](https://github.com/smarter-sh/smarter-console/compare/v1.1.3...v1.1.4) (2026-11-08)
 
 ### Bug Fixes
