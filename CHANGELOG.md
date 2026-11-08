@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.0.18](https://github.com/smarter-sh/smarter-console/compare/v1.0.17...v1.0.18) (2026-11-08)
+
+### Bug Fixes
+
+* **console:** fit the workbench's chat to a phone's visible window ([b8b5a32](https://github.com/smarter-sh/smarter-console/commit/b8b5a32af22cc3c8b5e718ffed532400aad2442b))
+* **console:** let the sidebar drawer's links work on phones ([a1d9387](https://github.com/smarter-sh/smarter-console/commit/a1d9387b4a2c8e8ee0e1b590f615a982ebbaaf88))
+
 ## [1.0.17](https://github.com/smarter-sh/smarter-console/compare/v1.0.16...v1.0.17) (2026-11-07)
 
 ### Bug Fixes
