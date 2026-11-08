@@ -160,6 +160,31 @@ describe("the theme's layout", () => {
     await user.click(screen.getByRole("button", { name: "Hide the sidebar" }));
     expect(aside).not.toHaveClass("drawer-on");
   });
+
+  it("closes the drawer when one of its links opens a page, so that the page isn't behind it", async () => {
+    narrowWindow();
+    const router = mountAt("/secret/secrets/rMTAwx/");
+    const user = userEvent.setup();
+    const aside = await screen.findByLabelText("Sidebar");
+    await user.click(screen.getByRole("button", { name: "Show the sidebar" }));
+    expect(aside).toHaveClass("drawer-on");
+
+    await user.click(within(aside).getByRole("link", { name: "Dashboard" }));
+    expect(router.state.location.pathname).toBe("/dashboard");
+    expect(aside).not.toHaveClass("drawer-on");
+
+    await user.click(screen.getByRole("button", { name: "Show the sidebar" }));
+    await user.click(within(aside).getByRole("link", { name: userSession.branding.productName }));
+    expect(aside).not.toHaveClass("drawer-on");
+  });
+
+  it("leaves the sidebar's links alone from the lg breakpoint up, where it isn't a drawer", async () => {
+    const router = mountAt("/secret/secrets/rMTAwx/");
+    const user = userEvent.setup();
+    await user.click(within(await findSidebar()).getByRole("link", { name: "Dashboard" }));
+    expect(router.state.location.pathname).toBe("/dashboard");
+    expect(screen.getByLabelText("Sidebar")).not.toHaveClass("drawer");
+  });
 });
 
 describe("the user menu's context", () => {

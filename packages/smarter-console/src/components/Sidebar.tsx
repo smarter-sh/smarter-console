@@ -14,6 +14,8 @@ import { Link, useLocation } from "react-router";
 import type { ConsoleSession } from "@/contract.gen";
 import { activeSidebarItem, consolePath, isConsolePage, sidebarSections, type SidebarItem } from "@/lib/sidebar";
 
+import "./Sidebar.css";
+
 interface SidebarProps {
   session: ConsoleSession;
   open: boolean;
@@ -27,9 +29,11 @@ interface ItemLinkProps {
   active: boolean;
   /** A count beside the label, e.g. the extensions with an update; none when 0. */
   badge: number;
+  /** Called on a click, e.g. to close the drawer, so that the page it opens isn't behind it. */
+  onNavigate?: () => void;
 }
 
-function ItemLink({ item, url, active, badge }: ItemLinkProps) {
+function ItemLink({ item, url, active, badge, onNavigate }: ItemLinkProps) {
   const external = "href" in item;
   const className = `menu-link${active ? " active" : ""}`;
   const content = (
@@ -56,6 +60,7 @@ function ItemLink({ item, url, active, badge }: ItemLinkProps) {
           to={consolePath(url)}
           aria-current={active ? "page" : undefined}
           data-smarter-onboarding={item.onboarding}
+          onClick={onNavigate}
         >
           {content}
         </Link>
@@ -71,6 +76,7 @@ function ItemLink({ item, url, active, badge }: ItemLinkProps) {
         target={external ? "_blank" : undefined}
         rel={external ? "noreferrer" : undefined}
         data-smarter-onboarding={item.onboarding}
+        onClick={onNavigate}
       >
         {content}
       </a>
@@ -84,6 +90,8 @@ export function Sidebar({ session, open, drawer, onClose }: SidebarProps) {
   if (!links) return null;
   const active = activeSidebarItem(location.pathname, links);
   const extensionUpdates = session.badges?.extensionUpdates ?? 0;
+  // a link in the drawer closes it, so that the page it opens isn't behind it.
+  const onNavigate = drawer ? onClose : undefined;
 
   const sections = [];
   for (const section of sidebarSections(session.branding, session.version)) {
@@ -93,7 +101,9 @@ export function Sidebar({ session, open, drawer, onClose }: SidebarProps) {
       if (!url) continue;
       const isActive = "key" in item && item.key === active;
       const badge = "key" in item && item.key === "extensions" ? extensionUpdates : 0;
-      items.push(<ItemLink key={item.label} item={item} url={url} active={isActive} badge={badge} />);
+      items.push(
+        <ItemLink key={item.label} item={item} url={url} active={isActive} badge={badge} onNavigate={onNavigate} />,
+      );
     }
     if (items.length === 0) continue;
     sections.push(
@@ -118,7 +128,7 @@ export function Sidebar({ session, open, drawer, onClose }: SidebarProps) {
         aria-hidden={drawer && !open ? true : undefined}
       >
         <div className="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
-          <Link to="/" aria-label={session.branding.productName}>
+          <Link to="/" aria-label={session.branding.productName} onClick={onNavigate}>
             {/* large enough to read its wordmark, within the logo's area, which is the header's 70 px. */}
             <img alt="" src={session.branding.logoUrl} className="h-60px app-sidebar-logo-default" />
           </Link>

@@ -1,0 +1,10 @@
+/*
+The sidebar's drawer, below the theme's lg breakpoint, above its overlay. The theme puts a drawer at z-index 110 and
+its overlay at 109, but its own rule for a narrow window's .app-sidebar, later in the bundle, lowers the sidebar to
+106: below the overlay, which then takes every tap meant for the menu. Keen's JavaScript, which the console doesn't
+load, would set the overlay below the drawer.
+*/
+
+.app-sidebar.drawer {
+  z-index: 110;
+}
