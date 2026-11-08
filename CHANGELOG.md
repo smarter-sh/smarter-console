@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.3](https://github.com/smarter-sh/smarter-console/compare/v1.1.2...v1.1.3) (2026-11-08)
+
+### Bug Fixes
+
+* **chat:** render data, tool calls, video and rtl text in messages ([cd863d4](https://github.com/smarter-sh/smarter-console/commit/cd863d4792bcbee2dc59ce6e35dbb0a72b936faa))
+
 ## [1.1.2](https://github.com/smarter-sh/smarter-console/compare/v1.1.1...v1.1.2) (2026-11-08)
 
 ### Bug Fixes
