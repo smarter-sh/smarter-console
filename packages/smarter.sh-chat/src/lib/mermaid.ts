@@ -14,13 +14,13 @@
  *
  * Mermaid runs with its "strict" security level, and with svg text labels rather than html ones,
  * and its svg is sanitized again before it is displayed, because the diagram's source comes from
- * the LLM. The buttons work by event delegation, as the copy button does. See toggleMermaidDiagram,
+ * the LLM. A displayed diagram also has a download button, which saves it as an svg file (see
+ * media.ts). The buttons work by event delegation, as the copy button does. See toggleMermaidDiagram,
  * and SmarterChat's onClick.
  */
-import DOMPurify from "dompurify";
-
 import { CODE_BLOCK_CLASS, COPY_BUTTON_CLASS, MERMAID_BLOCK_CLASS } from "./code";
 import { gettext, pgettext } from "./i18n";
+import { downloadButton, sanitizeSvg } from "./media";
 import { importMermaid } from "./mermaidImport";
 import "./mermaid.css";
 
@@ -80,10 +80,8 @@ function loadMermaid(): Promise<Mermaid> {
   return mermaidPromise;
 }
 
-/** A diagram's svg, without anything that could run a script, but with its own styles. */
-export function sanitizeSvg(svg: string): string {
-  return DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["style"] });
-}
+// a diagram's svg is sanitized as the messages' svg graphics are. See media.ts.
+export { sanitizeSvg };
 
 /**
  * A diagram's source, with the ">" of its quoted labels written as mermaid's "#gt;". With svg text
@@ -122,7 +120,7 @@ export function diagramSvg(source: string): Promise<string | null> {
   return svg;
 }
 
-/** Displays a mermaid code block as its diagram, and adds the button that shows its code. */
+/** Displays a mermaid code block as its diagram, and adds the buttons that show its code and download it. */
 function showDiagram(block: HTMLElement, svg: string): void {
   const pre = block.querySelector("pre");
   const copy = block.querySelector(`.${CODE_BLOCK_CLASS}-header .${COPY_BUTTON_CLASS}`);
@@ -142,6 +140,7 @@ function showDiagram(block: HTMLElement, svg: string): void {
   toggle.textContent = labels.label;
   toggle.setAttribute("aria-label", labels.name);
   copy.before(toggle);
+  copy.insertAdjacentHTML("afterend", downloadButton("diagram.svg"));
 }
 
 /**

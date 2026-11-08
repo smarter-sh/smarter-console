@@ -235,11 +235,11 @@ msgstr ""
 msgid "Still here! Just pausing to %(verb)s the %(noun)s…"
 msgstr ""
 
-#: src/lib/code.ts
+#: src/lib/code.ts src/lib/media.ts
 msgid "Copy code"
 msgstr ""
 
-#: src/lib/code.ts
+#: src/lib/code.ts src/lib/media.ts
 msgid "Copy"
 msgstr ""
 
@@ -247,10 +247,35 @@ msgstr ""
 msgid "Copied!"
 msgstr ""
 
+#: src/lib/media.ts
+msgid "Download"
+msgstr ""
+
+#. Translators: a button that shows the code of an svg image, instead of the image.
 #. Translators: a button that shows the code of a diagram, instead of the diagram.
-#: src/lib/mermaid.ts
+#: src/lib/media.ts src/lib/mermaid.ts
 msgctxt "button"
 msgid "Code"
+msgstr ""
+
+#. Translators: a button that shows the code of an svg image, instead of the image.
+#: src/lib/media.ts
+msgid "Show the image's code"
+msgstr ""
+
+#. Translators: a button that shows an svg image, instead of its code.
+#: src/lib/media.ts
+msgctxt "button"
+msgid "Image"
+msgstr ""
+
+#. Translators: a button that shows an svg image, instead of its code.
+#: src/lib/media.ts
+msgid "Show the image"
+msgstr ""
+
+#: src/lib/media.ts
+msgid "SVG image"
 msgstr ""
 
 #. Translators: a button that shows the code of a diagram, instead of the diagram.

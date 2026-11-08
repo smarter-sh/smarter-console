@@ -10,10 +10,20 @@ import DOMPurify from "dompurify";
 import { Marked, type Tokens } from "marked";
 
 import type { ApiMessage, ChatMessage } from "../types";
-import { codeBlockHtml } from "./code";
+import { codeBlockHtml, codeLanguage } from "./code";
 import { MessageDirectionEnum, SenderRoleEnum, ValidMessageRolesEnum, type MessageDirection } from "./enums";
 import { gettext } from "./i18n";
 import { mathExtension } from "./math";
+import {
+  audioHtml,
+  filenameOf,
+  isAudioUrl,
+  isSvgCodeBlock,
+  MEDIA_CLASS,
+  mediaHtml,
+  svgExtension,
+  svgHtml,
+} from "./media";
 
 const HTML_ESCAPES: Record<string, string> = {
   "&": "&amp;",
@@ -69,6 +79,8 @@ export function replaceBrokenImage(target: EventTarget | null): boolean {
   const description = document.createElement("span");
   description.className = "smarter-chat-image-unavailable";
   description.textContent = target.alt.trim() || gettext("Image");
+  // the download button of an image that isn't there.
+  target.closest(`.${MEDIA_CLASS}`)?.querySelector(":scope > button")?.remove();
   target.replaceWith(description);
   return true;
 }
@@ -96,10 +108,16 @@ function linkedImage(src: string, alt: string): string {
   return src.startsWith("data:") ? image(src, alt) : anchor(src, image(src, alt));
 }
 
+/** An image of a markdown message, with its download button. See media.ts. */
+function downloadableImage(src: string, html: string): string {
+  return mediaHtml(html, filenameOf(src, "image"));
+}
+
 // GitHub flavored markdown, in which a line break is a line break, as it is in a chat.
-// Math, in LaTeX, is typeset. See math.ts.
+// Math, in LaTeX, is typeset. See math.ts. An svg is displayed as its graphic. See media.ts.
 const markdown = new Marked({ gfm: true, breaks: true, async: false });
 markdown.use(mathExtension);
+markdown.use({ extensions: [svgExtension] });
 markdown.use({
   renderer: {
     // raw html is displayed as text.
@@ -112,17 +130,21 @@ markdown.use({
         // a linked image: the image, without the link that it would otherwise have.
         const { href: src, text: alt } = only as Tokens.Image;
         if (urlRegex.test(href) && imageUrlRegex.test(src))
-          return anchor(escapeHtml(href), image(escapeHtml(src), alt));
+          return downloadableImage(src, anchor(escapeHtml(href), image(escapeHtml(src), alt)));
       }
       const content = this.parser.parseInline(tokens);
       return urlRegex.test(href) ? anchor(escapeHtml(href), content) : content;
     },
+    // an image, or an audio player for an audio file. See media.ts.
     image({ href, text }: Tokens.Image): string {
-      return imageUrlRegex.test(href) ? linkedImage(escapeHtml(href), text) : text;
+      if (isAudioUrl(href)) return audioHtml(href, text);
+      return imageUrlRegex.test(href) ? downloadableImage(href, linkedImage(escapeHtml(href), text)) : text;
     },
-    // highlighted, with a header of its language and a copy button. See code.ts.
+    // highlighted, with a header of its language and a copy button. See code.ts. A code block that
+    // is only an svg is displayed as its graphic. See media.ts.
     code({ text, lang }: Tokens.Code): string {
-      return codeBlockHtml(text, lang);
+      const svg = isSvgCodeBlock(text, codeLanguage(lang)) ? svgHtml(text) : null;
+      return svg ?? codeBlockHtml(text, lang);
     },
   },
 });
@@ -135,7 +157,7 @@ markdown.use({
 function sanitize(html: string): string {
   return DOMPurify.sanitize(html, {
     ADD_TAGS: ["semantics", "annotation"],
-    ADD_ATTR: ["target", "encoding", "referrerpolicy"],
+    ADD_ATTR: ["target", "encoding", "referrerpolicy", "controls", "preload"],
   });
 }
 
@@ -145,8 +167,9 @@ function sanitize(html: string): string {
  * blocks are syntax highlighted, as GitHub's are. See code.ts. Math, in LaTeX, is typeset by KaTeX.
  * See math.ts.
  *
- * Raw html is displayed as text, and links and images follow the rules of
- * convertMarkdownLinksToHTML. A message that is a single paragraph is not wrapped in one,
+ * Raw html is displayed as text, except an svg, which is displayed as its graphic. Links and images
+ * follow the rules of convertMarkdownLinksToHTML, and images have a download button. An image whose
+ * url is an audio file's is an audio player, with a download button. See media.ts. A message that is a single paragraph is not wrapped in one,
  * so that its chat bubble stays as compact as the text.
  */
 export function convertMarkdownToHTML(text: string): string {

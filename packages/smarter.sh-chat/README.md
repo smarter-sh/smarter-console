@@ -112,11 +112,12 @@ spec:
 - **Live progress.** While a prompt runs, the chat shows each LLM request and each tool, Plugin and MCP server call,
   streamed as Server-Sent Events.
 - **Rich responses.** It renders GitHub flavored markdown (tables, lists, block quotes, images, links),
-  syntax-highlighted code blocks with a copy button, LaTeX math typeset by [KaTeX](https://katex.org), and
-  [Mermaid](https://mermaid.js.org) diagrams.
-- **Safe by default.** Raw HTML is displayed as text. Links and images are restricted to `http(s)`, relative and
-  raster `data:` urls. The rendered HTML and Mermaid's SVG are sanitized with
-  [DOMPurify](https://github.com/cure53/DOMPurify).
+  syntax-highlighted code blocks with a copy button, LaTeX math typeset by [KaTeX](https://katex.org),
+  [Mermaid](https://mermaid.js.org) diagrams, SVG graphics (with a Code/Image switch) and audio players. Images, SVG graphics, audio and
+  diagrams have a download button.
+- **Safe by default.** Raw HTML other than SVG is displayed as text. Links and images are restricted to `http(s)`,
+  relative and raster `data:` urls. The rendered HTML, SVG graphics and Mermaid's SVG are sanitized with
+  [DOMPurify](https://github.com/cure53/DOMPurify), and SVG graphics are displayed as images, which never run scripts.
 - **Lightweight where it counts.** React is a peer dependency. Mermaid is loaded only when a message first has a
   diagram, and KaTeX's fonts are downloaded only when an equation uses them.
 - **Made to be hosted.** A page can follow the chat (`onConfig`, `onNewChat`, `onModeChange`), ask it for the

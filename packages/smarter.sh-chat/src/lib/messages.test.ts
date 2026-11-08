@@ -110,7 +110,12 @@ describe("convertMarkdownToHTML", () => {
     );
   });
 
-  it("renders links, bare urls and images as convertMarkdownLinksToHTML does", () => {
+  it("renders links, bare urls and images as convertMarkdownLinksToHTML does, with a download button", () => {
+    const download = (filename: string) =>
+      `<button type="button" class="smarter-chat-download" data-filename="${filename}" aria-label="Download" ` +
+      `title="Download">Download</button>`;
+    const media = (html: string, filename: string) =>
+      `<span class="smarter-chat-media">${html}${download(filename)}</span>`;
     expect(convertMarkdownToHTML("See [the docs](https://docs.smarter.sh).")).toBe(
       `See ${link("https://docs.smarter.sh", "the docs")}.`,
     );
@@ -118,14 +123,55 @@ describe("convertMarkdownToHTML", () => {
       `visit ${link("https://example.com", "https://example.com")}`,
     );
     expect(convertMarkdownToHTML("[![logo](/static/logo.png)](https://smarter.sh)")).toBe(
-      link(
-        "https://smarter.sh",
-        '<img class="smarter-chat-image" src="/static/logo.png" alt="logo" loading="lazy" referrerpolicy="no-referrer">',
+      media(
+        link(
+          "https://smarter.sh",
+          '<img class="smarter-chat-image" src="/static/logo.png" alt="logo" loading="lazy" referrerpolicy="no-referrer">',
+        ),
+        "logo.png",
       ),
     );
     expect(convertMarkdownToHTML("![dot](data:image/png;base64,iVBORw0KGgo=)")).toBe(
-      '<img class="smarter-chat-image" src="data:image/png;base64,iVBORw0KGgo=" alt="dot" loading="lazy" referrerpolicy="no-referrer">',
+      media(
+        '<img class="smarter-chat-image" src="data:image/png;base64,iVBORw0KGgo=" alt="dot" loading="lazy" referrerpolicy="no-referrer">',
+        "image.png",
+      ),
     );
+  });
+
+  it("displays a raw svg, or a code block that is only an svg, as its graphic, without its scripts", () => {
+    const svg =
+      '<svg viewBox="0 0 10 10">\n  <circle cx="5" cy="5" r="3" onclick="alert(1)"/>\n\n  <script>alert(2)</script>\n</svg>';
+    for (const text of [`Here it is:\n${svg}\nEnjoy!`, "```svg\n" + svg + "\n```", "```xml\n" + svg + "\n```"]) {
+      const element = document.createElement("div");
+      element.innerHTML = convertMarkdownToHTML(text);
+      const image = element.querySelector<HTMLImageElement>("img.smarter-chat-svg")!;
+      expect(image).toHaveAttribute("alt", "SVG image");
+      const source = decodeURIComponent(image.getAttribute("src")!.replace("data:image/svg+xml;charset=utf-8,", ""));
+      expect(source).toContain('xmlns="http://www.w3.org/2000/svg"');
+      expect(source).toContain("<circle");
+      expect(source).not.toMatch(/script|onclick/);
+      expect(element.querySelector("button.smarter-chat-download")).toHaveAttribute("data-filename", "image.svg");
+      // the code is there, for the image's Code button, but hidden.
+      expect(element.querySelector("pre")).not.toBeVisible();
+      expect(element.querySelector("pre code")).toHaveTextContent("onclick");
+    }
+  });
+
+  it("keeps other html, and code blocks that are more than an svg, as text", () => {
+    expect(convertMarkdownToHTML("<div>\n<svg></svg>\n</div>")).not.toContain("<img");
+    expect(convertMarkdownToHTML("```js\nconst svg = '<svg></svg>';\n```")).toContain("<pre>");
+    expect(convertMarkdownToHTML("```xml\n<svg></svg>\n<other/>\n```")).toContain("<pre>");
+  });
+
+  it("displays an audio file as an audio player, with a download button", () => {
+    const element = document.createElement("div");
+    element.innerHTML = convertMarkdownToHTML("![a jingle](https://example.com/sounds/jingle.mp3)");
+    const audio = element.querySelector("audio")!;
+    expect(audio).toHaveAttribute("src", "https://example.com/sounds/jingle.mp3");
+    expect(audio).toHaveAttribute("controls");
+    expect(audio).toHaveAttribute("aria-label", "a jingle");
+    expect(element.querySelector("button.smarter-chat-download")).toHaveAttribute("data-filename", "jingle.mp3");
   });
 
   it("displays raw html as text, and does not link or display unsafe urls", () => {

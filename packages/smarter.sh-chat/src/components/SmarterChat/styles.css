@@ -704,6 +704,100 @@ div.cs-message__html-content img.smarter-chat-image {
   filter: none;
 }
 
+/* an svg, in its code block, on a checkerboard that shows any of its colors, and where it is
+   transparent. Its button shows its code instead. See lib/media.ts. */
+div.cs-message__html-content .smarter-chat-svg-image {
+  padding: 1em;
+  overflow-x: auto;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, #e6e6e6 25%, transparent 25%, transparent 75%, #e6e6e6 75%),
+    linear-gradient(45deg, #e6e6e6 25%, transparent 25%, transparent 75%, #e6e6e6 75%);
+  background-position:
+    0 0,
+    8px 8px;
+  background-size: 16px 16px;
+}
+
+div.cs-message__html-content .smarter-chat-svg-image[hidden],
+div.cs-message__html-content .smarter-chat-svg-block pre[hidden] {
+  display: none;
+}
+
+/* an svg often has a viewBox but no size: it fills the width that images may have. */
+div.cs-message__html-content img.smarter-chat-svg {
+  width: min(100%, 480px);
+  margin: 0 auto;
+}
+
+div.cs-message__html-content .smarter-chat-svg-toggle {
+  margin-left: auto;
+  padding: 0.2em 0.6em;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background-color: #21262d;
+  color: #c9d1d9;
+  font: inherit;
+  cursor: pointer;
+}
+
+div.cs-message__html-content .smarter-chat-svg-toggle:hover,
+div.cs-message__html-content .smarter-chat-svg-toggle:focus-visible {
+  border-color: #8b949e;
+  background-color: #30363d;
+  outline: none;
+}
+
+/* media (images, svg graphics, audio) with their download button. See lib/media.ts. */
+div.cs-message__html-content .smarter-chat-media {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+div.cs-message__html-content audio.smarter-chat-audio {
+  display: block;
+  max-width: 100%;
+  margin: 4px 0;
+}
+
+div.cs-message__html-content .smarter-chat-download {
+  padding: 0.15em 0.6em;
+  border: 1px solid rgba(127, 127, 127, 0.5);
+  border-radius: 6px;
+  background-color: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8em;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+div.cs-message__html-content .smarter-chat-download:hover,
+div.cs-message__html-content .smarter-chat-download:focus-visible {
+  opacity: 1;
+  border-color: currentColor;
+  outline: none;
+}
+
+/* a diagram's download button is in its code block's dark header. See lib/mermaid.ts. */
+div.cs-message__html-content .smarter-chat-code-header .smarter-chat-download {
+  border-color: #30363d;
+  background-color: #21262d;
+  color: #c9d1d9;
+  font-size: inherit;
+  padding: 0.2em 0.6em;
+  opacity: 1;
+}
+
+div.cs-message__html-content .smarter-chat-code-header .smarter-chat-download:hover,
+div.cs-message__html-content .smarter-chat-code-header .smarter-chat-download:focus-visible {
+  border-color: #8b949e;
+  background-color: #30363d;
+}
+
 section.system-message .cs-message__content {
   color: beige !important;
   background-color: rgb(39, 40, 34);

@@ -11,7 +11,8 @@
  * when it finishes. BANTER_DELAY_MS after a prompt is sent, the assistant replies with a chat bubble of silly
  * banter, with a twinkling sparkle, whose line changes every BANTER_INTERVAL_MS until the response replaces it.
  * See lib/banter.ts. Code blocks in messages
- * are syntax highlighted, and have a copy button.
+ * are syntax highlighted, and have a copy button. Images, svg graphics, audio and diagrams have a
+ * download button.
  *
  * With toggleMetadata, the header has a Sandbox / Production mode switch. In sandbox mode, the
  * thread also displays Smarter's system, tool and meta data messages. In production mode, it displays
@@ -48,6 +49,7 @@ import { DEFAULT_COOKIE_EXPIRATION, loggerPrefix, projectName, projectVersion } 
 import { fetchConfig, fetchPrompt, type PromptProgressEvent } from "@/lib/api";
 import { BANTER_DELAY_MS, BANTER_INTERVAL_MS, idleBanter } from "@/lib/banter";
 import { copyCodeBlock } from "@/lib/code";
+import { downloadMedia, toggleSvgCode } from "@/lib/media";
 import { pastePlainText } from "@/lib/paste";
 import { activateLanguage, gettext, interpolate, ngettext, pgettext } from "@/lib/i18n";
 import { renderMermaidDiagrams, toggleMermaidDiagram } from "@/lib/mermaid";
@@ -227,10 +229,15 @@ function SmarterChat({
   }, [activeLanguage]);
 
   useEffect(() => {
-    // messages are html strings, so their code blocks' copy buttons, and their diagrams' code
-    // buttons, are handled here. See lib/code.ts and lib/mermaid.ts.
+    // messages are html strings, so their code blocks' copy buttons, their diagrams' and svg
+    // images' code buttons, and their media's download buttons, are handled here. See lib/code.ts,
+    // lib/mermaid.ts and lib/media.ts.
     const chatApp = chatAppRef.current;
-    const handleClick = (event: MouseEvent) => copyCodeBlock(event.target) || toggleMermaidDiagram(event.target);
+    const handleClick = (event: MouseEvent) =>
+      copyCodeBlock(event.target) ||
+      toggleMermaidDiagram(event.target) ||
+      toggleSvgCode(event.target) ||
+      downloadMedia(event.target);
     chatApp?.addEventListener("click", handleClick);
     return () => chatApp?.removeEventListener("click", handleClick);
   }, []);
