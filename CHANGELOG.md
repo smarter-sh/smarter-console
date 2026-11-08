@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.2](https://github.com/smarter-sh/smarter-console/compare/v1.1.1...v1.1.2) (2026-11-08)
+
+### Bug Fixes
+
+* **chat:** download the chat as its LLM provider request in sandbox ([2c09304](https://github.com/smarter-sh/smarter-console/commit/2c093049ea6a6248a8708bd08eef8c32a8ac2e3d))
+
 ## [1.1.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.0...v1.1.1) (2026-11-08)
 
 ### Bug Fixes
