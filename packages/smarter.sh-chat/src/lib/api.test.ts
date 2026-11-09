@@ -49,6 +49,8 @@ const cookies: ChatCookies = {
   sessionCookie: cookieMetaFactory("session_key", 60_000, "localhost"),
   debugCookie: cookieMetaFactory("debug", 60_000, "localhost"),
 };
+/** Another LLMClient's session, which a cookie of a shorter path can show the page. */
+const OTHER_SESSION_KEY = "a".repeat(64);
 const context: ClientContext = { smarterClient: projectName, smarterClientVersion: projectVersion };
 
 describe("urlFactory", () => {
@@ -118,6 +120,23 @@ describe("fetchConfig", () => {
     expect(new URL(urls[1]).searchParams.get("session_key")).toBe(SESSION_KEY);
   });
 
+  it("keeps the chat's session, rather than the cookie's, on a refresh", async () => {
+    setCookie(cookies.sessionCookie, OTHER_SESSION_KEY);
+    let url = "";
+    let body: unknown;
+    server.use(
+      http.post(CONFIG_URL, async ({ request }) => {
+        url = request.url;
+        body = await request.json();
+        return HttpResponse.json({ data: config });
+      }),
+    );
+    await fetchConfig(API_URL, cookies, context, true, SESSION_KEY);
+    expect(new URL(url).searchParams.get("session_key")).toBe(SESSION_KEY);
+    expect(body).toEqual({ session_key: SESSION_KEY });
+    setCookie(cookies.sessionCookie, "");
+  });
+
   it("throws the api's error", async () => {
     server.use(http.post(CONFIG_URL, () => HttpResponse.json(apiErrorResponse(), { status: 404 })));
     await expect(fetchConfig(API_URL, cookies, context)).rejects.toThrow("LLMClient not found.");
@@ -181,6 +200,20 @@ describe("fetchProviderRequest", () => {
     await fetchProviderRequest(API_URL, cookies, context, config);
     expect(new URL(url).searchParams.get("session_key")).toBe(config.session_key);
     expect(body).toEqual({ session_key: config.session_key });
+  });
+
+  it("sends the configuration's session key, not another session's from the cookie", async () => {
+    setCookie(cookies.sessionCookie, OTHER_SESSION_KEY);
+    let url = "";
+    server.use(
+      http.post(PROVIDER_REQUEST_URL, ({ request }) => {
+        url = request.url;
+        return HttpResponse.json(providerRequestResponse());
+      }),
+    );
+    await fetchProviderRequest(API_URL, cookies, context, config);
+    expect(new URL(url).searchParams.get("session_key")).toBe(config.session_key);
+    setCookie(cookies.sessionCookie, "");
   });
 
   it("throws the api's error", async () => {
@@ -259,6 +292,20 @@ describe("fetchPrompt", () => {
     expect(result).toEqual({ messages: responseMessages, error: null });
     expect(body).toEqual({ session_key: SESSION_KEY, messages });
     expect(url).toContain(`session_key=${SESSION_KEY}`);
+  });
+
+  it("sends the configuration's session key, not another session's from the cookie", async () => {
+    setCookie(cookies.sessionCookie, OTHER_SESSION_KEY);
+    let url = "";
+    server.use(
+      http.post(PROMPT_URL, ({ request }) => {
+        url = request.url;
+        return HttpResponse.json(promptResponse());
+      }),
+    );
+    await fetchPrompt(config, [], cookies, context);
+    expect(new URL(url).searchParams.get("session_key")).toBe(SESSION_KEY);
+    setCookie(cookies.sessionCookie, "");
   });
 
   it("returns a failed prompt's error, and its smarter_error message", async () => {

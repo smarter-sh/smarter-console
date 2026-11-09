@@ -210,14 +210,17 @@ export const VERBOSE_PARAMETER = "verbose";
  * the session's tool calls, the complete meta_data, and the lists of plugins and extensions. They are
  * costly to build, so the chat asks for them only while the Console displays them. A deployed
  * LLMClient's own host, and an older platform, ignore it.
+ *
+ * sessionKey is the session that the chat is in, which a refresh keeps. Without it, the cookie's session is resumed.
  */
 export async function fetchConfig(
   apiUrl: string,
   cookies: ChatCookies,
   context: ClientContext,
   verbose = false,
+  sessionKey: string | null = null,
 ): Promise<ChatConfig> {
-  const sessionKey = getCookie(cookies.sessionCookie, "");
+  sessionKey = sessionKey || getCookie(cookies.sessionCookie, "");
   const headers = requestHeadersFactory(cookies, context);
   const init = requestInitFactory(headers, { session_key: sessionKey });
   const url = new URL(urlFactory(apiUrl, "config/", sessionKey));
@@ -436,7 +439,9 @@ export async function fetchPrompt(
   context: ClientContext,
   onProgress?: (event: PromptProgressEvent) => void,
 ): Promise<PromptResult> {
-  const sessionKey = getCookie(cookies.sessionCookie, "") || config.session_key;
+  // the configuration's session, which the platform chose, rather than the cookie's: the page can read another
+  // LLMClient's session key from a cookie of a shorter path, which would start a new session on every prompt.
+  const sessionKey = config.session_key || getCookie(cookies.sessionCookie, "");
   const headers = requestHeadersFactory(cookies, context);
   if (onProgress) {
     headers.Accept = `${textEventStream}, ${applicationJson}`;
@@ -458,8 +463,8 @@ export async function fetchPrompt(
  * v1/chat/completions api, or pasted into the Prompt Passthrough page. Only the platform's own urls, which the
  * workbench uses, return it: a deployed LLMClient's host answers 404.
  *
- * The session is the cookie's, else the configuration's, as fetchPrompt() finds it. Without a session key, the
- * platform would start a new session, and return its empty conversation instead of this chat's.
+ * The session is the configuration's, else the cookie's, as fetchPrompt() finds it. With another session's key, or
+ * none, the platform would start a new session, and return its empty conversation instead of this chat's.
  */
 export async function fetchProviderRequest(
   apiUrl: string,
@@ -467,7 +472,7 @@ export async function fetchProviderRequest(
   context: ClientContext,
   config: ChatConfig | null = null,
 ): Promise<ProviderRequest> {
-  const sessionKey = getCookie(cookies.sessionCookie, "") || config?.session_key || "";
+  const sessionKey = config?.session_key || getCookie(cookies.sessionCookie, "");
   const headers = requestHeadersFactory(cookies, context);
   const init = requestInitFactory(headers, { session_key: sessionKey });
   const response = await fetch(urlFactory(apiUrl, "provider-request/", sessionKey), init);

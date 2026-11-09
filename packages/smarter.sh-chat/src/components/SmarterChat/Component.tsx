@@ -159,6 +159,8 @@ function SmarterChat({
   const [configVerbose, setConfigVerbose] = useState(false);
   // the latest configuration request. An earlier one's response, which arrives later, is ignored.
   const configRequest = useRef(0);
+  // the session that the platform gave the chat, for its LLMClient's api url, which every later request sends.
+  const chatSession = useRef<{ apiUrl: string; sessionKey: string } | null>(null);
 
   const cookies: ChatCookies = useMemo(
     () => ({
@@ -193,8 +195,12 @@ function SmarterChat({
   /** (Re)loads the configuration, which includes the chat session's history, and, with verbose, its diagnostic parts. */
   const refreshConfig = useCallback(async () => {
     const request = ++configRequest.current;
-    const newConfig = await fetchConfig(apiUrl, cookies, context, verbose);
+    // a refresh keeps the chat's session. Only the first configuration, and a new chat's, resume the cookie's.
+    const current = chatSession.current;
+    const sessionKey = current?.apiUrl === apiUrl ? current.sessionKey : null;
+    const newConfig = await fetchConfig(apiUrl, cookies, context, verbose, sessionKey);
     if (request === configRequest.current) {
+      chatSession.current = { apiUrl, sessionKey: newConfig.session_key };
       setConfig(newConfig);
       setConfigVerbose(verbose);
     }
@@ -301,6 +307,7 @@ function SmarterChat({
 
   const handleNewChat = () => {
     setCookie(cookies.sessionCookie, "");
+    chatSession.current = null;
     setConfig(null);
     onNewChat?.();
     void startChat();

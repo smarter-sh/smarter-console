@@ -235,12 +235,22 @@ describe("SmarterChat", () => {
     expect(screen.getByRole("button", { name: "Download the LLM provider request" })).toBeEnabled();
   });
 
-  it("downloads this chat's provider request when the session cookie can't be read", async () => {
-    let sessionKey: string | null | undefined;
+  it.each([
+    ["can't be read", ""],
+    ["holds another LLMClient's session", "a".repeat(64)],
+  ])("keeps the configuration's session when the session cookie %s", async (_case, cookieValue) => {
+    const sessionKeys: Record<string, string | null> = {};
+    const record = (name: string) => (request: Request) => {
+      sessionKeys[name] = new URL(request.url).searchParams.get("session_key");
+    };
     server.use(
       http.post(PROVIDER_REQUEST_URL, ({ request }) => {
-        sessionKey = new URL(request.url).searchParams.get("session_key");
+        record("download")(request);
         return HttpResponse.json(providerRequestResponse());
+      }),
+      http.post(PROMPT_URL, ({ request }) => {
+        record("prompt")(request);
+        return HttpResponse.json(promptResponse());
       }),
       ...chatHandlers,
     );
@@ -250,14 +260,41 @@ describe("SmarterChat", () => {
     const user = userEvent.setup();
     render(<SmarterChat {...props} />);
     await screen.findByText(WELCOME);
-    // e.g. a cookie path or domain that the page can't read back: the prompt api still gets the
-    // configuration's session key, and so must the download, or the platform starts a new session.
-    const expired = new Date(0).toUTCString();
-    document.cookie = `${props.sessionCookieName}=; path=/; expires=${expired}`;
-    document.cookie = `${props.sessionCookieName}=; path=${window.location.pathname}; expires=${expired}`;
+    // what a browser can show the page after the configuration arrives: no session cookie, or another LLMClient's,
+    // e.g. from a cookie of a shorter path. With it, the platform would start a new session on every request.
+    const expires = cookieValue ? new Date(Date.now() + 60_000) : new Date(0);
+    for (const path of ["/", window.location.pathname]) {
+      document.cookie = `${props.sessionCookieName}=${cookieValue}; path=${path}; expires=${expires.toUTCString()}`;
+    }
 
+    await send(user, "Do you offer any courses on AI?");
+    await waitFor(() => expect(sessionKeys.prompt).toBe(config.session_key));
     await user.click(screen.getByRole("button", { name: "Download the LLM provider request" }));
-    await waitFor(() => expect(sessionKey).toBe(config.session_key));
+    await waitFor(() => expect(sessionKeys.download).toBe(config.session_key));
+
+    const expired = new Date(0).toUTCString();
+    for (const path of ["/", window.location.pathname]) {
+      document.cookie = `${props.sessionCookieName}=; path=${path}; expires=${expired}`;
+    }
+  });
+
+  it("keeps the chat's session when the configuration is refreshed", async () => {
+    const sessionKeys: (string | null)[] = [];
+    server.use(
+      http.post(CONFIG_URL, ({ request }) => {
+        sessionKeys.push(new URL(request.url).searchParams.get("session_key"));
+        return HttpResponse.json({ data: config, api: "smarter.sh/v1" });
+      }),
+      ...chatHandlers,
+    );
+    const { rerender } = render(<SmarterChat {...props} />);
+    await screen.findByText(WELCOME);
+    document.cookie = `${props.sessionCookieName}=${"a".repeat(64)}; path=/`;
+
+    rerender(<SmarterChat {...props} verbose />);
+    await waitFor(() => expect(sessionKeys).toHaveLength(2));
+    expect(sessionKeys[1]).toBe(config.session_key);
+    document.cookie = `${props.sessionCookieName}=; path=/; expires=${new Date(0).toUTCString()}`;
   });
 
   it("displays a failed download of the LLM provider request in the thread", async () => {
