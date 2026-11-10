@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.8](https://github.com/smarter-sh/smarter-console/compare/v1.1.7...v1.1.8) (2026-11-10)
+
+### Bug Fixes
+
+* **release:** release alpha and beta from their own branch ([d523496](https://github.com/smarter-sh/smarter-console/commit/d523496ad1385781fccf6bf18ef930e2bc37a1a2))
+
 ## [1.1.7](https://github.com/smarter-sh/smarter-console/compare/v1.1.6...v1.1.7) (2026-11-10)
 
 ### Bug Fixes
