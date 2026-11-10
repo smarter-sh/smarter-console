@@ -54,7 +54,12 @@ history up to version 0.16.2, when it had a repository of its own
    cookie names, class names and css properties are all public
    (`doc/adr/014-versioning.md`). Don't rename them in a `feat` or `fix`.
 7. **Coverage:** at least 90%, 95% where it takes moderate effort.
-8. **The repository is public.** No api keys, tokens, account numbers, private
+8. **No secrets, credentials or PII in a `console.*` call or a logged error**:
+   no api key, token, session key, cookie, email address, name or message
+   text, and no whole config, response or headers object. In DEBUG mode
+   Smarter's log is shown to ordinary users, so a leaked value there is as
+   bad as one pushed to a public repository. Log ids and counts instead.
+9. **The repository is public.** No api keys, tokens, account numbers, private
    hostnames or customer data. Example urls use `example.com` and the fake
    account number `3141-5926-5359`.
 

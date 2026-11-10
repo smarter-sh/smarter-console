@@ -19,6 +19,10 @@ HTTP, and through the console's build, which the backend serves (ADR-035).
 3. **The pre-commit hooks are the lint standard**: Prettier, ESLint, codespell, commitlint.
    `make lint` runs what CI runs.
 4. **This repository is public.** No keys, tokens, account ids, private hostnames or customer data.
+   **No secrets, credentials or PII in a `console.*` call or a logged error either**: no api key,
+   token, CSRF token, cookie, Secret value, email address, name or prompt text, and no whole session,
+   response, headers or form object. In DEBUG mode the console shows Smarter's log to ordinary users,
+   so a leaked value there is as bad as one pushed to this repository. Log ids and counts instead.
 5. **Community open source.** No sales language in the console's text.
 6. **Pattern first.** Find two or three packages that do the same thing (prefer the newest: the
    guardrail and secret lists, the console's docs pages) and copy their structure. Reuse
