@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.7](https://github.com/smarter-sh/smarter-console/compare/v1.1.6...v1.1.7) (2026-11-10)
+
+### Bug Fixes
+
+* **chat:** show only the app name in the header in production mode ([cecb8e3](https://github.com/smarter-sh/smarter-console/commit/cecb8e3541662df077cd21781f01e23ed919225e))
+
 ## [1.1.6](https://github.com/smarter-sh/smarter-console/compare/v1.1.5...v1.1.6) (2026-11-09)
 
 ### Bug Fixes
