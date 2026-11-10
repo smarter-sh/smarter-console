@@ -460,6 +460,10 @@ function SmarterChat({
   let headerName;
   if (configError) {
     headerName = gettext("Smarter Chat is not available");
+  } else if (isReady && !showMetadata) {
+    // Production mode shows the chat as its users see it: the app name, and nothing about how it's built.
+    headerName = <span className="smarter-chat-title">{llmclient?.app_name ?? ""}</span>;
+    info = "";
   } else if (isReady) {
     headerName = <AppTitle title={title} isReady={isReady} isValid={isValid} isDeployed={isDeployed} />;
   } else {

@@ -323,6 +323,29 @@ describe("SmarterChat", () => {
     expect(screen.queryByRole("group", { name: "Chat mode" })).not.toBeInTheDocument();
   });
 
+  it("shows only the app name in the header in production mode", async () => {
+    server.use(...chatHandlers);
+    render(<SmarterChat {...props} toggleMetadata={false} />);
+    await screen.findByText(WELCOME);
+    expect(screen.getByText("Stackademy")).toBeInTheDocument();
+    expect(screen.queryByText("Stackademy v1.0.0")).not.toBeInTheDocument();
+    expect(screen.queryByText(/additional tools/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "valid" })).not.toBeInTheDocument();
+    expect(screen.queryByText("(sandbox)")).not.toBeInTheDocument();
+  });
+
+  it("switches the header to the app name alone when switched to production mode", async () => {
+    server.use(...chatHandlers);
+    const user = userEvent.setup();
+    render(<SmarterChat {...props} />);
+    expect(await screen.findByText("Stackademy v1.0.0")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Production/ }));
+    expect(screen.getByText("Stackademy")).toBeInTheDocument();
+    expect(screen.queryByText("openai gpt-4o-mini with 2 additional tools")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Sandbox/ }));
+    expect(screen.getByText("Stackademy v1.0.0")).toBeInTheDocument();
+  });
+
   it("displays only the conversation, as in production mode, without the metadata toggle", async () => {
     server.use(...chatHandlers);
     render(<SmarterChat {...props} toggleMetadata={false} />);
