@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.9-alpha.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.8...v1.1.9-alpha.1) (2026-11-13)
+
+### Bug Fixes
+
+* **chat:** display markdown images whose urls contain parentheses ([4f25796](https://github.com/smarter-sh/smarter-console/commit/4f25796bed90fe2bf8ccb0ec734e35d739022428))
+* **chat:** save the session cookie of the configuration the chat keeps ([267e95f](https://github.com/smarter-sh/smarter-console/commit/267e95f9f876b0889d87309f0c2974d2afc79cd4))
+
 ## [1.1.8](https://github.com/smarter-sh/smarter-console/compare/v1.1.7...v1.1.8) (2026-11-10)
 
 ### Bug Fixes
