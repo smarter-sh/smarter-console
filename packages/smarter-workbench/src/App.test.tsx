@@ -44,6 +44,21 @@ describe("App", () => {
     expect(await screen.findByText("llmclient")).toBeInTheDocument();
   });
 
+  it("keeps the chat session in the cookie that the workbench names, at the path that it gives", async () => {
+    window.history.pushState({}, "", "/workbench/llm-clients/rMTAwx/prompt/");
+    render(<App workbench={{ ...plainWorkbench, sessionCookieName: "session_key_rMTAwx", cookiePath: "/" }} />);
+    await screen.findByText(WELCOME);
+    await waitFor(() => expect(document.cookie).toContain("session_key_rMTAwx="));
+    // at the whole site's path, not the workbench's, the cookie is readable from any page: a browser shows a
+    // single-page app only the cookies of the url it loaded at, which needn't be the workbench's.
+    window.history.pushState({}, "", "/workbench/");
+    expect(document.cookie).toContain("session_key_rMTAwx=");
+    expect(document.cookie).toContain("session_key_rMTAwx_debug=");
+    window.history.pushState({}, "", "/");
+    document.cookie = "session_key_rMTAwx=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "session_key_rMTAwx_debug=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  });
+
   it("asks for the diagnostic parts only while the Console displays them", async () => {
     installFakes();
     const requests = recordConfigRequests();

@@ -139,6 +139,8 @@ export default function App({ workbench, onboarding }: AppProps) {
           toggleMetadata={workbench.toggleMetadata}
           csrfCookieName={workbench.csrfCookieName}
           sessionCookieName={workbench.sessionCookieName}
+          debugCookieName={`${workbench.sessionCookieName}_debug`}
+          cookiePath={workbench.cookiePath ?? null}
           cookieDomain={workbench.cookieDomain}
           debugMode={workbench.debugMode}
           smarterRequestId={workbench.smarterRequestId}
