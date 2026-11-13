@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.10](https://github.com/smarter-sh/smarter-console/compare/v1.1.9...v1.1.10) (2026-11-13)
+
+### Bug Fixes
+
+* **chat:** display markdown images whose urls contain parentheses ([4f25796](https://github.com/smarter-sh/smarter-console/commit/4f25796bed90fe2bf8ccb0ec734e35d739022428))
+
 ## [1.1.9](https://github.com/smarter-sh/smarter-console/compare/v1.1.8...v1.1.9) (2026-11-13)
 
 ### Bug Fixes
