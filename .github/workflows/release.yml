@@ -25,9 +25,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release:
@@ -37,6 +35,11 @@ jobs:
       && !startsWith(github.event.workflow_run.head_commit.message, 'chore(release):')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    # Used only when there is no PAT secret: semantic-release then works with this token.
+    permissions:
+      contents: write # pushes the release commit and tag, and creates the GitHub release
+      issues: write # comments on the issues a release resolves
+      pull-requests: write # comments on the pull requests a release includes
     steps:
       - name: Checkout code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0

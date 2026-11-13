@@ -203,8 +203,9 @@ export function withLegacyChatbot(config: Contract.PromptChatApiConfig): ChatCon
 export const VERBOSE_PARAMETER = "verbose";
 
 /**
- * The LLMClient's configuration. A new chat session's key, and the debug mode, are saved in their
- * cookies, for the next page load.
+ * The LLMClient's configuration. The caller saves its session key and debug mode in their cookies
+ * (see saveConfigCookies), once it knows that it keeps this configuration: of two requests that
+ * overlap, each starts a session, and the cookie must name the one that the chat continues.
  *
  * With verbose, the platform adds the configuration's diagnostic parts, which the Console displays:
  * the session's tool calls, the complete meta_data, and the lists of plugins and extensions. They are
@@ -236,9 +237,13 @@ export async function fetchConfig(
   if (!config) {
     throw new SmarterApiError(gettext("The Smarter api returned an incomplete configuration."), response.status);
   }
+  return config;
+}
+
+/** Saves a configuration's session key and debug mode in their cookies, for the next page load. */
+export function saveConfigCookies(cookies: ChatCookies, config: ChatConfig): void {
   setCookie(cookies.sessionCookie, config.session_key);
   setCookie(cookies.debugCookie, config.debug_mode);
-  return config;
 }
 
 /** The completion in a prompt response's body, which is a JSON string. */
