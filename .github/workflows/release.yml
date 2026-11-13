@@ -70,12 +70,13 @@ jobs:
             @semantic-release/changelog@7
             @semantic-release/exec@7
             @semantic-release/git@11
-        # A workflow_run's GITHUB_REF and GITHUB_SHA are the default branch's, and semantic-release (env-ci) reads its
-        # branch from them: on alpha or beta it would then take itself for main, and fail with
-        # "git tag --merged main: malformed object name main". These are the branch and commit that Tests passed.
+          # A workflow_run's GITHUB_REF and GITHUB_SHA are the default branch's, and semantic-release (env-ci) reads
+          # its branch from them on GitHub Actions: on alpha or beta it would then take itself for main, and fail with
+          # "git tag --merged main: malformed object name main". The runner's GITHUB_* variables can't be overridden
+          # in env:, so this unsets GITHUB_ACTIONS: env-ci then reads the branch from the checkout above, which is the
+          # branch Tests passed on. CI stays set, so this is still a CI run and not a dry run.
+          unset_gha_env: true
         env:
-          GITHUB_REF: refs/heads/${{ github.event.workflow_run.head_branch }}
-          GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
           GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
