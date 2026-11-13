@@ -23,7 +23,7 @@ import {
   providerRequestResponse,
   responseMessages,
 } from "@/mocks/fixtures";
-import type { ChatCookies, ClientContext } from "@/types";
+import type { ChatConfig, ChatCookies, ClientContext } from "@/types";
 import { server } from "@test/server";
 
 import {
@@ -38,6 +38,7 @@ import {
   normalizeConfig,
   readEventStream,
   requestHeadersFactory,
+  saveConfigCookies,
   urlFactory,
   type PromptProgressEvent,
 } from "./api";
@@ -91,7 +92,7 @@ describe("requestHeadersFactory", () => {
 });
 
 describe("fetchConfig", () => {
-  it("returns the configuration, and saves the chat session's key", async () => {
+  it("returns the configuration, and leaves the cookies to its caller", async () => {
     let body: unknown;
     server.use(
       http.post(CONFIG_URL, async ({ request }) => {
@@ -102,7 +103,7 @@ describe("fetchConfig", () => {
     const result = await fetchConfig(API_URL, cookies, context);
     expect(result.llmclient.app_name).toBe("Stackademy");
     expect(body).toEqual({ session_key: "" });
-    expect(getCookie(cookies.sessionCookie)).toBe(SESSION_KEY);
+    expect(getCookie(cookies.sessionCookie)).toBeNull();
   });
 
   it("asks for the diagnostic parts with ?verbose=true, only when verbose", async () => {
@@ -114,10 +115,12 @@ describe("fetchConfig", () => {
       }),
     );
     await fetchConfig(API_URL, cookies, context);
+    setCookie(cookies.sessionCookie, SESSION_KEY);
     await fetchConfig(API_URL, cookies, context, true);
     expect(new URL(urls[0]).searchParams.has(VERBOSE_PARAMETER)).toBe(false);
     expect(new URL(urls[1]).searchParams.get(VERBOSE_PARAMETER)).toBe("true");
     expect(new URL(urls[1]).searchParams.get("session_key")).toBe(SESSION_KEY);
+    setCookie(cookies.sessionCookie, "");
   });
 
   it("keeps the chat's session, rather than the cookie's, on a refresh", async () => {
@@ -135,6 +138,14 @@ describe("fetchConfig", () => {
     expect(new URL(url).searchParams.get("session_key")).toBe(SESSION_KEY);
     expect(body).toEqual({ session_key: SESSION_KEY });
     setCookie(cookies.sessionCookie, "");
+  });
+
+  it("saves the session's key and the debug mode, with saveConfigCookies", () => {
+    saveConfigCookies(cookies, { ...config, debug_mode: true } as ChatConfig);
+    expect(getCookie(cookies.sessionCookie)).toBe(SESSION_KEY);
+    expect(getCookie(cookies.debugCookie)).toBe("true");
+    setCookie(cookies.sessionCookie, "");
+    setCookie(cookies.debugCookie, "");
   });
 
   it("throws the api's error", async () => {

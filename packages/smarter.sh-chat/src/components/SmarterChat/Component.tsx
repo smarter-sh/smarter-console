@@ -69,7 +69,7 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import { DEFAULT_COOKIE_EXPIRATION, loggerPrefix, projectName, projectVersion } from "@/const";
-import { fetchConfig, fetchPrompt, fetchProviderRequest, type PromptProgressEvent } from "@/lib/api";
+import { fetchConfig, fetchPrompt, fetchProviderRequest, saveConfigCookies, type PromptProgressEvent } from "@/lib/api";
 import { BANTER_DELAY_MS, BANTER_INTERVAL_MS, idleBanter } from "@/lib/banter";
 import { copyCodeBlock, toggleCodeBlock } from "@/lib/code";
 import { downloadMedia, providerRequestFilename, saveJson, toggleSvgCode } from "@/lib/media";
@@ -162,13 +162,23 @@ function SmarterChat({
   // the session that the platform gave the chat, for its LLMClient's api url, which every later request sends.
   const chatSession = useRef<{ apiUrl: string; sessionKey: string } | null>(null);
 
+  // the path of the page that the chat opened on. In a single-page app, a configuration that arrives after the user
+  // has left for another page must still save its cookie for the chat's page, not for the one in the address bar.
+  const [pagePath] = useState(() => window.location.pathname);
+  const sessionCookiePath = cookiePath || pagePath;
   const cookies: ChatCookies = useMemo(
     () => ({
       // Django's CSRF cookie. Read, never set.
       csrfCookie: cookieMetaFactory(csrfCookieName, null, cookieDomain, csrftoken),
       // the chat session's key, per page path (or cookiePath), so that each LLMClient has its own chat session.
-      sessionCookie: cookieMetaFactory(sessionCookieName, sessionCookieExpiration, cookieDomain, null, cookiePath),
-      debugCookie: cookieMetaFactory(debugCookieName, debugCookieExpiration, cookieDomain, null, cookiePath),
+      sessionCookie: cookieMetaFactory(
+        sessionCookieName,
+        sessionCookieExpiration,
+        cookieDomain,
+        null,
+        sessionCookiePath,
+      ),
+      debugCookie: cookieMetaFactory(debugCookieName, debugCookieExpiration, cookieDomain, null, sessionCookiePath),
     }),
     [
       csrfCookieName,
@@ -176,7 +186,7 @@ function SmarterChat({
       cookieDomain,
       sessionCookieName,
       sessionCookieExpiration,
-      cookiePath,
+      sessionCookiePath,
       debugCookieName,
       debugCookieExpiration,
     ],
@@ -200,6 +210,10 @@ function SmarterChat({
     const sessionKey = current?.apiUrl === apiUrl ? current.sessionKey : null;
     const newConfig = await fetchConfig(apiUrl, cookies, context, verbose, sessionKey);
     if (request === configRequest.current) {
+      // only the configuration that the chat keeps names the session in the cookie. An earlier request's, which
+      // started a session of its own, e.g. React's second mount in development, would otherwise overwrite it when
+      // its response arrives last, and the chat would resume that empty session on the next visit.
+      saveConfigCookies(cookies, newConfig);
       chatSession.current = { apiUrl, sessionKey: newConfig.session_key };
       setConfig(newConfig);
       setConfigVerbose(verbose);

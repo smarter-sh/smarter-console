@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createRef } from "react";
+import { createRef, StrictMode } from "react";
 
 import {
   CONFIG_URL,
@@ -785,6 +785,63 @@ describe("SmarterChat", () => {
     await act(async () => finishSlow());
     expect(screen.getByText("Stackademy New v1.0.0")).toBeInTheDocument();
     expect(screen.queryByText("Stackademy Old v1.0.0")).not.toBeInTheDocument();
+  });
+
+  it("saves the session that it keeps in the cookie, when an earlier configuration's session arrives after it", async () => {
+    // React's StrictMode starts the chat twice, as a page that remounts it can: two configurations, each with a new
+    // session. The first one's arrives last, and must not replace the chat's session in the cookie, or the next
+    // visit resumes that empty session instead of the chat.
+    const discarded = { ...config, session_key: "b".repeat(64) };
+    let finishSlow: () => void = () => {};
+    const slow = new Promise<void>((resolve) => (finishSlow = resolve));
+    let requests = 0;
+    server.use(
+      http.post(CONFIG_URL, async () => {
+        requests += 1;
+        if (requests === 1) {
+          await slow;
+          return HttpResponse.json({ data: discarded });
+        }
+        return HttpResponse.json({ data: config });
+      }),
+      ...chatHandlers,
+    );
+    render(
+      <StrictMode>
+        <SmarterChat {...props} />
+      </StrictMode>,
+    );
+    await screen.findByText(WELCOME);
+    await waitFor(() => expect(requests).toBe(2));
+    await act(async () => finishSlow());
+    expect(document.cookie).toContain(`${props.sessionCookieName}=${config.session_key}`);
+    expect(document.cookie).not.toContain(discarded.session_key);
+    document.cookie = `${props.sessionCookieName}=; path=${window.location.pathname}; expires=${new Date(0).toUTCString()}`;
+  });
+
+  it("saves the session's cookie for the page that it opened on, after the page has moved on", async () => {
+    const originalPath = window.location.pathname;
+    const chatPath = "/workbench/llm-clients/x/prompt/";
+    window.history.pushState({}, "", chatPath);
+    let finishSlow: () => void = () => {};
+    const slow = new Promise<void>((resolve) => (finishSlow = resolve));
+    server.use(
+      http.post(CONFIG_URL, async () => {
+        await slow;
+        return HttpResponse.json({ data: config });
+      }),
+      ...chatHandlers,
+    );
+    render(<SmarterChat {...props} />);
+    // a single-page app's navigation, while the configuration loads.
+    window.history.pushState({}, "", "/another-page/");
+    await act(async () => finishSlow());
+    await screen.findByText(WELCOME);
+    expect(document.cookie).not.toContain(config.session_key);
+    window.history.pushState({}, "", chatPath);
+    expect(document.cookie).toContain(`${props.sessionCookieName}=${config.session_key}`);
+    document.cookie = `${props.sessionCookieName}=; path=${chatPath}; expires=${new Date(0).toUTCString()}`;
+    window.history.pushState({}, "", originalPath);
   });
 
   it("logs its steps in debug mode", async () => {
