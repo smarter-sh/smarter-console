@@ -186,6 +186,15 @@ describe("convertMarkdownToHTML", () => {
     expect(convertMarkdownToHTML("![x](data:image/svg+xml;base64,PHN2Zz4=)")).toBe("x");
     expect(convertMarkdownToHTML("[![x](javascript:alert(1))](https://smarter.sh)")).not.toContain("<img");
   });
+
+  it("displays an image, and links, whose url has parentheses, e.g. an image CDN's resizing filters", () => {
+    // markdown allows balanced parentheses in a url, and an image search often returns such urls.
+    const src = "https://example.com/thmb/x=/1500x0/filters:no_upscale():format(webp)/photo.jpg";
+    const html = convertMarkdownToHTML(`![A skyline](${src})`);
+    expect(html).toContain(`<img class="smarter-chat-image" src="${src}" alt="A skyline"`);
+    expect(convertMarkdownToHTML(`[the photo](${src})`)).toContain(`<a href="${src}"`);
+    expect(convertMarkdownToHTML(`[![A skyline](${src})](${src})`)).toContain(`src="${src}"`);
+  });
 });
 
 describe("messageHtml", () => {

@@ -51,8 +51,13 @@ const URL_PATTERN = String.raw`(?:https?:\/\/|\/)[^\s)"]+`;
 const IMAGE_URL_PATTERN = String.raw`(?:${URL_PATTERN}|data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+)`;
 const IMAGE_PATTERN = String.raw`!\[([^\]]*)\]\((${IMAGE_URL_PATTERN})\)`;
 
-const urlRegex = new RegExp(String.raw`^${URL_PATTERN}$`);
-const imageUrlRegex = new RegExp(String.raw`^${IMAGE_URL_PATTERN}$`);
+// a url that marked has already parsed out of a link or an image, which may contain parentheses, e.g. an image
+// CDN's resizing filters (/filters:format(webp)/), because markdown allows balanced ones. Its scheme is still checked.
+const PARSED_URL_PATTERN = String.raw`(?:https?:\/\/|\/)[^\s"]+`;
+const PARSED_IMAGE_URL_PATTERN = String.raw`(?:${PARSED_URL_PATTERN}|data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+)`;
+
+const urlRegex = new RegExp(String.raw`^${PARSED_URL_PATTERN}$`);
+const imageUrlRegex = new RegExp(String.raw`^${PARSED_IMAGE_URL_PATTERN}$`);
 const linkedImageRegex = new RegExp(String.raw`\[${IMAGE_PATTERN}\]\((${URL_PATTERN})\)`, "g");
 const imageRegex = new RegExp(IMAGE_PATTERN, "g");
 const linkRegex = new RegExp(String.raw`\[([^\]]+)\]\((${URL_PATTERN})\)`, "g");
