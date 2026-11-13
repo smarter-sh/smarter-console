@@ -1173,7 +1173,7 @@ gettext("The Smarter Project is coded in part using Agentic AI techniques that y
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Follow Smarter on GitHub");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
-gettext("The Smarter Project has around 500,000 lines of code, across two dozen repositories.");
+gettext("The Smarter Project has around 750,000 lines of code, across two dozen repositories.");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Browse the repositories");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts

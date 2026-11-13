@@ -79,7 +79,8 @@ describe("the workbench", () => {
     expect(config).toMatchObject({
       apiUrl: "/api/v1/llm-clients/rMTAwx/",
       toggleMetadata: true,
-      sessionCookieName: "session_key",
+      sessionCookieName: "session_key_rMTAwx",
+      cookiePath: "/",
       logStreamUrl: "/api/web/dashboard/logs/stream/",
       manifestUrl: "/api/web/prompt/llm-clients/rMTAwx/manifest/",
       architectureUrl: "/api/web/prompt/llm-clients/rMTAwx/architecture/",

@@ -25,7 +25,7 @@ export function didYouKnowFacts(): DidYouKnowFact[] {
       link: { label: gettext("Follow Smarter on GitHub"), url: GITHUB_URLS.smarter },
     },
     {
-      text: gettext("The Smarter Project has around 500,000 lines of code, across two dozen repositories."),
+      text: gettext("The Smarter Project has around 750,000 lines of code, across two dozen repositories."),
       link: { label: gettext("Browse the repositories"), url: GITHUB_URLS.organization },
     },
     {

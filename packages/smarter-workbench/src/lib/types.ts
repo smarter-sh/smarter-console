@@ -11,8 +11,13 @@ export interface WorkbenchConfig {
   /** Show the chat's Sandbox / Production mode switch, and start in sandbox mode. */
   toggleMetadata: boolean;
   csrfCookieName: string;
-  /** The name of the cookie of the chat session's key. */
+  /** The name of the cookie of the chat session's key. The chat's debug mode cookie is named after it. */
   sessionCookieName: string;
+  /**
+   * The path of the chat's cookies. Without it, the page's path, which a single-page app's router must not use:
+   * document.cookie hides a cookie for a path that the router reached without a page load.
+   */
+  cookiePath?: string | null;
   cookieDomain: string;
   debugMode: boolean;
   smarterRequestId: string;
