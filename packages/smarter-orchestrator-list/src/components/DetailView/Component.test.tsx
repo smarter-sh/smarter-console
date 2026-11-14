@@ -1,17 +1,24 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { server } from "@test/server";
 
 import { makeObject, sessionContext } from "@/mocks/fixtures";
+import { runsHandlers } from "@/mocks/handlers";
 
 import DetailView from "@/components/DetailView/Component";
 
 describe("DetailView", () => {
+  beforeEach(() => {
+    server.use(...runsHandlers([]));
+  });
+
   it("shows the orchestrator's description, sections and metadata", () => {
     render(<DetailView sessionContext={sessionContext} object={makeObject(1)} onRequery={() => {}} />);
     expect(screen.getByText("An example, number 1.")).toBeInTheDocument();
     expect(screen.getByText("Active", { selector: ".badge" })).toBeInTheDocument();
-    for (const title of ["Orchestration", "Harnesses", "Metadata"]) {
+    for (const title of ["Orchestration", "Harnesses", "Runs", "Metadata"]) {
       expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
     }
     expect(screen.getByText("sequential")).toBeInTheDocument();

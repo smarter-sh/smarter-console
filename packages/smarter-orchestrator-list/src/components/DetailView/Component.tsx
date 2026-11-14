@@ -3,7 +3,8 @@
  *
  * The Details tab of an orchestrator's detail, which the list opens when one of its rows is chosen (see
  * TabbedListView and ResourceDetail in @smarter/common): the orchestrator's description, status and actions, then how
- * it coordinates its LLMClients, the LLMClients themselves (its harnesses), and the metadata that every resource has.
+ * it coordinates its LLMClients, the LLMClients themselves (its harnesses), its runs, which the user may start and
+ * follow there, and the metadata that every resource has.
  *
  * Props:
  * - sessionContext (SessionContext): Authentication and API context for the actions.
@@ -24,6 +25,7 @@ import {
 } from "@smarter/common";
 
 import type { OrchestratorDetailViewProps, OrchestratorHarness } from "../../lib/Types";
+import RunsSection from "../RunsSection";
 import { Toolbar } from "../Toolbar";
 
 /** The orchestrator's harnesses, in the order in which they run. */
@@ -106,6 +108,8 @@ function DetailView({ sessionContext, object: orchestrator, onRequery, filtering
           {harnesses.length ? <HarnessTable harnesses={harnesses} /> : <DetailValue value={null} />}
         </DetailField>
       </DetailSection>
+
+      <RunsSection sessionContext={sessionContext} orchestrator={orchestrator} />
 
       <ResourceMetadataSection resource={orchestrator} filtering={filtering}>
         <DetailField

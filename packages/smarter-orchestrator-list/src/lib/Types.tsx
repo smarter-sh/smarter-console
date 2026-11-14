@@ -56,6 +56,40 @@ export type Orchestrator = {
 };
 
 // ----------------------------------------------------------------------------
+// Runs: an orchestrator's attempts at an objective (the api's OrchestratorApiRun, /api/v1/orchestrators/<id>/runs/)
+// ----------------------------------------------------------------------------
+
+export type OrchestrationRunStatus =
+  "pending" | "running" | "succeeded" | "failed" | "cancelled" | "max_iterations_exceeded";
+
+/** One step of a run: one call of a harness LLMClient, as its owner. */
+export type OrchestrationStep = {
+  sequence: number;
+  llmclient: string;
+  accountNumber: string;
+  role: HarnessRole;
+  status: "succeeded" | "failed" | "skipped";
+  errorMessage: string | null;
+  createdAt: string | null;
+};
+
+/** A run of an orchestrator, with its steps and, once it succeeded, its result. */
+export type OrchestrationRun = {
+  id: number;
+  orchestrator: number;
+  objective: string;
+  status: OrchestrationRunStatus;
+  result: string | null;
+  errorMessage: string | null;
+  iterationCount: number;
+  startedBy: UserProfile | null;
+  createdAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  steps: OrchestrationStep[];
+};
+
+// ----------------------------------------------------------------------------
 // Component Props Interfaces
 // ----------------------------------------------------------------------------
 export interface OrchestratorDetailViewProps {

@@ -1,9 +1,9 @@
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { server } from "@test/server";
 
-import fetchDjangoUrl from "./django";
+import fetchDjangoUrl, { getDjangoUrl } from "./django";
 import type { SessionContext } from "./Types";
 
 const sessionContext: SessionContext = {
@@ -50,5 +50,36 @@ describe("fetchDjangoUrl", () => {
     );
     await fetchDjangoUrl({ ...sessionContext, smarterCapabilities: ["prompt", "stream"] }, "/api/x/", "{}");
     expect(capabilities).toBe("prompt,stream");
+  });
+
+  it("never logs the CSRF token or the body", async () => {
+    document.cookie = "csrftoken=token-secret";
+    server.use(http.post("/api/x/", () => HttpResponse.json({})));
+    const debug = vi.spyOn(console, "debug").mockImplementation(() => {});
+    await fetchDjangoUrl(sessionContext, "/api/x/", JSON.stringify({ objective: "private text" }));
+    const logged = JSON.stringify(debug.mock.calls);
+    debug.mockRestore();
+    expect(logged).not.toContain("token-secret");
+    expect(logged).not.toContain("private text");
+  });
+});
+
+describe("getDjangoUrl", () => {
+  it("GETs, with Smarter's client headers, and no CSRF token", async () => {
+    let request: Request | undefined;
+    server.use(
+      http.get("/api/v1/things/", ({ request: r }) => {
+        request = r;
+        return HttpResponse.json([]);
+      }),
+    );
+
+    const response = await getDjangoUrl(sessionContext, "/api/v1/things/");
+
+    expect(response.ok).toBe(true);
+    expect(request!.method).toBe("GET");
+    expect(request!.headers.get("X-Smarter-Client")).toBe("@smarter/test");
+    expect(request!.headers.get("X-Smarter-RequestId")).toBe("request-1");
+    expect(request!.headers.get("X-CSRFToken")).toBeNull();
   });
 });
