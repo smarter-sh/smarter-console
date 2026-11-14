@@ -29,9 +29,7 @@ export function didYouKnowFacts(): DidYouKnowFact[] {
       link: { label: gettext("Browse the repositories"), url: GITHUB_URLS.organization },
     },
     {
-      text: gettext(
-        "The main Smarter repository alone has about 400,000 lines of code, including about 180,000 lines of Python and 45,000 of TypeScript.",
-      ),
+      text: gettext("The main Smarter repository alone has about 365,000 lines of code."),
       link: { label: gettext("Browse the repository"), url: GITHUB_URLS.smarter },
     },
     {

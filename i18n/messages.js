@@ -1177,7 +1177,7 @@ gettext("The Smarter Project has around 750,000 lines of code, across two dozen 
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Browse the repositories");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
-gettext("The main Smarter repository alone has about 400,000 lines of code, including about 180,000 lines of Python and 45,000 of TypeScript.");
+gettext("The main Smarter repository alone has about 365,000 lines of code.");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Browse the repository");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
