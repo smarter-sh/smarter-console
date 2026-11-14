@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.11-alpha.2](https://github.com/smarter-sh/smarter-console/compare/v1.1.11-alpha.1...v1.1.11-alpha.2) (2026-11-14)
+
+### Bug Fixes
+
+* **user-menu:** show an Account Admin badge to account admins ([d9e302f](https://github.com/smarter-sh/smarter-console/commit/d9e302ff8fa0566afeab2eaeec2ad28b2ecc62b8))
+
 ## [1.1.11-alpha.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.10...v1.1.11-alpha.1) (2026-11-13)
 
 ### Bug Fixes
