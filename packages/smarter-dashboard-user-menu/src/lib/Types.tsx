@@ -21,6 +21,8 @@ export interface MenuUser {
   lastName: string;
   isSuperuser: boolean;
   isStaff: boolean;
+  /** Whether they administer the account that the console acts for, e.g. as a department's head. */
+  administersAccount: boolean;
 }
 
 /** The urls of the menu's items. */

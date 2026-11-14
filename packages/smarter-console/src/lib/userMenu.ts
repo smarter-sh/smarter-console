@@ -37,6 +37,7 @@ export function userMenuContext(session: ConsoleSession, path: string): AppConte
       lastName: user?.lastName ?? "",
       isSuperuser: user?.isSuperuser ?? false,
       isStaff: user?.isStaff ?? false,
+      administersAccount: user?.administersAccount ?? false,
     },
     profileImageUrl: user?.profileImageUrl ?? "",
     userProfileCount: user?.userProfileCount ?? 0,

@@ -1151,13 +1151,15 @@ gettext("A download link that expires, sent to your email address.");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/LanguageMenu/Component.tsx
 gettext("Language");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
-gettext("Profile Image");
-// Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx, packages/smarter-dashboard-user-menu/src/components/ProfileImageItems/Component.tsx
-gettext("Change Profile Image");
-// Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
 gettext("Superuser");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
 gettext("Staff");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
+gettext("Account Admin");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx
+gettext("Profile Image");
+// Translators: used in packages/smarter-dashboard-user-menu/src/components/MenuHeader/Component.tsx, packages/smarter-dashboard-user-menu/src/components/ProfileImageItems/Component.tsx
+gettext("Change Profile Image");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/ProfileImageItems/Component.tsx
 gettext("Remove Profile Image");
 // Translators: used in packages/smarter-dashboard-user-menu/src/components/UserMenu/Component.tsx

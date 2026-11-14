@@ -477,6 +477,10 @@ export interface ConsoleSignIn {
  * via the `definition` "ConsoleUser".
  */
 export interface ConsoleUser {
+  /**
+   * Whether the user administers the account that the console acts for: a superuser, staff, or an admin of that account only, e.g. a department's head.
+   */
+  administersAccount: boolean;
   email: string;
   firstName: string;
   isStaff: boolean;
