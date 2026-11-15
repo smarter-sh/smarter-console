@@ -25,7 +25,7 @@ export function getCookie(cookie: { name: string; domain: string }, defaultValue
     for (let i = 0; i < cookies.length; i++) {
       const thisCookie = cookies[i];
       if (thisCookie && thisCookie.startsWith && thisCookie.startsWith(`${cookie.name}=`)) {
-        console.debug(`getCookie() Found cookie ${cookie.name} in domain ${cookie.domain}:`, thisCookie);
+        console.debug(`getCookie() Found cookie ${cookie.name} in domain ${cookie.domain}.`);
         cookieValue = decodeURIComponent(thisCookie.substring(cookie.name.length + 1));
         break;
       }
@@ -65,14 +65,14 @@ export function setCookie(
     const expires = expirationDate.toUTCString();
     const cookieData = `${cookie.name}=${value}; path=${currentPath}; SameSite=Lax; expires=${expires}`;
     document.cookie = cookieData;
-    console.debug(`setCookie() Set cookie ${cookie.name} in domain ${cookie.domain}:`, cookieData);
+    console.debug(`setCookie() Set cookie ${cookie.name} in domain ${cookie.domain}.`);
   } else {
     // Unset the cookie by setting its expiration date to the past
     const expirationDate = new Date(0);
     const expires = expirationDate.toUTCString();
     const cookieData = `${cookie.name}=; path=${currentPath}; SameSite=Lax; expires=${expires}`;
     document.cookie = cookieData;
-    console.debug(`setCookie() Unset cookie ${cookie.name} in domain ${cookie.domain}:`, cookieData);
+    console.debug(`setCookie() Unset cookie ${cookie.name} in domain ${cookie.domain}.`);
   }
 }
 

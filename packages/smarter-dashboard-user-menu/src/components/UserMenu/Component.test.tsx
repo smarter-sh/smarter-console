@@ -76,14 +76,19 @@ describe("UserMenu", () => {
     expect(screen.queryByText("Introduction to Prompt Engineering")).not.toBeInTheDocument();
   });
 
-  it("shows the Superuser badge, else the Staff badge", () => {
-    const { rerender } = render(
-      <UserMenu appContext={{ ...appContext, user: { ...appContext.user, isSuperuser: true, isStaff: true } }} />,
-    );
+  it("shows the Superuser badge, else the Staff badge, else the Account Admin badge", () => {
+    const admin = { isSuperuser: true, isStaff: true, administersAccount: true };
+    const { rerender } = render(<UserMenu appContext={{ ...appContext, user: { ...appContext.user, ...admin } }} />);
     expect(screen.getByText("Superuser")).toBeInTheDocument();
     expect(screen.queryByText("Staff")).not.toBeInTheDocument();
-    rerender(<UserMenu appContext={{ ...appContext, user: { ...appContext.user, isStaff: true } }} />);
+    const staff = { isStaff: true, administersAccount: true };
+    rerender(<UserMenu appContext={{ ...appContext, user: { ...appContext.user, ...staff } }} />);
     expect(screen.getByText("Staff")).toBeInTheDocument();
+    expect(screen.queryByText("Account Admin")).not.toBeInTheDocument();
+    rerender(<UserMenu appContext={{ ...appContext, user: { ...appContext.user, administersAccount: true } }} />);
+    expect(screen.getByText("Account Admin")).toBeInTheDocument();
+    rerender(<UserMenu appContext={appContext} />);
+    expect(screen.queryByText("Account Admin")).not.toBeInTheDocument();
   });
 
   it("offers only Sign In and the languages to an anonymous request", () => {

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { makeObject, ownedObjects, sessionContext } from "@/mocks/fixtures";
-import { actionHandlers } from "@/mocks/handlers";
+import { actionHandlers, runsHandlers } from "@/mocks/handlers";
 
 import DetailView from "@/components/DetailView/Component";
 
@@ -14,7 +14,7 @@ const meta = {
     object: ownedObjects[0],
     onRequery: () => {},
   },
-  parameters: { msw: { handlers: actionHandlers } },
+  parameters: { msw: { handlers: [...actionHandlers, ...runsHandlers()] } },
 } satisfies Meta<typeof DetailView>;
 
 export default meta;

@@ -102,6 +102,7 @@ export const userSession: ConsoleSession = {
     lastName: "Lovelace",
     isSuperuser: false,
     isStaff: false,
+    administersAccount: false,
     profileImageUrl: "/static/images/avatar.png",
     userProfileCount: 1,
   },

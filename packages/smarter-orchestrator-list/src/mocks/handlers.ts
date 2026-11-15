@@ -4,9 +4,9 @@
  */
 import { http, HttpResponse } from "msw";
 
-import type { Orchestrator } from "../lib/Types";
+import type { Orchestrator, OrchestrationRun } from "../lib/Types";
 
-import { ACTIONS_URL as BASE, API_URL, makeObject, ownedObjects, sharedObjects } from "./fixtures";
+import { ACTIONS_URL as BASE, API_URL, makeObject, makeRun, ownedObjects, sharedObjects } from "./fixtures";
 
 /** The list api: the owned and shared objects. */
 export function listHandlers(owned: Orchestrator[] = ownedObjects, shared: Orchestrator[] = sharedObjects) {
@@ -31,3 +31,22 @@ export const actionHandlers = [
 export const listErrorHandlers = [
   http.post(`${API_URL}:tab/`, () => HttpResponse.json({ error: "Database unavailable" }, { status: 500 })),
 ];
+
+/** The url of every orchestrator's runs. */
+export const RUNS_URL = "/api/v1/orchestrators/:hashedId/runs/";
+
+/**
+ * The runs api: the user's runs, and a start that answers 202 with a pending run.
+ *
+ * @param runs - The runs that the list returns.
+ */
+export function runsHandlers(runs: OrchestrationRun[] = [makeRun(2), makeRun(1)]) {
+  return [
+    http.get(RUNS_URL, () => HttpResponse.json(runs)),
+    http.post(RUNS_URL, () =>
+      HttpResponse.json(makeRun(3, { status: "pending", result: null, iterationCount: 0, steps: [] }), {
+        status: 202,
+      }),
+    ),
+  ];
+}

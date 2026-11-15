@@ -22,7 +22,28 @@ interface MenuHeaderProps {
   fileInputId?: string;
 }
 
+/**
+ * The user's role, as the badge beside their name shows it: the highest that they hold.
+ *
+ * :param user: Who the user is.
+ * :returns: Superuser, Staff or Account Admin, or undefined for an ordinary member of the account.
+ */
+function roleBadge(user: MenuUser): string | undefined {
+  if (user.isSuperuser) {
+    return gettext("Superuser");
+  }
+  if (user.isStaff) {
+    return gettext("Staff");
+  }
+  if (user.administersAccount) {
+    // e.g. a department's head, who manages every resource of the department's account, and only of it.
+    return gettext("Account Admin");
+  }
+  return undefined;
+}
+
 function MenuHeader({ user, profileImageUrl, accountName, showAccount, fileInputId }: MenuHeaderProps) {
+  const badge = roleBadge(user);
   const image = <img className="smarter-profile-image" alt={gettext("Profile Image")} src={profileImageUrl} />;
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
   return (
@@ -42,13 +63,7 @@ function MenuHeader({ user, profileImageUrl, accountName, showAccount, fileInput
         <div className="d-flex flex-column min-w-0">
           <div className="fw-bold d-flex align-items-center fs-5">
             <span className="text-truncate">{user.username}</span>
-            {user.isSuperuser ? (
-              <span className="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">{gettext("Superuser")}</span>
-            ) : (
-              user.isStaff && (
-                <span className="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">{gettext("Staff")}</span>
-              )
-            )}
+            {badge && <span className="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">{badge}</span>}
           </div>
           <span className="fw-semibold text-muted fs-7 text-truncate">{user.email}</span>
           {fullName && <div className="text-muted d-flex align-items-center fs-7">{fullName}</div>}

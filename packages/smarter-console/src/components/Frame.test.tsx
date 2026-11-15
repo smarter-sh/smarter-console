@@ -221,6 +221,7 @@ describe("the user menu's context", () => {
     const context = userMenuContext(userSession, "/secret/");
     expect(context.isAuthenticated).toBe(true);
     expect(context.user.email).toBe(userSession.user!.email);
+    expect(context.user.administersAccount).toBe(userSession.user!.administersAccount);
     expect(context.accountName).toBe(userSession.account!.name);
     expect(context.urls.next).toBe("/secret/");
     expect(context.urls.logout).toBe("/api/web/account/logout/");

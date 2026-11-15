@@ -4,7 +4,7 @@
  */
 import type { SessionContext, UserProfile } from "@smarter/common";
 
-import type { Orchestrator } from "../lib/Types";
+import type { Orchestrator, OrchestrationRun } from "../lib/Types";
 
 export const API_URL = "/api/web/orchestrator/listview/";
 
@@ -75,3 +75,41 @@ export const sharedObjects: Orchestrator[] = [
     canDelete: false,
   }),
 ];
+
+/** A run of orchestrator 1, which succeeded: two steps, in two accounts, and a result. */
+export function makeRun(id: number, overrides: Partial<OrchestrationRun> = {}): OrchestrationRun {
+  return {
+    id,
+    orchestrator: 1,
+    objective: `Prepare the board pack, number ${id}.`,
+    status: "succeeded",
+    result: `The board pack, number ${id}.\nRevenue was 1,081,466.17.`,
+    errorMessage: null,
+    iterationCount: 2,
+    startedBy: USER_PROFILE,
+    createdAt: "2025-12-31T12:00:00Z",
+    startedAt: "2025-12-31T12:00:01Z",
+    completedAt: "2025-12-31T12:00:30Z",
+    steps: [
+      {
+        sequence: 1,
+        llmclient: "hr_assistant",
+        accountNumber: "1234-5678-0002",
+        role: "executor",
+        status: "succeeded",
+        errorMessage: null,
+        createdAt: "2025-12-31T12:00:10Z",
+      },
+      {
+        sequence: 2,
+        llmclient: "board_pack",
+        accountNumber: "1234-5678-0000",
+        role: "summarizer",
+        status: "succeeded",
+        errorMessage: null,
+        createdAt: "2025-12-31T12:00:30Z",
+      },
+    ],
+    ...overrides,
+  };
+}

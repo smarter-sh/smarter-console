@@ -61,7 +61,8 @@ describe("DataExportDialog", () => {
     expect(screen.getByText("23")).toBeInTheDocument();
     expect(screen.getByText("28 KB")).toBeInTheDocument();
     expect(screen.getByText("1 resource could not be exported. The README says which, and why.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Done" })).toHaveFocus();
+    // the focus moves in an effect, after the render that shows the heading.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Done" })).toHaveFocus());
   });
 
   it("shows the steps, and the manifests written, while the export runs", async () => {

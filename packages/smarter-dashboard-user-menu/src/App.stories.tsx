@@ -46,6 +46,11 @@ export const Superuser: Story = {
   args: { appContext: { ...appContext, user: { ...appContext.user, isSuperuser: true } } },
 };
 
+/** An account admin's badge: the admin of one account, e.g. a department's head, who isn't staff. */
+export const AccountAdmin: Story = {
+  args: { appContext: { ...appContext, user: { ...appContext.user, administersAccount: true } } },
+};
+
 /** An anonymous request: the languages, and Sign In. */
 export const Anonymous: Story = {
   args: { appContext: anonymousAppContext },

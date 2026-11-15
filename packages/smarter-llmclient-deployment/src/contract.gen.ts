@@ -70,7 +70,7 @@ export interface DeploymentApiKeys {
   attachUrl: string;
   attached: DeploymentAttachedApiKey | null;
   /**
-   * Whether the user may create an api key: staff.
+   * Whether the user may create an api key: they administer the account.
    */
   canCreate: boolean;
   /**

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { sessionContext } from "@/mocks/fixtures";
-import { actionHandlers, listErrorHandlers, listHandlers } from "@/mocks/handlers";
+import { actionHandlers, listErrorHandlers, listHandlers, runsHandlers } from "@/mocks/handlers";
 
 import App from "@/App";
 
@@ -10,7 +10,7 @@ const meta = {
   title: "Orchestrator List/App",
   component: App,
   args: { sessionContext },
-  parameters: { layout: "fullscreen", msw: { handlers: [...listHandlers(), ...actionHandlers] } },
+  parameters: { layout: "fullscreen", msw: { handlers: [...listHandlers(), ...actionHandlers, ...runsHandlers()] } },
 } satisfies Meta<typeof App>;
 
 export default meta;
