@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.1.13-alpha.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.12...v1.1.13-alpha.1) (2026-11-15)
+
+### Bug Fixes
+
+* **didyouknow:** describe the backend's python libraries in a fact ([ed48af8](https://github.com/smarter-sh/smarter-console/commit/ed48af88708b166c9bc25760258eb8d29ad662cd))
+
 ## [1.1.12](https://github.com/smarter-sh/smarter-console/compare/v1.1.11...v1.1.12) (2026-11-15)
 
 ### Bug Fixes
