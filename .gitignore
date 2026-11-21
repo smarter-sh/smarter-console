@@ -23,10 +23,13 @@ e2e/playwright-report/
 !.vscode/extensions.json
 *.log
 .env
+# Claude Code's personal settings; .claude/skills is the repository's
+.claude/settings.local.json
 
-# the Python virtual environment of the development tools: make init
+# the Python virtual environment of the development tools: make init, and their caches
 venv/
 .venv/
+.mypy_cache/
 
 # Vitest's cache and the shards' blob reports
 .vitest/
