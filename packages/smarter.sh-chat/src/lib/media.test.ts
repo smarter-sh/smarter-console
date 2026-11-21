@@ -249,9 +249,13 @@ describe("downloadMedia", () => {
   });
 
   it("saves another site's image, which its server allows, as a file", async () => {
+    // bytes, not a Blob: Node's Response reads a Blob with its stream(), which jsdom's Blob doesn't have.
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => new Response(new Blob(["png"]), { status: 200 })),
+      vi.fn(
+        async () =>
+          new Response(new TextEncoder().encode("png"), { status: 200, headers: { "Content-Type": "image/png" } }),
+      ),
     );
     const element = toElement(mediaHtml('<img src="https://example.com/a.png">', "a.png"));
     expect(downloadMedia(button(element))).toBe(true);

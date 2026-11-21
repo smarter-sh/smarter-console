@@ -1183,7 +1183,7 @@ gettext("The main Smarter repository alone has about 365,000 lines of code.");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Browse the repository");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
-gettext("Smarter is written in Python, with Django and Django REST Framework, and its web console is written in React.");
+gettext("Smarter's backend is written in Python. The primary PyPi libraries that it uses include Django, Django REST Framework, Pydantic, and OpenAI.");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts
 gettext("Read about its technologies");
 // Translators: used in packages/smarter-didyouknow/src/lib/facts.ts

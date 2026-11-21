@@ -34,7 +34,7 @@ export function didYouKnowFacts(): DidYouKnowFact[] {
     },
     {
       text: gettext(
-        "Smarter is written in Python, with Django and Django REST Framework, and its web console is written in React.",
+        "Smarter's backend is written in Python. The primary PyPi libraries that it uses include Django, Django REST Framework, Pydantic, and OpenAI.",
       ),
       link: { label: gettext("Read about its technologies"), url: DOCS_URLS.technologies },
     },

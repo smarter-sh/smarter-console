@@ -214,6 +214,40 @@
       })();
     </script>
 
+    <!--
+      the stylesheets that load without holding back the first paint (data-smarter-style, media="print"): once one
+      has loaded, it is switched on (media="all"), and marked data-loaded, as it is once it has failed to load;
+      src/lib/splash.ts waits for that mark. One listener on the document, in its capture phase, sees every
+      stylesheet's load and error events, which don't bubble, so it must come before the first stylesheet. It
+      replaces onload and onerror attributes, which a Content Security Policy can't allow by its nonce: the backend
+      gives this script, as every inline script of this page, the request's nonce.
+    -->
+    <script>
+      (function () {
+        function settle(event, switchOn) {
+          var link = event.target;
+          if (!(link instanceof HTMLLinkElement)) return;
+          if (!link.hasAttribute("data-smarter-style")) return;
+          if (switchOn) link.media = "all";
+          link.dataset.loaded = "1";
+        }
+        document.addEventListener(
+          "load",
+          function (event) {
+            settle(event, true);
+          },
+          true,
+        );
+        document.addEventListener(
+          "error",
+          function (event) {
+            settle(event, false);
+          },
+          true,
+        );
+      })();
+    </script>
+
     <!-- the console's theme, served by the backend until the console has its own styles. -->
     <link
       href="/static/assets/plugins/global/plugins.bundle.css"
@@ -221,11 +255,6 @@
       type="text/css"
       media="print"
       data-smarter-style
-      onload="
-        this.media = 'all';
-        this.dataset.loaded = '1';
-      "
-      onerror="this.dataset.loaded = '1'"
     />
     <link
       href="/static/assets/css/style.bundle.css"
@@ -233,11 +262,6 @@
       type="text/css"
       media="print"
       data-smarter-style
-      onload="
-        this.media = 'all';
-        this.dataset.loaded = '1';
-      "
-      onerror="this.dataset.loaded = '1'"
     />
 
     <!--
