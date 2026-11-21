@@ -19,6 +19,24 @@ function signInPattern(): RegExp {
   return new RegExp(literal[1]);
 }
 
+/** The body of index.html's inline script that switches the stylesheets on. */
+function stylesheetScript(): string {
+  const scripts = html.match(/<script>[\s\S]*?<\/script>/g) ?? [];
+  const script = scripts.find((candidate) => candidate.includes('hasAttribute("data-smarter-style")'));
+  if (!script) throw new Error("index.html has no inline script for its stylesheets.");
+  return script.replace(/^<script>/, "").replace(/<\/script>$/, "");
+}
+
+/** A stylesheet link that loads without holding back the first paint, as index.html has them. */
+function stylesheet(doc: Document): HTMLLinkElement {
+  const link = doc.createElement("link");
+  link.rel = "stylesheet";
+  link.media = "print";
+  link.setAttribute("data-smarter-style", "");
+  doc.head.append(link);
+  return link;
+}
+
 describe("index.html", () => {
   it("loads the translation catalog before the console's own script", () => {
     // @smarter/common's gettext() reads window.django, which /jsi18n/ defines.
@@ -54,8 +72,11 @@ describe("index.html", () => {
     for (const link of stylesheets) {
       expect(link).toContain('media="print"');
       expect(link).toContain("data-smarter-style");
-      expect(link).toContain("this.dataset.loaded = '1'");
+      // no inline event handler: a Content Security Policy can't allow one by its nonce.
+      expect(link).not.toMatch(/\son(load|error)=/);
     }
+    // the script that switches them on comes before the first of them.
+    expect(html.indexOf('document.addEventListener("load"')).toBeLessThan(html.indexOf("data-smarter-style\n"));
     // the tagline, and the light that sweeps across the splash, wait 1.5 seconds, after a fast network's splash has
     // gone; with reduced motion, nothing sweeps.
     expect(html).toContain("animation: smarter-splash-reveal 500ms ease 1500ms forwards;");
@@ -75,8 +96,32 @@ describe("index.html", () => {
     const plugin = nonBlockingStylesheets();
     const transform = plugin.transformIndexHtml as { handler: (html: string) => string };
     const built = transform.handler('<link rel="stylesheet" crossorigin href="/static/assets/index-abc.css">');
-    expect(built).toContain('href="/static/assets/index-abc.css" media="print" data-smarter-style');
-    expect(built).toContain("onload=\"this.media = 'all'; this.dataset.loaded = '1'\"");
+    expect(built).toBe(
+      '<link rel="stylesheet" crossorigin href="/static/assets/index-abc.css" media="print" data-smarter-style>',
+    );
+  });
+
+  it("switches each stylesheet on once it has loaded, and marks it loaded, or failed", () => {
+    const doc = document.implementation.createHTMLDocument("index.html");
+    // runs the inline script against this document, as the browser runs it against the page.
+    const run = new Function("document", "HTMLLinkElement", stylesheetScript());
+    run(doc, HTMLLinkElement);
+    const loadedLink = stylesheet(doc);
+    const failedLink = stylesheet(doc);
+    const otherLink = doc.createElement("link");
+    otherLink.media = "print";
+    doc.head.append(otherLink);
+
+    loadedLink.dispatchEvent(new Event("load"));
+    failedLink.dispatchEvent(new Event("error"));
+    otherLink.dispatchEvent(new Event("load"));
+
+    expect(loadedLink.media).toBe("all");
+    expect(loadedLink.dataset.loaded).toBe("1");
+    expect(failedLink.media).toBe("print");
+    expect(failedLink.dataset.loaded).toBe("1");
+    expect(otherLink.media).toBe("print");
+    expect(otherLink.dataset.loaded).toBeUndefined();
   });
 
   it("preloads Inter from the console's own build, not Google Fonts", () => {

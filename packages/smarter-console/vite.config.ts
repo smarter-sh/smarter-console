@@ -46,8 +46,9 @@ const VITE_STYLESHEET = /<link rel="stylesheet" crossorigin href="([^"]+)">/g;
 
 /**
  * The console's own stylesheet, which Vite links in the built index.html, loads without holding back the splash's
- * first paint, as the theme's stylesheets do (see index.html, and src/lib/splash.ts, which waits for it). On the dev
- * server, Vite injects the styles from the console's script instead.
+ * first paint, as the theme's stylesheets do (see index.html, and src/lib/splash.ts, which waits for it). index.html's
+ * inline script, not an onload attribute, switches it on once it has loaded. On the dev server, Vite injects the
+ * styles from the console's script instead.
  */
 export function nonBlockingStylesheets(): Plugin {
   return {
@@ -59,8 +60,7 @@ export function nonBlockingStylesheets(): Plugin {
         html.replace(
           VITE_STYLESHEET,
           (_link, href: string) =>
-            `<link rel="stylesheet" crossorigin href="${href}" media="print" data-smarter-style ` +
-            `onload="this.media = 'all'; this.dataset.loaded = '1'" onerror="this.dataset.loaded = '1'">`,
+            `<link rel="stylesheet" crossorigin href="${href}" media="print" data-smarter-style>`,
         ),
     },
   };
