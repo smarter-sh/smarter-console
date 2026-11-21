@@ -4,7 +4,7 @@
   "description": "chatbot React.js component for the https://smarter.sh declarative, plugin-based AI resource management platform.",
   "homepage": "https://smarter.sh",
   "type": "module",
-  "main": "./dist/smarter-chat-library.umd.js",
+  "main": "./dist/smarter-chat-library.umd.cjs",
   "module": "./dist/smarter-chat-library.es.js",
   "types": "./dist/types/src/index.d.ts",
   "jsdelivr": "./dist/embed.js",
@@ -13,8 +13,9 @@
     ".": {
       "types": "./dist/types/src/index.d.ts",
       "import": "./dist/smarter-chat-library.es.js",
-      "require": "./dist/smarter-chat-library.umd.js"
+      "require": "./dist/smarter-chat-library.umd.cjs"
     },
+    "./dist/smarter-chat-library.umd.js": "./dist/smarter-chat-library.umd.js",
     "./dist/ui-chat.css": "./dist/ui-chat.css",
     "./style.css": "./dist/ui-chat.css",
     "./embed": "./dist/embed.js",
@@ -57,7 +58,7 @@
   "scripts": {
     "dev": "NODE_ENV=dev && vite",
     "build": "tsc -b && npm run build:lib && npm run build:embed",
-    "build:lib": "vite build --mode lib && tsc -p tsconfig.lib.json",
+    "build:lib": "vite build --mode lib && tsc -p tsconfig.lib.json && node ../../scripts/dts-specifiers.mjs dist/types dist/types/src",
     "contract:types": "node scripts/contract-types.mjs",
     "i18n": "node scripts/i18n.mjs",
     "lint": "eslint --max-warnings=0 .",

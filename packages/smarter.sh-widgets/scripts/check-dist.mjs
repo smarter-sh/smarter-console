@@ -3,6 +3,7 @@
  * The react job in .github/workflows/test.yml and .github/workflows/uiWidgetsRelease.yml run it.
  *
  * - every file that package.json's exports and fields name exists,
+ * - the declarations type-check under moduleResolution "nodenext" (../../scripts/dts-specifiers.mjs),
  * - the library imports only React and its own stylesheet, so @smarter/common and @smarter/didyouknow, which are not
  *   on npm, are bundled,
  * - the library uses React's production JSX runtime, whatever NODE_ENV the build ran with,
@@ -14,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { pathToFileURL } from "node:url";
+import { checkDeclarations } from "../../../scripts/dts-specifiers.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dist = path.join(root, "dist");
@@ -36,6 +38,15 @@ for (const target of Object.values(pkg.exports)) {
 }
 for (const file of [...named].filter(Boolean)) {
   check(fs.existsSync(path.join(root, file)), `${file} exists`);
+}
+
+// the declarations, as a consumer with moduleResolution "nodenext" reads them (smarter-sh/smarter-console#6).
+if (fs.existsSync(path.join(root, pkg.types))) {
+  const errors = await checkDeclarations(path.join(root, pkg.types));
+  check(
+    errors.length === 0,
+    `the declarations resolve under nodenext${errors.length ? `:\n  ${errors.join("\n  ")}` : ""}`,
+  );
 }
 
 // the library's imports.

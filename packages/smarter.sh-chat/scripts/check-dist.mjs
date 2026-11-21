@@ -3,6 +3,8 @@
  * `npm run build:embed`. The GitHub build and release workflows run it (.github/actions/build-package).
  *
  * - every file that package.json's exports and fields name exists,
+ * - the declarations type-check under moduleResolution "nodenext" (../../scripts/dts-specifiers.mjs),
+ * - require() returns the library's exports,
  * - the embed script's own files are beside it: embed/mermaid/mermaid.js and KaTeX's woff2 fonts,
  * - the embed script is React's production build, and is within its size budget,
  * - the embed script works: loaded into a page (jsdom), it defines <smarter-chat>, sets window.SmarterChat with this
@@ -11,10 +13,12 @@
  * The launcher isn't opened, so the check makes no request to a Smarter platform.
  */
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { pathToFileURL } from "node:url";
 import { JSDOM } from "jsdom";
+import { checkDeclarations } from "../../../scripts/dts-specifiers.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dist = path.join(root, "dist");
@@ -35,6 +39,27 @@ for (const target of Object.values(pkg.exports)) {
 }
 for (const file of [...exported].filter(Boolean)) {
   check(fs.existsSync(path.join(root, file)), `${file} exists`);
+}
+
+// the declarations, as a consumer with moduleResolution "nodenext" reads them (smarter-sh/smarter-console#6).
+if (fs.existsSync(path.join(root, pkg.types))) {
+  const errors = await checkDeclarations(path.join(root, pkg.types));
+  check(
+    errors.length === 0,
+    `the declarations resolve under nodenext${errors.length ? `:\n  ${errors.join("\n  ")}` : ""}`,
+  );
+}
+
+// require(): the UMD bundle is CommonJS (.cjs) in this "type": "module" package. As .js, Node loaded it as an ES
+// module, and require() returned an empty object.
+try {
+  const library = createRequire(import.meta.url)(path.join(root, pkg.exports["."].require));
+  check(
+    typeof library.SmarterChat === "function" && library.version === pkg.version,
+    "require() returns the library's exports",
+  );
+} catch (error) {
+  check(false, `require() loads the library (${error})`);
 }
 
 // the embed script's own files.

@@ -39,7 +39,7 @@
     "url": "https://github.com/smarter-sh/smarter-console/issues"
   },
   "scripts": {
-    "build:lib": "vite build --mode lib && tsc -p tsconfig.lib.json",
+    "build:lib": "vite build --mode lib && tsc -p tsconfig.lib.json && node ../../scripts/dts-specifiers.mjs dist/types",
     "check:dist": "node scripts/check-dist.mjs",
     "lint": "eslint .",
     "storybook": "storybook dev -p 6006",

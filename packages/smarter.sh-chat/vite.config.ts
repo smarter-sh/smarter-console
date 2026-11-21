@@ -170,10 +170,29 @@ function embedMermaidConfig(): UserConfig {
   };
 }
 
+/**
+ * Vite Plugin: umdJsCopy
+ *
+ * The UMD bundle is smarter-chat-library.umd.cjs, which package.json's "main" and "require" name: the package is
+ * "type": "module", so Node loads a .js file as an ES module, in which UMD finds no module.exports, and require()
+ * returned an empty object. Pages that load the bundle with a <script> tag, from a CDN, use the old name,
+ * smarter-chat-library.umd.js, which is kept as a copy.
+ */
+const UMD_FILE = "smarter-chat-library.umd.cjs";
+const umdJsCopy: PluginOption = {
+  name: "smarter-chat-umd-js-copy",
+  writeBundle(options, bundle) {
+    const umd = bundle[UMD_FILE];
+    if (umd?.type === "chunk" && options.dir) {
+      fs.writeFileSync(path.join(options.dir, UMD_FILE.replace(/\.cjs$/, ".js")), umd.code);
+    }
+  },
+};
+
 /** The npm library: @smarter.sh/ui-chat. */
 function libraryConfig(): UserConfig {
   return {
-    plugins: [react(), withoutKatexCss],
+    plugins: [react(), withoutKatexCss, umdJsCopy],
     resolve,
     build: {
       outDir: "dist",
@@ -183,7 +202,7 @@ function libraryConfig(): UserConfig {
         entry: path.resolve(import.meta.dirname, "src/index.ts"),
         name: "SmarterChatLibrary",
         formats: ["es", "umd"],
-        fileName: (format) => `smarter-chat-library.${format}.js`,
+        fileName: (format) => (format === "umd" ? UMD_FILE : `smarter-chat-library.${format}.js`),
         // consumers import "@smarter.sh/ui-chat/dist/ui-chat.css", as they have since v0.1.
         cssFileName: "ui-chat",
       },
