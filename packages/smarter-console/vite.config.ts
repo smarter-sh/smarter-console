@@ -28,9 +28,9 @@ const DJANGO = "http://localhost:9357";
 
 /**
  * The paths that belong to the backend: its apis, Django admin, social sign-in, the translation
- * catalogs, static files, and the Terminal's WebSocket. Everything else is the console's.
+ * catalogs, static files, the web app manifest, and the Terminal's WebSocket. Everything else is the console's.
  */
-const BACKEND_PATHS = ["/api", "/admin", "/social-auth", "/i18n", "/jsi18n", "/static"];
+const BACKEND_PATHS = ["/api", "/admin", "/social-auth", "/i18n", "/jsi18n", "/static", "/site.webmanifest"];
 
 function backendProxy(): Record<string, ProxyOptions> {
   const proxy: Record<string, ProxyOptions> = {};

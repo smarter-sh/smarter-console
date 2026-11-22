@@ -58,7 +58,12 @@ describe("index.html", () => {
     // as the backend's templates/base.html does: Vite's dev server proxies /static/, and the backend rewrites it.
     expect(html).toContain('<link rel="icon" href="/static/images/logo/favicon.ico" />');
     expect(html).toContain('href="/static/images/logo/apple-touch-icon.png"');
-    expect(html).toContain('<link rel="manifest" href="/static/site.webmanifest" />');
+  });
+
+  it("links the web app manifest from the platform's own origin, never the static files' CDN", () => {
+    // the backend rewrites /static/ to the CDN's url, and a manifest on another origin loses its start_url.
+    expect(html).toContain('<link rel="manifest" href="/site.webmanifest" />');
+    expect(html).not.toContain("/static/site.webmanifest");
   });
 
   it("paints a splash from the page alone, before anything else loads", () => {
