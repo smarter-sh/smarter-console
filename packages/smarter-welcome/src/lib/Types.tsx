@@ -19,7 +19,7 @@ export interface WelcomeUrls {
 
 /** The response of the welcome api views. See WelcomeApiResponse in the welcome api. */
 export interface WelcomeApiResponse {
-  /** Whether the user has closed the welcome dialog with Show at startup unticked, so that it no longer opens by itself. */
+  /** Whether the user has closed the welcome dialog before. It then opens by itself only while Show at startup is ticked. */
   welcomed: boolean;
   urls: WelcomeUrls;
 }
@@ -31,7 +31,10 @@ export interface AppContext {
   apiUrl: string;
   /** Records that the user has been welcomed. */
   dismissApiUrl: string;
-  /** Whether the dialog opens by itself on this page: it shows at startup, and hasn't been closed in this session. */
+  /**
+   * Whether the dialog opens by itself on this page: the user hasn't closed it before, or Show at startup is
+   * ticked, and it hasn't been closed in this session.
+   */
   show: boolean;
   /** Whether the dialog opens by itself each time the user signs in: its Show at startup box. */
   showAtStartup: boolean;

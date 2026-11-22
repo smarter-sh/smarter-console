@@ -1,15 +1,17 @@
 /**
  * The Smarter welcome dialog.
  *
- * The console's base template mounts this app on every page, for signed-in users. The dialog opens by
- * itself once each time the user signs in, while its Show at startup box is ticked (``appContext.show``),
- * and again whenever they click an element with the ``data-smarter-welcome-open`` attribute, such as the
- * user menu's Welcome Tour item.
+ * The console's frame mounts this app on every page, for signed-in users. The dialog opens by itself
+ * once after the user signs in (``appContext.show``): until they first close it, and from then on while
+ * its Show at startup box is ticked, which it isn't unless they tick it. It opens again whenever they
+ * click an element with the ``data-smarter-welcome-open`` attribute, such as the user menu's Welcome
+ * Tour item.
  *
  * Opening it loads its links from the welcome api. When the user closes it, or reaches its last step,
- * whose links leave the page, it tells the welcome dismiss api the box's choice, if the api doesn't
- * know it yet: unticked, the dialog doesn't open by itself again, on any device; either way, not again
- * in this session. Closing it returns the focus to where it was before it opened.
+ * whose links leave the page, it tells the welcome dismiss api that they have seen it, and the box's
+ * choice, if the api doesn't know them yet: unticked, the dialog doesn't open by itself again, on any
+ * device; either way, not again in this session. Closing it returns the focus to where it was before it
+ * opened.
  *
  * While the dialog is closed, the app shows the first onboarding hint, a spotlight on the sidebar's LLM
  * Clients link, until the user has seen it. See SidebarHint.

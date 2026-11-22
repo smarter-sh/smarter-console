@@ -179,7 +179,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/logo/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/static/images/logo/favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="256x256" href="/static/images/logo/favicon-256x256.png" />
-    <link rel="manifest" href="/static/site.webmanifest" />
+    <!--
+      The web app manifest, from the platform's own origin, not /static/, which the backend rewrites to the CDN's: a
+      browser resolves the manifest's start_url, "/", against the manifest's url, and ignores one on another origin.
+    -->
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!--
       Inter, the theme's text font, from the console's own build rather than Google Fonts (src/fonts.css): preloaded,
