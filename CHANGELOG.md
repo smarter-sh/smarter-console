@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [1.1.13-alpha.3](https://github.com/smarter-sh/smarter-console/compare/v1.1.13-alpha.2...v1.1.13-alpha.3) (2026-11-21)
+## [1.1.13](https://github.com/smarter-sh/smarter-console/compare/v1.1.12...v1.1.13) (2026-11-21)
 
 ### Bug Fixes
 
 * **chat:** make the npm packages' nodenext types and require() work ([fdc058d](https://github.com/smarter-sh/smarter-console/commit/fdc058d0402944657af37b8b95791ea80c9c8dcd)), closes [#6](https://github.com/smarter-sh/smarter-console/issues/6)
+* **console:** switch stylesheets on without inline event handlers ([1769e55](https://github.com/smarter-sh/smarter-console/commit/1769e555aeceea56c0e77199192f82a416bf07a7))
+* **didyouknow:** describe the backend's python libraries in a fact ([ed48af8](https://github.com/smarter-sh/smarter-console/commit/ed48af88708b166c9bc25760258eb8d29ad662cd))
 
 ## [1.1.13-alpha.2](https://github.com/smarter-sh/smarter-console/compare/v1.1.13-alpha.1...v1.1.13-alpha.2) (2026-11-21)
 
