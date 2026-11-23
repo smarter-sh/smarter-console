@@ -94,9 +94,11 @@ describe("sendDjangoForm", () => {
         return HttpResponse.json({}, { status: 202 });
       }),
     );
+    // The form is checked as it is given to fetch: under Node 24, a request whose body holds a jsdom File can be
+    // sent, but not read back, so neither request.formData() nor request.text() can check it.
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
     const form = new FormData();
     form.append("files", new File(["hello"], "hello.txt", { type: "text/plain" }));
-    // jsdom's FormData sends every file as "blob", so the file is known by its content.
 
     const response = await sendDjangoForm(sessionContext, "/api/v1/things/files/", form);
 
@@ -104,8 +106,10 @@ describe("sendDjangoForm", () => {
     expect(request!.headers.get("X-CSRFToken")).toBe("token-123");
     expect(request!.headers.get("X-Smarter-Client")).toBe("@smarter/test");
     expect(request!.headers.get("Content-Type")).toMatch(/^multipart\/form-data; boundary=/);
-    const received = await request!.formData();
-    expect(await (received.get("files") as File).text()).toBe("hello");
+    const sent = fetchSpy.mock.calls[0][1]?.body as FormData;
+    fetchSpy.mockRestore();
+    expect((sent.get("files") as File).name).toBe("hello.txt");
+    expect(await (sent.get("files") as File).text()).toBe("hello");
   });
 
   it("never logs the CSRF token or the form", async () => {

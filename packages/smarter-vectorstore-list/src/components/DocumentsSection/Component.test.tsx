@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import { server } from "@test/server";
 
@@ -19,7 +19,31 @@ function renderSection(overrides = {}, onRequery = () => {}) {
   );
 }
 
-/** A file whose content is its name, since jsdom's FormData sends every file as "blob". */
+/**
+ * Record the forms that are given to fetch, until the test ends.
+ *
+ * A form is checked as it is given to fetch: under Node 24, a request whose body holds a jsdom File can be sent, but
+ * not read back, so a handler's request.formData() and request.text() can't check it.
+ */
+function recordForms(): FormData[] {
+  const forms: FormData[] = [];
+  const originalFetch = globalThis.fetch;
+  const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+    if (init?.body instanceof FormData) {
+      forms.push(init.body);
+    }
+    return originalFetch(input, init);
+  });
+  onTestFinished(() => fetchSpy.mockRestore());
+  return forms;
+}
+
+/** The names of the files of a form. */
+function fileNames(form: FormData | undefined): string[] {
+  return (form?.getAll("files") ?? []).map((entry) => (entry as File).name);
+}
+
+/** A small file, or one whose size is said to be size. */
 function file(name: string, size?: number): File {
   const made = new File([name], name, { type: "text/markdown" });
   if (size !== undefined) {
@@ -49,11 +73,9 @@ describe("DocumentsSection", () => {
   });
 
   it("uploads the files that are chosen, as a multipart form, and requeries the list", async () => {
-    let names: string[] = [];
+    const forms = recordForms();
     server.use(
-      http.post(DOCUMENTS_URL, async ({ request }) => {
-        const form = await request.formData();
-        names = await Promise.all(form.getAll("files").map((entry) => (entry as File).text()));
+      http.post(DOCUMENTS_URL, () => {
         return HttpResponse.json(
           { documents: [makeDocument(9), makeDocument(10)], duplicates: [makeDocument(1)], queued: true, message: "" },
           { status: 202 },
@@ -68,15 +90,14 @@ describe("DocumentsSection", () => {
     expect(
       await screen.findByText(/Added 2 documents\. 1 document was already in the vectorstore\./),
     ).toBeInTheDocument();
-    expect(names).toEqual(["a.md", "b.md"]);
+    expect(fileNames(forms[0])).toEqual(["a.md", "b.md"]);
     expect(onRequery).toHaveBeenCalled();
   });
 
   it("uploads the files that are dropped on it", async () => {
-    let count = 0;
+    const forms = recordForms();
     server.use(
-      http.post(DOCUMENTS_URL, async ({ request }) => {
-        count = (await request.formData()).getAll("files").length;
+      http.post(DOCUMENTS_URL, () => {
         return HttpResponse.json(
           { documents: [makeDocument(9)], duplicates: [], queued: true, message: "" },
           { status: 202 },
@@ -92,15 +113,13 @@ describe("DocumentsSection", () => {
     expect(zone).not.toHaveClass("border-primary");
     fireEvent.drop(zone, { dataTransfer: { files: [file("dropped.md")] } });
     expect(await screen.findByText("Added 1 document.")).toBeInTheDocument();
-    expect(count).toBe(1);
+    expect(fileNames(forms[0])).toEqual(["dropped.md"]);
   });
 
   it("refuses a file that is too large, and sends the others", async () => {
-    let names: string[] = [];
+    const forms = recordForms();
     server.use(
-      http.post(DOCUMENTS_URL, async ({ request }) => {
-        const form = await request.formData();
-        names = await Promise.all(form.getAll("files").map((entry) => (entry as File).text()));
+      http.post(DOCUMENTS_URL, () => {
         return HttpResponse.json(
           { documents: [makeDocument(9)], duplicates: [], queued: false, message: "" },
           { status: 202 },
@@ -115,7 +134,7 @@ describe("DocumentsSection", () => {
     ]);
     expect(await screen.findByText("Too large to add: huge.pdf.")).toBeInTheDocument();
     expect(await screen.findByText(/once the vectorstore is deployed and ready/)).toBeInTheDocument();
-    expect(names).toEqual(["ok.md"]);
+    expect(fileNames(forms[0])).toEqual(["ok.md"]);
   });
 
   it("shows the api's reason when an upload fails", async () => {
