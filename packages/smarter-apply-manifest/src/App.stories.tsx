@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fireEvent, userEvent, within } from "storybook/test";
 
 import { SECRET_MANIFEST, appProps } from "@/mocks/fixtures";
-import { applyErrorHandlers, applyHandlers } from "@/mocks/handlers";
+import { applyErrorHandlers, applyHandlers, repositoryRecentHandlers } from "@/mocks/handlers";
 
 import App from "@/App";
 
@@ -49,5 +49,15 @@ export const ApplyFailed: Story = {
     await canvas.findByText("No problems", {}, { timeout: 3000 });
     await userEvent.click(canvas.getByRole("button", { name: /Apply/ }));
     await expect(await canvas.findByRole("dialog", { name: "Apply Failed" })).toBeInTheDocument();
+  },
+};
+
+/** The From a GitHub repository tab, with the user's recent runs. */
+export const GitHubRepository: Story = {
+  parameters: { msw: { handlers: repositoryRecentHandlers() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "From a GitHub repository" }));
+    await expect(await canvas.findByRole("region", { name: "Recent runs" })).toBeInTheDocument();
   },
 };

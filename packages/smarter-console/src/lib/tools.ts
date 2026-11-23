@@ -9,6 +9,11 @@ export const TERMINAL_PATH = "/dashboard/terminal";
 export const toolUrls = {
   /** The cli api's apply, with which the Apply Manifest page applies its manifest. */
   apply: "/api/v1/cli/apply/",
+  /**
+   * The repository apply api, with which the Apply Manifest page applies every manifest of a GitHub repository;
+   * a run's detail is <repositoryApply><id>/. See smarter.apps.account.api.web.repository_apply.
+   */
+  repositoryApply: "/api/web/account/repository-apply/",
   /** The Prompt Passthrough's api, to which it appends the provider's name. */
   passthrough: "/api/v1/prompts/passthrough/",
   /** The providers and their models, for the Prompt Passthrough. */

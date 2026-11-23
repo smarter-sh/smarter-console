@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { APPLY_API_URL, SECRET_MANIFEST, appProps } from "@/mocks/fixtures";
-import { applyErrorHandlers, applyHandlers } from "@/mocks/handlers";
+import { applyErrorHandlers, applyHandlers, repositoryRecentHandlers } from "@/mocks/handlers";
 import { server } from "@test/server";
 
 import App from "@/App";
@@ -147,5 +147,28 @@ describe("App", () => {
     file.text = () => Promise.reject("unreadable");
     await userEvent.upload(screen.getByLabelText("Manifest file"), file);
     expect(await screen.findByRole("alert")).toHaveTextContent("secret.yaml could not be read.");
+  });
+
+  it("switches to applying a GitHub repository, and back to the editor, which keeps its text", async () => {
+    server.use(...repositoryRecentHandlers());
+    const user = userEvent.setup();
+    render(<App {...appProps} />);
+    const editorTab = screen.getByRole("tab", { name: "Manifest editor" });
+    const repositoryTab = screen.getByRole("tab", { name: "From a GitHub repository" });
+    expect(editorTab).toHaveAttribute("aria-selected", "true");
+    type(SECRET_MANIFEST);
+
+    await user.click(repositoryTab);
+    expect(repositoryTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "From a GitHub repository" })).toBeVisible();
+    expect(screen.getByLabelText("Public GitHub repository")).toBeVisible();
+    expect(await screen.findByRole("region", { name: "Recent runs" })).toBeInTheDocument();
+    // a file dragged over the page doesn't open the editor's drop zone here.
+    act(dragFileIn);
+    expect(screen.queryByRole("region", { name: "Drop Zone" })).not.toBeInTheDocument();
+
+    await user.click(editorTab);
+    expect(screen.getByRole("tabpanel", { name: "Manifest editor" })).toBeVisible();
+    expect(editorText()).toBe(SECRET_MANIFEST);
   });
 });

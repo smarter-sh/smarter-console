@@ -1,0 +1,148 @@
+/*
+ * Apply a GitHub repository: the run's stages, its progress, and its manifests' table and details. Colors come
+ * from the Keen theme's variables, which [data-bs-theme=dark] redefines.
+ */
+.smarter-ra-input {
+  min-width: min(100%, 18rem);
+}
+
+.smarter-ra-badge {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.smarter-ra-badge i {
+  color: inherit;
+}
+
+.smarter-ra-spinner {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-width: 0.15em;
+}
+
+/* the stages: queued, clone, apply, finished. */
+.smarter-ra-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--bs-gray-500);
+}
+
+.smarter-ra-stage + .smarter-ra-stage::before {
+  content: "";
+  display: inline-block;
+  width: 1.25rem;
+  height: 1px;
+  margin-right: 0.25rem;
+  background-color: var(--bs-gray-300);
+}
+
+.smarter-ra-stage-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: var(--bs-gray-200);
+  color: var(--bs-gray-600);
+}
+
+.smarter-ra-stage-marker i {
+  color: inherit;
+}
+
+.smarter-ra-stage-done,
+.smarter-ra-stage-active {
+  color: var(--bs-gray-800);
+}
+
+.smarter-ra-stage-done .smarter-ra-stage-marker {
+  background-color: var(--bs-success-light, var(--bs-gray-200));
+  color: var(--bs-success);
+}
+
+.smarter-ra-stage-active {
+  font-weight: 600;
+}
+
+.smarter-ra-stage-active .smarter-ra-stage-marker {
+  background-color: var(--bs-primary);
+  color: var(--bs-white, #fff);
+}
+
+.smarter-ra-stage-failed {
+  color: var(--bs-danger);
+  font-weight: 600;
+}
+
+.smarter-ra-stage-failed .smarter-ra-stage-marker {
+  background-color: var(--bs-danger-light, var(--bs-gray-200));
+  color: var(--bs-danger);
+}
+
+.smarter-ra-progress {
+  height: 0.6rem;
+}
+
+/* the manifests' table scrolls in its own box, its header in view. */
+.smarter-ra-table-scroll {
+  max-height: 65vh;
+  overflow: auto;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius, 0.475rem);
+}
+
+.smarter-ra-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--bs-body-bg);
+}
+
+.smarter-ra-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.smarter-ra-row-open > td {
+  background-color: var(--bs-gray-100);
+}
+
+.smarter-ra-details {
+  background-color: var(--bs-gray-100);
+  border-left: 3px solid var(--bs-gray-300);
+}
+
+/* a message: monospace, wrapped, and scrolled when it's long. */
+.smarter-ra-message {
+  max-height: 16rem;
+  overflow: auto;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.8rem;
+  color: var(--bs-gray-800);
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius, 0.475rem);
+}
+
+.smarter-ra-message-failed {
+  border-left: 3px solid var(--bs-danger);
+}
+
+.smarter-ra-message-skipped {
+  border-left: 3px solid var(--bs-warning);
+}
+
+.smarter-ra-pre-line {
+  white-space: pre-line;
+}

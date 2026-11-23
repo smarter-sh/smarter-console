@@ -8,6 +8,9 @@
  *
  * Dragging a file over the page shows the drop zone over the editor; dropping the file there opens it. A
  * manifest that replaces the editor's text asks first.
+ *
+ * Its second tab, From a GitHub repository, applies every manifest of a public GitHub repository at once (see
+ * components/RepositoryApply). The editor stays mounted while that tab shows, so that its text is kept.
  */
 import { useState } from "react";
 
@@ -15,8 +18,10 @@ import { gettext, interpolateNodes, Modal } from "@smarter/common";
 import type { SessionContext } from "@smarter/common";
 import { ManifestEditor } from "@smarter/manifest-editor";
 
+import "./App.css";
 import Actions from "./components/Actions";
 import DropOverlay from "./components/DropOverlay";
+import RepositoryApply from "./components/RepositoryApply";
 import { loadExample, readManifestFile } from "./lib/manifests";
 import { useFileDrag } from "./lib/useFileDrag";
 
@@ -33,13 +38,26 @@ export interface AppProps {
   /** The cli api's example-manifest url, with kindPlaceholder for the kind. */
   exampleApiUrl: string;
   kindPlaceholder: string;
+  /** The repository apply api's url, /api/web/account/repository-apply/, which applies a GitHub repository. */
+  repositoryApplyApiUrl: string;
+  /** Milliseconds between the requests for a repository apply's progress. */
+  pollInterval?: number;
 }
+
+/** The page's tabs: the manifest editor, and a GitHub repository. */
+type Mode = "editor" | "repository";
 
 /** The editor's text: each new one has a new version, which mounts a new editor with it. */
 type Content = { yaml: string; version: number };
 
 /** A manifest that would replace the editor's text, and where it came from, e.g. its file's name. */
 type Pending = { yaml: string; source: string };
+
+/** The page's tabs, in order, with their names (a function, so that each render has the page's language). */
+const TABS: { key: Mode; label: () => string; icon: string }[] = [
+  { key: "editor", label: () => gettext("Manifest editor"), icon: "ki-code" },
+  { key: "repository", label: () => gettext("From a GitHub repository"), icon: "ki-github" },
+];
 
 /** The editor's least height: most of the window, as the drop zone's was. */
 function editorMinHeight(): number {
@@ -54,14 +72,19 @@ function App({
   schemaApiUrl,
   exampleApiUrl,
   kindPlaceholder,
+  repositoryApplyApiUrl,
+  pollInterval,
 }: AppProps) {
+  const [mode, setMode] = useState<Mode>("editor");
+  // the repository tab mounts when it is first opened, and then stays, so that it keeps following its run.
+  const [repositoryOpened, setRepositoryOpened] = useState(false);
   const [content, setContent] = useState<Content>({ yaml: "", version: 0 });
   const [current, setCurrent] = useState("");
   const [pending, setPending] = useState<Pending | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingExample, setIsLoadingExample] = useState(false);
   const [minHeight] = useState(editorMinHeight);
-  const isDragging = useFileDrag();
+  const isDragging = useFileDrag() && mode === "editor";
 
   const replace = (yaml: string) => {
     setContent((previous) => ({ yaml, version: previous.version + 1 }));
@@ -104,42 +127,86 @@ function App({
       <h3 id="apply-manifest-title" className="pt-5">
         {gettext("Apply Smarter YAML Manifest")}
       </h3>
-      <p className="text-muted">
-        {gettext(
-          "Paste or type a manifest, open a file, drag one onto this page, or start from an example. It is checked as you type, and hovering over a field shows what it is. Apply creates its resource, or updates it if it exists.",
-        )}
-      </p>
+      <div className="apply-manifest-modes" role="tablist" aria-label={gettext("How to apply")}>
+        {TABS.map(({ key, label, icon }) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            id={`apply-manifest-tab-${key}`}
+            aria-selected={mode === key}
+            aria-controls={`apply-manifest-panel-${key}`}
+            className={mode === key ? "apply-manifest-mode active" : "apply-manifest-mode"}
+            onClick={() => {
+              setMode(key);
+              if (key === "repository") setRepositoryOpened(true);
+            }}
+          >
+            <i className={`ki-outline ${icon} fs-3`} aria-hidden="true" />
+            {label()}
+          </button>
+        ))}
+      </div>
 
-      <Actions
-        kinds={kinds}
-        isBusy={isLoadingExample}
-        onFile={(file) => void openFile(file)}
-        onExample={(kind) => void openExample(kind)}
-      />
+      <div
+        id="apply-manifest-panel-editor"
+        role="tabpanel"
+        aria-labelledby="apply-manifest-tab-editor"
+        hidden={mode !== "editor"}
+      >
+        <p className="text-muted">
+          {gettext(
+            "Paste or type a manifest, open a file, drag one onto this page, or start from an example. It is checked as you type, and hovering over a field shows what it is. Apply creates its resource, or updates it if it exists.",
+          )}
+        </p>
 
-      {error && (
-        <div role="alert" className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button type="button" className="btn-close" aria-label={gettext("Dismiss")} onClick={() => setError(null)} />
-        </div>
-      )}
-
-      <div className="position-relative">
-        <ManifestEditor
-          key={content.version}
-          sessionContext={sessionContext}
-          initialManifest={content.yaml}
-          applyApiUrl={applyApiUrl}
-          validateApiUrl={validateApiUrl}
-          schemaApiUrl={schemaApiUrl}
-          kindPlaceholder={kindPlaceholder}
+        <Actions
           kinds={kinds}
-          isNew
-          minHeight={minHeight}
-          emptyMessage={gettext("Paste or type a manifest, open a file, drag one here, or start from an example.")}
-          onChange={setCurrent}
+          isBusy={isLoadingExample}
+          onFile={(file) => void openFile(file)}
+          onExample={(kind) => void openExample(kind)}
         />
-        {isDragging && <DropOverlay onFile={(file) => void openFile(file)} />}
+
+        {error && (
+          <div role="alert" className="alert alert-danger d-flex justify-content-between align-items-center">
+            <span>{error}</span>
+            <button
+              type="button"
+              className="btn-close"
+              aria-label={gettext("Dismiss")}
+              onClick={() => setError(null)}
+            />
+          </div>
+        )}
+
+        <div className="position-relative">
+          <ManifestEditor
+            key={content.version}
+            sessionContext={sessionContext}
+            initialManifest={content.yaml}
+            applyApiUrl={applyApiUrl}
+            validateApiUrl={validateApiUrl}
+            schemaApiUrl={schemaApiUrl}
+            kindPlaceholder={kindPlaceholder}
+            kinds={kinds}
+            isNew
+            minHeight={minHeight}
+            emptyMessage={gettext("Paste or type a manifest, open a file, drag one here, or start from an example.")}
+            onChange={setCurrent}
+          />
+          {isDragging && <DropOverlay onFile={(file) => void openFile(file)} />}
+        </div>
+      </div>
+
+      <div
+        id="apply-manifest-panel-repository"
+        role="tabpanel"
+        aria-labelledby="apply-manifest-tab-repository"
+        hidden={mode !== "repository"}
+      >
+        {repositoryOpened && (
+          <RepositoryApply sessionContext={sessionContext} apiUrl={repositoryApplyApiUrl} pollInterval={pollInterval} />
+        )}
       </div>
 
       {pending && (
