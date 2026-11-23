@@ -1,3 +1,4 @@
+import { CopyButton } from "./CopyButton";
 import { Loading, LoadingText } from "./Loading";
 import { AnnotationChips, AnnotationsRow, annotationRequirement, TagChips, TagsRow } from "./MetadataChips";
 import ResourceDetail from "./ResourceDetail";
@@ -43,6 +44,7 @@ export {
   branchIds,
   childId,
   CodeBlock,
+  CopyButton,
   countResources,
   depth,
   DetailField,
@@ -94,6 +96,7 @@ export type {
   ResourceMetadata,
   ResourceMetadataSectionProps,
 } from "./ResourceDetail";
+export type { CopyButtonProps } from "./CopyButton";
 export type { KindInfo, NodeId, ResourceTreeNode, ResourceTreeProps, Tone } from "./ResourceTree";
 export type { ToolbarMessages, ToolbarResource } from "./ResourceToolbar";
 export type { SkeletonColumn, SkeletonProps } from "./Skeleton";

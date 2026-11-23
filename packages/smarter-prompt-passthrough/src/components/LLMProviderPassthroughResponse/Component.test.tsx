@@ -142,7 +142,7 @@ describe("LLMProviderPassthroughResponse", () => {
     render(<LLMProviderPassthroughResponse apiResponse={ok(completion)} />);
 
     await user.click(screen.getByRole("button", { name: "Copy JSON" }));
-    expect(error).toHaveBeenCalledWith(expect.anything(), "Couldn't copy the response:", expect.any(Error));
+    expect(error).toHaveBeenCalledWith(expect.anything(), "Could not copy to the clipboard:", expect.any(Error));
     expect(screen.getByRole("button", { name: "Copy JSON" })).toBeInTheDocument();
   });
 

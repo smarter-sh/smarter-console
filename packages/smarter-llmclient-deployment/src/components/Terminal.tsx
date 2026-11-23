@@ -3,8 +3,7 @@
  * manifest excerpt and code snippet on the page is in one.
  */
 import type { ReactNode } from "react";
-
-import CopyButton from "./CopyButton";
+import { CopyButton } from "@smarter/common";
 
 interface TerminalProps {
   /** The title bar's text, e.g. bash, manifest.yaml or Chat.tsx. */
@@ -25,7 +24,7 @@ export default function Terminal({ title, code, children, tall = false }: Termin
         <span className="smarter-terminal-dot smarter-terminal-dot-minimize" />
         <span className="smarter-terminal-dot smarter-terminal-dot-zoom" />
         <span className="smarter-terminal-title">{title}</span>
-        <CopyButton text={code} />
+        <CopyButton text={code} className="smarter-terminal-copy" iconClassName={null} />
       </div>
       <pre className={`smarter-console${tall ? " smarter-console-tall" : ""}`}>
         <code>{children ?? code}</code>
