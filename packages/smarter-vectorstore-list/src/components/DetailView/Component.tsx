@@ -3,8 +3,8 @@
  *
  * The Details tab of a vectorstore's detail, which the list opens when one of its rows is chosen (see
  * TabbedListView and ResourceDetail in @smarter/common): the vectorstore's description, status and actions, then
- * its database, how its documents are embedded, what it holds, its lifecycle, and the metadata that every resource
- * has.
+ * its database, how its documents are embedded, what it holds, its documents, which may be added and removed here,
+ * its lifecycle, and the metadata that every resource has.
  *
  * Props:
  * - sessionContext (SessionContext): Authentication and API context for the actions.
@@ -26,6 +26,7 @@ import {
 
 import type { VectorstoreDetailViewProps } from "../../lib/Types";
 import { BACKEND_LABELS, HOSTING_LABELS, STATUS_BADGES } from "../../lib/format";
+import DocumentsSection from "../DocumentsSection";
 import { StatusBar } from "../StatusBar";
 import { Toolbar } from "../Toolbar";
 
@@ -98,6 +99,8 @@ function DetailView({ sessionContext, object: vectorstore, onRequery, filtering 
           )}
         </DetailField>
       </DetailSection>
+
+      <DocumentsSection sessionContext={sessionContext} vectorstore={vectorstore} onRequery={onRequery} />
 
       <DetailSection title={gettext("Lifecycle")} icon="time">
         <DetailField label={gettext("Status")} value={status?.label ?? vectorstore.status} help={status?.help} />

@@ -60,6 +60,42 @@ export type Vectorstore = {
 };
 
 // ----------------------------------------------------------------------------
+// Documents: smarter.apps.vectorstore.contract.models.VectorstoreApiDocument and its responses
+// ----------------------------------------------------------------------------
+export type VectorstoreDocumentStatus = "pending" | "loading" | "loaded" | "failed" | "deleting";
+export type VectorstoreDocumentSource = "upload" | "url" | "text" | "file";
+
+export type VectorstoreDocument = {
+  id: number;
+  hashedId: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+  name: string; // its file name, or its url
+  source: VectorstoreDocumentSource;
+  contentType: string;
+  sha256: string;
+  sizeBytes: number;
+  metadata: Record<string, unknown>;
+  status: VectorstoreDocumentStatus;
+  statusMessage: string; // why it failed, if it did
+  chunkCount: number;
+  loadedAt: string | null;
+};
+
+/** GET /api/v1/vectorstores/<hashed id>/documents/: the documents, newest first. */
+export type VectorstoreDocuments = {
+  documents: VectorstoreDocument[];
+};
+
+/** POST /api/v1/vectorstores/<hashed id>/documents/: what was added, and whether it is queued to be loaded. */
+export type VectorstoreDocumentsAdded = {
+  documents: VectorstoreDocument[];
+  duplicates: VectorstoreDocument[];
+  queued: boolean;
+  message: string;
+};
+
+// ----------------------------------------------------------------------------
 // Component Props Interfaces
 // ----------------------------------------------------------------------------
 export interface VectorstoreDetailViewProps {
