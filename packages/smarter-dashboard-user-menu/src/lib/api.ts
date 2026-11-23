@@ -2,7 +2,14 @@
  * The user menu's requests to the console's account api, /api/web/account/: the user profile and data
  * export apis, which return JSON, and the profile image api, which takes a multipart form, or a DELETE.
  */
-import { fetchDjangoUrl, getCookie, gettext, interpolate, type SessionContext } from "@smarter/common";
+import {
+  deleteDjangoUrl,
+  fetchDjangoUrl,
+  gettext,
+  interpolate,
+  sendDjangoForm,
+  type SessionContext,
+} from "@smarter/common";
 
 import type { DataExportOverview, DataExportProgress, ProfileImageApiResponse, UserProfilesApiResponse } from "./Types";
 
@@ -75,13 +82,10 @@ export async function sendProfileImage(
   method: "POST" | "DELETE",
   body?: FormData,
 ): Promise<string> {
-  const csrfToken = getCookie({ name: sessionContext.csrfCookieName, domain: sessionContext.cookieDomain }) || "";
-  const response = await fetch(url, {
-    method,
-    body,
-    headers: { "X-CSRFToken": csrfToken },
-    credentials: "same-origin",
-  });
+  const response =
+    method === "DELETE"
+      ? await deleteDjangoUrl(sessionContext, url)
+      : await sendDjangoForm(sessionContext, url, body ?? new FormData());
   const data = (await response.json().catch(() => ({}))) as ProfileImageApiResponse;
   if (!response.ok || !data.profile_image_url) {
     const errors = data.profile_image || [data.error || gettext("The profile image could not be saved.")];

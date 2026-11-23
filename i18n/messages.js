@@ -48,7 +48,7 @@ gettext("Smarter Authtokens are a Django REST Framework API authentication token
 gettext("Active");
 // Translators: used in packages/smarter-authtoken-list/src/components/DetailView/Component.tsx, packages/smarter-guardrail-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-list/src/components/DetailView/Component.tsx, packages/smarter-mcpclient-list/src/components/DetailView/Component.tsx, packages/smarter-orchestrator-list/src/components/DetailView/Component.tsx, packages/smarter-provider-list/src/components/DetailView/Component.tsx, packages/smarter-proxy-list/src/components/DetailView/Component.tsx
 gettext("Inactive");
-// Translators: used in packages/smarter-authtoken-list/src/components/DetailView/Component.tsx, packages/smarter-authtoken-list/src/components/ListView/Component.tsx, packages/smarter-budget-list/src/components/BudgetList/Component.tsx, packages/smarter-connection-list/src/components/ListView/Component.tsx, packages/smarter-custom-domain-list/src/components/ListView/Component.tsx, packages/smarter-guardrail-list/src/components/ListView/Component.tsx, packages/smarter-infrastructure-resource-list/src/components/InfrastructureResourceList/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmclient-deployment/src/components/Hero.tsx, packages/smarter-llmclient-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-list/src/components/ListView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-llmtool-list/src/components/ListView/Component.tsx, packages/smarter-mcpclient-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/RunsSection/Component.tsx, packages/smarter-provider-list/src/components/DetailView/Component.tsx, packages/smarter-provider-list/src/components/ListView/Component.tsx, packages/smarter-proxy-list/src/components/ListView/Component.tsx, packages/smarter-secret-list/src/components/ListView/Component.tsx, packages/smarter-vectorsearch-list/src/components/ListView/Component.tsx, packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
+// Translators: used in packages/smarter-authtoken-list/src/components/DetailView/Component.tsx, packages/smarter-authtoken-list/src/components/ListView/Component.tsx, packages/smarter-budget-list/src/components/BudgetList/Component.tsx, packages/smarter-connection-list/src/components/ListView/Component.tsx, packages/smarter-custom-domain-list/src/components/ListView/Component.tsx, packages/smarter-guardrail-list/src/components/ListView/Component.tsx, packages/smarter-infrastructure-resource-list/src/components/InfrastructureResourceList/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmclient-deployment/src/components/Hero.tsx, packages/smarter-llmclient-list/src/components/ListView/Component.tsx, packages/smarter-llmhost-compute-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-list/src/components/DetailView/Component.tsx, packages/smarter-llmhost-list/src/components/ListView/Component.tsx, packages/smarter-llmtool-list/src/components/ExtensionListView/Component.tsx, packages/smarter-llmtool-list/src/components/ListView/Component.tsx, packages/smarter-mcpclient-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/ListView/Component.tsx, packages/smarter-orchestrator-list/src/components/RunsSection/Component.tsx, packages/smarter-provider-list/src/components/DetailView/Component.tsx, packages/smarter-provider-list/src/components/ListView/Component.tsx, packages/smarter-proxy-list/src/components/ListView/Component.tsx, packages/smarter-secret-list/src/components/ListView/Component.tsx, packages/smarter-vectorsearch-list/src/components/ListView/Component.tsx, packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx, packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
 gettext("Status");
 // Translators: used in packages/smarter-authtoken-list/src/components/DetailView/Component.tsx
 gettext("Whether the key may be used. A request with an inactive key is refused.");
@@ -196,7 +196,7 @@ ngettext("%(count)s token", "%(count)s tokens", 1);
 gettext("Week of %(date)s");
 // Translators: used in packages/smarter-budget-list/src/components/BudgetList/ResourceChart.tsx
 gettext("Failed to load the budget series (%(status)s).");
-// Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx
+// Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-vectorstore-list/src/lib/format.tsx
 gettext("Loading");
 // Translators: used in packages/smarter-common/src/components/Loading/Component.tsx, packages/smarter-common/src/components/ResourceDetail/Component.tsx, packages/smarter-common/src/components/Skeleton/Component.tsx, packages/smarter-console/src/App.tsx, packages/smarter-console/src/routes/PasswordResetPage.tsx, packages/smarter-console/src/routes/RouteError.tsx
 gettext("Loading...");
@@ -301,7 +301,7 @@ gettext("Nothing depends on it, so deleting it breaks nothing.");
 ngettext("%(count)s resource uses %(name)s. It can't be deleted until that resource stops using it.", "%(count)s resources use %(name)s. It can't be deleted until they stop using it.", 1);
 // Translators: used in packages/smarter-common/src/components/ResourceDetail/tabs.tsx
 gettext("What uses %(name)s");
-// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
+// Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-llmclient-deployment/src/components/ApiKeys.tsx, packages/smarter-llmhost-compute-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx, packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
 gettext("Actions");
 // Translators: used in packages/smarter-common/src/components/ResourceToolbar/Component.tsx, packages/smarter-custom-domain-list/src/components/Toolbar/Component.tsx, packages/smarter-proxy-list/src/components/Toolbar/Component.tsx
 gettext("Data is not recoverable.");
@@ -3811,7 +3811,7 @@ gettext("How the similarity of two vectors is measured.");
 gettext("Contents");
 // Translators: used in packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
 gettext("Vectors");
-// Translators: used in packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
+// Translators: used in packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx, packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx, packages/smarter-vectorstore-list/src/components/ListView/Component.tsx
 gettext("Documents");
 // Translators: used in packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx
 gettext("Snapshots");
@@ -3825,6 +3825,44 @@ gettext("Last checked");
 gettext("Last snapshot");
 // Translators: used in packages/smarter-vectorstore-list/src/components/DetailView/Component.tsx
 gettext("Last maintenance");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Drop files here to add them");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Drop files here, or");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("choose files");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("PDF, text, Markdown, CSV, JSON, YAML or HTML, up to %(size)s each.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Url of a page or file");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("https://example.com/faq.html");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Add url");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Adding... Their text is being extracted.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Too large to add: %(names)s.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("This vectorstore isn't ready. Documents added now are loaded once it is deployed and ready.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("It has no documents yet.");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Document");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Chunks");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Size");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Added");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Remove it");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Keep it");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Remove %(name)s");
+// Translators: used in packages/smarter-vectorstore-list/src/components/DocumentsSection/Component.tsx
+gettext("Remove");
 // Translators: used in packages/smarter-vectorstore-list/src/components/StatusBar/Component.tsx
 gettext("Inactive: it may not be used.");
 // Translators: used in packages/smarter-vectorstore-list/src/components/StatusBar/Component.tsx
@@ -3877,6 +3915,22 @@ gettext("Successfully renamed vectorstore");
 gettext("Failed to delete vectorstore (%(status)s): %(error)s");
 // Translators: used in packages/smarter-vectorstore-list/src/components/Toolbar/Component.tsx
 gettext("Successfully deleted vectorstore");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("Only the vectorstore's owner may add or remove its documents.");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("The documents could not be loaded (%(status)s).");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("The documents could not be added (%(status)s).");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("The url could not be added (%(status)s).");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("The document could not be removed (%(status)s).");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+ngettext("Added %(count)s document.", "Added %(count)s documents.", 1);
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+ngettext("%(count)s document was already in the vectorstore.", "%(count)s documents were already in the vectorstore.", 1);
+// Translators: used in packages/smarter-vectorstore-list/src/lib/documents.ts
+gettext("They are loaded once the vectorstore is deployed and ready.");
 // Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
 gettext("Self-hosted");
 // Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
@@ -3897,6 +3951,12 @@ gettext("See its status message.");
 gettext("Deleting");
 // Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
 gettext("Its database is being destroyed.");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
+gettext("Waiting");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
+gettext("Loaded");
+// Translators: used in packages/smarter-vectorstore-list/src/lib/format.tsx
+gettext("Removing");
 // Translators: used in packages/smarter-welcome/src/components/SidebarHint/Component.tsx
 gettext("Start building your AI masterpiece here.");
 // Translators: used in packages/smarter-welcome/src/components/WelcomeDialog/Component.tsx

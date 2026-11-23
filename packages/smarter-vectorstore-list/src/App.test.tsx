@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import { ownedObjects, sessionContext, sharedObjects } from "@/mocks/fixtures";
-import { listErrorHandlers, listHandlers } from "@/mocks/handlers";
+import { documentsHandlers, listErrorHandlers, listHandlers } from "@/mocks/handlers";
 import { resourceDetailHandler } from "@test/resourceDetail";
 import { server } from "@test/server";
 
@@ -23,7 +23,7 @@ describe("App", () => {
   });
 
   it("opens a vectorstore's detail when its row is chosen", async () => {
-    server.use(...listHandlers(), resourceDetailHandler());
+    server.use(...listHandlers(), resourceDetailHandler(), ...documentsHandlers());
     const user = userEvent.setup();
     render(<App sessionContext={sessionContext} />);
 

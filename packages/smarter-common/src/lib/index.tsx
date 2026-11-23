@@ -1,12 +1,23 @@
 import { actionUrl } from "./actionUrl";
 import { getCookie, setCookie } from "./cookie";
-import fetchDjangoUrl, { getDjangoUrl } from "./django";
+import fetchDjangoUrl, { deleteDjangoUrl, getDjangoUrl, sendDjangoForm } from "./django";
 import { useDropdown } from "./dropdown";
 import { formatDateTime } from "./formatDateTime";
 import { currentLanguage, gettext, interpolate, interpolateNodes, ngettext, npgettext, pgettext } from "./i18n";
 import { Modal } from "./modalDialogue";
 
-export { actionUrl, getCookie, setCookie, fetchDjangoUrl, getDjangoUrl, formatDateTime, Modal, useDropdown };
+export {
+  actionUrl,
+  getCookie,
+  setCookie,
+  fetchDjangoUrl,
+  getDjangoUrl,
+  sendDjangoForm,
+  deleteDjangoUrl,
+  formatDateTime,
+  Modal,
+  useDropdown,
+};
 export {
   createSmarterQueryClient,
   listQueryKey,

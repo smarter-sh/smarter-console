@@ -1,16 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { server } from "@test/server";
 
 import { makeObject, sessionContext } from "@/mocks/fixtures";
+import { documentsHandlers } from "@/mocks/handlers";
 
 import DetailView from "@/components/DetailView/Component";
 
 describe("DetailView", () => {
+  beforeEach(() => {
+    server.use(...documentsHandlers());
+  });
+
   it("shows the vectorstore's description, sections and metadata", () => {
     render(<DetailView sessionContext={sessionContext} object={makeObject(1)} onRequery={() => {}} />);
     expect(screen.getByText("An example, number 1.")).toBeInTheDocument();
-    for (const title of ["Database", "Embeddings", "Contents", "Lifecycle", "Metadata"]) {
+    for (const title of ["Database", "Embeddings", "Contents", "Documents", "Lifecycle", "Metadata"]) {
       expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
     }
     expect(screen.getByText("Qdrant")).toBeInTheDocument();

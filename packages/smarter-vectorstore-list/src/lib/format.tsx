@@ -1,7 +1,7 @@
 /**
  * Labels and badges of a Vectorstore's fields, shared by the ListView, DetailView and StatusBar.
  */
-import type { Vectorstore, VectorstoreStatus } from "./Types";
+import type { Vectorstore, VectorstoreDocumentStatus, VectorstoreStatus } from "./Types";
 import { gettext } from "@smarter/common";
 
 export const BACKEND_LABELS: Record<Vectorstore["backend"], string> = {
@@ -45,4 +45,30 @@ export function databaseLabel(vectorstore: Vectorstore): string {
 
 export function formatCount(value: number | null | undefined): string {
   return (value ?? 0).toLocaleString();
+}
+
+export const DOCUMENT_STATUS_BADGES: Record<VectorstoreDocumentStatus, { className: string; label: string }> = {
+  pending: { className: "badge-light", label: gettext("Waiting") },
+  loading: { className: "badge-light-primary", label: gettext("Loading") },
+  loaded: { className: "badge-light-success", label: gettext("Loaded") },
+  failed: { className: "badge-light-danger", label: gettext("Failed") },
+  deleting: { className: "badge-light-warning", label: gettext("Removing") },
+};
+
+/**
+ * A size in bytes, for a person: e.g. 512 B, 3.4 KB, 12.0 MB.
+ *
+ * @param bytes - The size.
+ * @returns The size, with its unit.
+ */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const kilobytes = bytes / 1024;
+  if (kilobytes < 1024) {
+    return `${kilobytes.toFixed(1)} KB`;
+  }
+  const megabytes = kilobytes / 1024;
+  return `${megabytes.toFixed(1)} MB`;
 }

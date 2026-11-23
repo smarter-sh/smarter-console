@@ -4,7 +4,7 @@
  * Every endpoint is a POST, relative to the api's root (ConsoleContext.apiUrl). A failure is an
  * ApiError, whose message is the api's {"error": "..."}, meant for the person who tried the action.
  */
-import { fetchDjangoUrl, getCookie, gettext, interpolate } from "@smarter/common";
+import { fetchDjangoUrl, gettext, interpolate, sendDjangoForm } from "@smarter/common";
 
 import type {
   AccountsResponse,
@@ -83,27 +83,11 @@ export const uninstall = (context: ConsoleContext, slug: string) =>
   post<ActionResponse>(context, of(slug, "uninstall"));
 
 /**
- * Upload an extension's archive, and install it.
- *
- * It is a multipart request, with the headers that fetchDjangoUrl sends, but without its JSON
- * content type, which the browser sets, with the multipart boundary.
+ * Upload an extension's archive, and install it, as a multipart request (sendDjangoForm).
  */
 export async function uploadArchive(context: ConsoleContext, file: File): Promise<ActionResponse> {
-  const { session } = context;
   const form = new FormData();
   form.append("archive", file);
-  const response = await fetch(`${context.apiUrl}upload/`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
-      "X-CSRFToken": getCookie({ name: session.csrfCookieName, domain: session.cookieDomain }) || "",
-      "X-Smarter-Client": session.smarterClient,
-      "X-Smarter-ClientVersion": session.smarterClientVersion,
-      "X-Smarter-ClientType": "react",
-      "X-Smarter-RequestId": session.smarterRequestId,
-    },
-    body: form,
-  });
+  const response = await sendDjangoForm(context.session, `${context.apiUrl}upload/`, form);
   return parse<ActionResponse>(response);
 }

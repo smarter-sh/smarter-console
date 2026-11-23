@@ -1,9 +1,10 @@
 /**
  * Requests to the Smarter Django backend, with the session's cookie and Smarter's client headers.
  *
- * fetchDjangoUrl POSTs JSON, with the CSRF token, read from its cookie; getDjangoUrl GETs, e.g. a REST read of the
- * api. Neither logs a header or a body: the CSRF token, and a body's text, e.g. an objective or a prompt, must never
- * reach the log, which the console shows in DEBUG mode.
+ * fetchDjangoUrl POSTs JSON, and sendDjangoForm POSTs a multipart form, e.g. uploaded files, each with the CSRF
+ * token, read from its cookie; deleteDjangoUrl DELETEs, with the CSRF token; getDjangoUrl GETs, e.g. a REST read of
+ * the api. None logs a header or a body: the CSRF token, and a body's text, e.g. an objective, a prompt or a file,
+ * must never reach the log, which the console shows in DEBUG mode.
  */
 import { loggerPrefix } from "./const";
 import { getCookie } from "./cookie";
@@ -35,6 +36,23 @@ function smarterHeaders(sessionContext: SessionContext): Record<string, string> 
 }
 
 /**
+ * The CSRF token, read from its cookie, which every request that changes something sends.
+ *
+ * @param sessionContext - The session context, which names the cookie.
+ * @param caller - The calling function's name, for the error that a missing cookie logs.
+ * @returns The token, or an empty string if there is no cookie.
+ */
+function csrfToken(sessionContext: SessionContext, caller: string): string {
+  const token = getCookie({ name: sessionContext.csrfCookieName, domain: sessionContext.cookieDomain });
+  if (!token) {
+    console.error(
+      `${loggerPrefix} ${caller}() No CSRF token found for cookie name ${sessionContext.csrfCookieName} in domain ${sessionContext.cookieDomain}.`,
+    );
+  }
+  return token || "";
+}
+
+/**
  * Sends a POST request to the Smarter Django backend with CSRF and session authentication.
  *
  * @param sessionContext - The session context containing API URL, CSRF token, and session cookie information.
@@ -49,15 +67,9 @@ export default async function fetchDjangoUrl(
   requestJson: string,
   signal?: AbortSignal,
 ) {
-  const csrftokenValue = getCookie({ name: sessionContext.csrfCookieName, domain: sessionContext.cookieDomain });
-  if (!csrftokenValue) {
-    console.error(
-      `${loggerPrefix} fetchDjangoUrl() No CSRF token found for cookie name ${sessionContext.csrfCookieName} in domain ${sessionContext.cookieDomain}.`,
-    );
-  }
   const requestHeaders = {
     ...smarterHeaders(sessionContext),
-    "X-CSRFToken": csrftokenValue!,
+    "X-CSRFToken": csrfToken(sessionContext, "fetchDjangoUrl"),
     "Content-Type": applicationJson,
   };
 
@@ -73,6 +85,56 @@ export default async function fetchDjangoUrl(
 
   console.debug(`${loggerPrefix} fetchDjangoUrl() POST ${url} answered ${res.status}`);
 
+  return res;
+}
+
+/**
+ * Sends a multipart form, e.g. uploaded files, to the Smarter Django backend, with CSRF and session authentication.
+ *
+ * It sends the headers that fetchDjangoUrl sends, but not its JSON content type: the browser sets the multipart
+ * content type, with its boundary.
+ *
+ * @param sessionContext - The session context, which names the client and the CSRF cookie.
+ * @param url - The URL to POST to.
+ * @param form - The form.
+ * @param signal - Aborts the request.
+ * @returns A `Promise<Response>` from the Fetch API.
+ */
+export async function sendDjangoForm(
+  sessionContext: SessionContext,
+  url: string,
+  form: FormData,
+  signal?: AbortSignal,
+) {
+  console.debug(`${loggerPrefix} sendDjangoForm() POST ${url}`);
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+    headers: { ...smarterHeaders(sessionContext), "X-CSRFToken": csrfToken(sessionContext, "sendDjangoForm") },
+    body: form,
+    signal,
+  });
+  console.debug(`${loggerPrefix} sendDjangoForm() POST ${url} answered ${res.status}`);
+  return res;
+}
+
+/**
+ * Sends a DELETE request to the Smarter Django backend, with CSRF and session authentication.
+ *
+ * @param sessionContext - The session context, which names the client and the CSRF cookie.
+ * @param url - The URL to DELETE.
+ * @param signal - Aborts the request.
+ * @returns A `Promise<Response>` from the Fetch API.
+ */
+export async function deleteDjangoUrl(sessionContext: SessionContext, url: string, signal?: AbortSignal) {
+  console.debug(`${loggerPrefix} deleteDjangoUrl() DELETE ${url}`);
+  const res = await fetch(url, {
+    method: "DELETE",
+    credentials: "include",
+    headers: { ...smarterHeaders(sessionContext), "X-CSRFToken": csrfToken(sessionContext, "deleteDjangoUrl") },
+    signal,
+  });
+  console.debug(`${loggerPrefix} deleteDjangoUrl() DELETE ${url} answered ${res.status}`);
   return res;
 }
 
