@@ -3,7 +3,7 @@
  *
  * This component composes the main dashboard view by arranging budget alerts, the
  * global search, resource, service health, quick action, extensions, onboarding, activity,
- * usage and budget widgets into responsive Bootstrap grid sections, followed
+ * usage and budget widgets, then the newest doodles, into responsive Bootstrap grid sections, followed
  * by the static informational widgets: new features, instructor resources,
  * SDKs, integrations, the CLI, the VS Code extension, the MCP server, hosting
  * and contribution.
@@ -44,6 +44,7 @@ import QuickActions from "../QuickActions/Component";
 import GlobalSearch from "../GlobalSearch/Component";
 import GettingStarted from "../GettingStarted/Component";
 import RecentActivity from "../RecentActivity/Component";
+import NewestDoodles from "../NewestDoodles/Component";
 import BudgetAlerts from "../BudgetAlerts/Component";
 import UserCharges from "../TokenUsage";
 import BudgetVsActual from "../BudgetVsActual";
@@ -111,6 +112,9 @@ function Dashboard({ appContext }: { appContext: AppContextInterface }) {
               />
             )}
           </div>
+
+          {/* below the usage and budget charts, a row of its own, or nothing on a platform without the artist. */}
+          <NewestDoodles sessionContext={appContext.sessionContext} apiUrl={appContext.newestDoodlesApiUrl} />
 
           {/* static widgets */}
           <div className="row g-5 g-xl-10">

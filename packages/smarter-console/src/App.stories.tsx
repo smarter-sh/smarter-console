@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { createMemoryRouter } from "react-router";
 
 import App from "@/App";
-import { sessionErrorHandler, userSessionHandler, visitorSessionHandler } from "@/mocks/handlers";
+import { doodleByDayHandler, sessionErrorHandler, userSessionHandler, visitorSessionHandler } from "@/mocks/handlers";
 import { routes } from "@/router";
 
 function ConsoleAt({ path }: { path: string }) {
@@ -33,4 +33,16 @@ export const ServerUnreachable: Story = {
 
 export const PageNotFound: Story = {
   args: { path: "/no-such-page/" },
+};
+
+/** The page of a doodle that the dashboard's Newest Doodles link to, for a visitor. */
+export const Doodle: Story = {
+  args: { path: "/doodles/2026-11-19/mx/" },
+  parameters: { msw: { handlers: [visitorSessionHandler, doodleByDayHandler] } },
+};
+
+/** The page of a doodle that isn't available. */
+export const DoodleNotAvailable: Story = {
+  args: { path: "/doodles/2026-11-20/mx/" },
+  parameters: { msw: { handlers: [visitorSessionHandler, doodleByDayHandler] } },
 };

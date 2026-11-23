@@ -30,5 +30,19 @@ export const NEXT_PARAMETER = "next";
 /** The doodle of the day, which the sign-in pages show. See smarter.apps.doodle.api.v1. */
 export const DOODLE_API_URL = "/api/v1/doodles/today/";
 
+/** The page of one doodle, /doodles/<date>/<region>/, which the dashboard's Newest Doodles link to. */
+export const DOODLES_PATH = "/doodles";
+
+/**
+ * The url of one approved doodle, by its day and region, which answers as DOODLE_API_URL does, or 404.
+ *
+ * @param date - The doodle's day, e.g. 2026-11-03.
+ * @param region - The doodle's region, e.g. latam.
+ * @returns The url, e.g. /api/v1/doodles/2026-11-03/latam/.
+ */
+export function doodleApiUrl(date: string, region: string): string {
+  return `/api/v1/doodles/${encodeURIComponent(date)}/${encodeURIComponent(region)}/`;
+}
+
 /** The plain scene that the doodle shows until the day's arrives. See smarter.apps.doodle.const.BASE_SCENE_STATIC_PATH. */
 export const DOODLE_BASE_IMAGE_URL = "/static/doodle/base.svg";

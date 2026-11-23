@@ -3,6 +3,9 @@
  * doodle switch is on, or else the logo, name and description; on the right, the page's title and form, and
  * the footer's links while they're switched on. On a phone, the left panel shrinks to the logo, above the
  * form.
+ *
+ * A page of one doodle, the doodle page, passes its url as doodleApiUrl: the panel then shows that doodle, rather
+ * than the doodle of the day, whatever the switch.
  */
 import { Doodle, type DoodleContext } from "@smarter/doodle";
 import { gettext } from "@smarter/common";
@@ -13,10 +16,10 @@ import { DOODLE_API_URL, DOODLE_BASE_IMAGE_URL } from "@/lib/const";
 import { useConsoleSession } from "@/session/context";
 
 /** What the Doodle shows, from the session's branding. */
-function doodleContext(session: ConsoleSession): DoodleContext {
+function doodleContext(session: ConsoleSession, apiUrl: string): DoodleContext {
   const { branding } = session;
   return {
-    apiUrl: DOODLE_API_URL,
+    apiUrl,
     baseImageUrl: DOODLE_BASE_IMAGE_URL,
     homeUrl: "/",
     logoUrl: branding.logoUrl,
@@ -62,14 +65,28 @@ function FooterLinks({ session }: { session: ConsoleSession }) {
   );
 }
 
-export function AuthCard({ title, children }: { title: string; children: ReactNode }) {
+export function AuthCard({
+  title,
+  children,
+  doodleApiUrl,
+}: {
+  title: string;
+  children: ReactNode;
+  /** The url of the doodle to show, which shows it even while the doodle switch is off. The doodle of the day, by default. */
+  doodleApiUrl?: string;
+}) {
   const { session } = useConsoleSession();
   if (!session) return null;
+  const showDoodle = session.signIn.doodle || doodleApiUrl !== undefined;
   return (
     <div className="d-flex flex-column flex-lg-row min-vh-100">
       <aside className="d-flex flex-lg-row-fluid w-lg-50 smarter-doodle-aside">
         <div className="smarter-doodle">
-          {session.signIn.doodle ? <Doodle appContext={doodleContext(session)} /> : <PlainAside session={session} />}
+          {showDoodle ? (
+            <Doodle appContext={doodleContext(session, doodleApiUrl ?? DOODLE_API_URL)} />
+          ) : (
+            <PlainAside session={session} />
+          )}
         </div>
       </aside>
       <main className="d-flex flex-column flex-lg-row-fluid w-lg-50 align-items-center justify-content-center p-10">

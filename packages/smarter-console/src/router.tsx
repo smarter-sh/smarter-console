@@ -8,6 +8,7 @@ import { Navigate, type RouteObject } from "react-router";
 
 import { ActivatePage } from "@/routes/ActivatePage";
 import { AlreadyAssociatedPage } from "@/routes/AlreadyAssociatedPage";
+import { DoodlePage } from "@/routes/DoodlePage";
 import { InactivePage } from "@/routes/InactivePage";
 import { Layout } from "@/routes/Layout";
 import { LoginPage } from "@/routes/LoginPage";
@@ -17,7 +18,7 @@ import { PasswordResetRequestPage } from "@/routes/PasswordResetRequestPage";
 import { RegisterPage } from "@/routes/RegisterPage";
 import { RequireAuth } from "@/routes/RequireAuth";
 import { RouteError } from "@/routes/RouteError";
-import { DASHBOARD_PATH, EXTENSIONS_PATH, INACTIVE_PATH, LOGIN_PATH } from "@/lib/const";
+import { DASHBOARD_PATH, DOODLES_PATH, EXTENSIONS_PATH, INACTIVE_PATH, LOGIN_PATH } from "@/lib/const";
 import { DOCS_PATH, MANIFESTS_PATH } from "@/lib/docs";
 import { LIST_PAGES, type ListPage as ListPageConfig } from "@/lib/lists";
 import { MANIFEST_PAGES, type ManifestPage as ManifestPageConfig } from "@/lib/manifestPages";
@@ -67,6 +68,8 @@ const consoleRoutes: RouteObject[] = [
   // the social sign-in pipeline redirects to these two.
   { path: INACTIVE_PATH, element: <InactivePage /> },
   { path: "/account/already-associated", element: <AlreadyAssociatedPage /> },
+  // a doodle of the sign-in page, which the dashboard's Newest Doodles link to. Doodles are public.
+  { path: `${DOODLES_PATH}/:date/:region`, element: <DoodlePage /> },
   // the docs pages, which are public, in their own frame, and in a chunk of their own.
   {
     path: DOCS_PATH,

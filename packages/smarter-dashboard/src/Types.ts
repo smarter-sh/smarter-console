@@ -11,6 +11,7 @@ export interface AppContextInterface {
   chargesApiUrl: string;
   budgetsApiUrl: string;
   activityApiUrl: string;
+  newestDoodlesApiUrl: string;
   gettingStartedApiUrl: string;
   quickActionsApiUrl: string;
   globalSearchApiUrl: string;

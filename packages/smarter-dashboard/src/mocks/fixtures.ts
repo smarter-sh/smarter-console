@@ -6,6 +6,7 @@ import type { SessionContext } from "@smarter/common";
 
 import type { BudgetSeries, BudgetStatus } from "../components/BudgetVsActual/types";
 import type { GlobalSearchResponse } from "../components/GlobalSearch/Component";
+import type { DrawnDoodlesResponse } from "../components/NewestDoodles/Component";
 import type { TokenUsageSeries } from "../components/TokenUsage/types";
 import type { AppContextInterface } from "../Types";
 
@@ -27,6 +28,7 @@ export const appContext: AppContextInterface = {
   chargesApiUrl: "/api/web/dashboard/charges/",
   budgetsApiUrl: "/api/web/dashboard/budgets/",
   activityApiUrl: "/api/web/dashboard/activity/",
+  newestDoodlesApiUrl: "/api/web/dashboard/doodles/",
   gettingStartedApiUrl: "/api/web/dashboard/getting-started/",
   quickActionsApiUrl: "/api/web/dashboard/quick-actions/",
   globalSearchApiUrl: "/api/web/dashboard/search/",
@@ -138,6 +140,38 @@ export const activity = {
   items: [
     { created_at: "2026-06-15T12:00:00Z", thing: "LLMClient", command: "apply", status_code: 200, message: null },
     { created_at: "2026-06-15T11:00:00Z", thing: "Plugin", command: "delete", status_code: 404, message: "Not found" },
+  ],
+};
+
+/** The newest doodles that the Smarter Doodle Artist drew: one whose caption links to a page, and one without a link. */
+export const newestDoodles: DrawnDoodlesResponse = {
+  doodles: [
+    {
+      date: "2026-11-19",
+      region: "mx",
+      regionName: "Mexico",
+      theme: "ai-2026-11-19-mx-revolution-day-1a2b3c4d",
+      title: "Revolution Day",
+      caption: "Happy Revolution Day!",
+      altText: "Paper flags in green, white and red hang above a Smarter LLMClient.",
+      linkUrl: "https://en.wikipedia.org/wiki/Mexican_Revolution",
+      imageUrl: "/api/v1/doodles/artwork/3f5a0c9e7b1d4e2f8a6c5b4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f.svg?still=1",
+      isDefault: false,
+      aiCredit: "drawn",
+    },
+    {
+      date: "2026-11-11",
+      region: "pl",
+      regionName: "Poland",
+      theme: "ai-2026-11-11-pl-independence-day-5e6f7a8b",
+      title: "Independence Day",
+      caption: "",
+      altText: "A white and red kite flies above a Smarter LLMClient.",
+      linkUrl: "",
+      imageUrl: "/api/v1/doodles/artwork/8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b.svg?still=1",
+      isDefault: false,
+      aiCredit: "drawn",
+    },
   ],
 };
 
