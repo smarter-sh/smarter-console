@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.2.0-alpha.1](https://github.com/smarter-sh/smarter-console/compare/v1.1.15...v1.2.0-alpha.1) (2026-11-24)
+
+### Features
+
+* **apply-manifest:** apply every manifest of a GitHub repository ([51b06ee](https://github.com/smarter-sh/smarter-console/commit/51b06ee9f6cb55df5acf7f1591ec8c1985deea43))
+* **dashboard:** add Newest Doodles and a sign-in page for each doodle ([f7f0759](https://github.com/smarter-sh/smarter-console/commit/f7f0759b0938580b815430eafc1aa074798abae1))
+
+### Bug Fixes
+
+* **widgets:** list the last 90 days' features in What's New ([7ae4575](https://github.com/smarter-sh/smarter-console/commit/7ae4575dceff7d22981f862e4f77d24ef550d6ae))
+
+### Refactoring
+
+* **common:** share one copy-to-clipboard hook and CopyButton ([3efc1ff](https://github.com/smarter-sh/smarter-console/commit/3efc1fffb6bc08a58c8213b58922e6d23b4fb221))
+
 ## [1.1.15](https://github.com/smarter-sh/smarter-console/compare/v1.1.14...v1.1.15) (2026-11-23)
 
 ### Bug Fixes
