@@ -195,17 +195,49 @@ export interface ConsoleCookies {
  */
 export interface ConsoleFlags {
   /**
+   * Whether the Connections pages exist.
+   */
+  connection: boolean;
+  /**
    * Whether the header shows a Did you know? tip.
    */
   didYouKnow: boolean;
+  /**
+   * Whether the Guardrails pages exist.
+   */
+  guardrail: boolean;
+  /**
+   * Whether the LLMClients and Custom Domains pages exist.
+   */
+  llmclient: boolean;
+  /**
+   * Whether the LLMHosts pages exist.
+   */
+  llmhost: boolean;
+  /**
+   * Whether the LLMTools and Extensions pages exist.
+   */
+  llmtool: boolean;
   /**
    * Whether the manifest drop zone page exists.
    */
   manifestDropZone: boolean;
   /**
+   * Whether the MCPClients pages exist.
+   */
+  mcpclient: boolean;
+  /**
+   * Whether the Orchestrators pages exist.
+   */
+  orchestrator: boolean;
+  /**
    * Whether the Prompt Passthrough page exists.
    */
   passthrough: boolean;
+  /**
+   * Whether the Providers pages exist.
+   */
+  provider: boolean;
   /**
    * Whether the Proxies pages exist.
    */
@@ -215,6 +247,10 @@ export interface ConsoleFlags {
    */
   reactDebugMode: boolean;
   /**
+   * Whether the Secrets pages exist.
+   */
+  secret: boolean;
+  /**
    * Whether the Server Logs tabs show.
    */
   serverLogs: boolean;
@@ -222,6 +258,10 @@ export interface ConsoleFlags {
    * Whether the Terminal page exists for this user, a superuser.
    */
   terminal: boolean;
+  /**
+   * Whether the VectorSearches pages exist.
+   */
+  vectorsearch: boolean;
   /**
    * Whether the Vectorstores pages exist.
    */
@@ -350,13 +390,13 @@ export interface ConsoleSidebar {
    */
   budgets: string;
   /**
-   * The Connections list.
+   * The Connections list, while connections are enabled.
    */
-  connections: string;
+  connections: string | null;
   /**
-   * The Custom Domains list.
+   * The Custom Domains list, while LLMClients are enabled.
    */
-  customDomains: string;
+  customDomains: string | null;
   /**
    * The dashboard.
    */
@@ -366,13 +406,13 @@ export interface ConsoleSidebar {
    */
   exampleManifests: string;
   /**
-   * The Extensions console.
+   * The Extensions console, while LLMTools are enabled.
    */
-  extensions: string;
+  extensions: string | null;
   /**
-   * The Guardrails list.
+   * The Guardrails list, while guardrails are enabled.
    */
-  guardrails: string;
+  guardrails: string | null;
   /**
    * The Infrastructure Resources list, for a superuser.
    */
@@ -382,57 +422,57 @@ export interface ConsoleSidebar {
    */
   jsonSchemas: string;
   /**
-   * The LLM Hosts list.
+   * The LLM Hosts list, while LLMHosts are enabled.
    */
-  llmhost: string;
+  llmhost: string | null;
   /**
-   * The LLM Host Compute list.
+   * The LLM Host Compute list, while LLMHosts are enabled.
    */
-  llmhostcompute: string;
+  llmhostcompute: string | null;
   /**
    * The manifest drop zone, while it is enabled.
    */
   manifestDropZone: string | null;
   /**
-   * The MCP Clients list.
+   * The MCP Clients list, while MCPClients are enabled.
    */
-  mcpclients: string;
+  mcpclients: string | null;
   /**
    * The OpenAPI contract.
    */
   openapi: string;
   /**
-   * The Orchestrators list.
+   * The Orchestrators list, while orchestrators are enabled.
    */
-  orchestrators: string;
+  orchestrators: string | null;
   /**
-   * The LLM Tools list.
+   * The LLM Tools list, while LLMTools are enabled.
    */
-  plugins: string;
+  plugins: string | null;
   /**
    * The Prompt Passthrough, while it is enabled.
    */
   promptPassthrough: string | null;
   /**
-   * The Providers list.
+   * The Providers list, while providers are enabled.
    */
-  providers: string;
+  providers: string | null;
   /**
    * The Proxies list, while proxies are enabled.
    */
   proxies: string | null;
   /**
-   * The Secrets list.
+   * The Secrets list, while secrets are enabled.
    */
-  secrets: string;
+  secrets: string | null;
   /**
    * The Terminal, for a superuser, while it is enabled.
    */
   terminal: string | null;
   /**
-   * The Vectorsearches list.
+   * The Vectorsearches list, while vectorsearches are enabled.
    */
-  vectorsearches: string;
+  vectorsearches: string | null;
   /**
    * The Vectorstores list, while vectorstores are enabled.
    */
@@ -504,11 +544,11 @@ export interface ConsoleUser {
  */
 export interface ConsoleWelcome {
   /**
-   * Whether it opens by itself now: it shows at startup, and hasn't been closed in this session.
+   * Whether it opens by itself now: the user hasn't closed it before, or its Show at startup box is ticked, and it hasn't been closed in this session.
    */
   show: boolean;
   /**
-   * Whether the dialog opens by itself each time the user signs in.
+   * Whether the dialog's Show at startup box is ticked: it opens by itself at each sign-in.
    */
   showAtStartup: boolean;
 }
