@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.2.1](https://github.com/smarter-sh/smarter-console/compare/v1.2.0...v1.2.1) (2026-11-24)
+
+### Bug Fixes
+
+* **contracts:** add the new page flags to the session mock ([7d8fdcf](https://github.com/smarter-sh/smarter-console/commit/7d8fdcf1bf4438f7f6e51f8a70a83a74f9799d0c))
+* **contracts:** sync with smarter v0.48.0 ([2d85126](https://github.com/smarter-sh/smarter-console/commit/2d85126309cb7470af381c824c6b24fb57d9eb6b))
+
 ## [1.2.0](https://github.com/smarter-sh/smarter-console/compare/v1.1.15...v1.2.0) (2026-11-24)
 
 ### Features
