@@ -27,7 +27,15 @@
  */
 import { useState } from "react";
 import type { SessionContext } from "@smarter/common";
-import { actionUrl, fetchDjangoUrl, gettext, interpolate, interpolateNodes, Modal } from "@smarter/common";
+import {
+  actionUrl,
+  fetchDjangoUrl,
+  gettext,
+  interpolate,
+  interpolateNodes,
+  Modal,
+  useCopyToClipboard,
+} from "@smarter/common";
 
 import { loggerPrefix } from "../../lib/const";
 import { proxyUrl } from "../../lib/format";
@@ -186,7 +194,7 @@ export const Toolbar = ({ sessionContext, proxy, onRequery }: ToolbarProps) => {
   const [modal, setModal] = useState<{ type: ModalType; proxy: Proxy | null }>({ type: null, proxy: null });
   const [errMessage, setErrMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-  const [copied, setCopied] = useState<boolean>(false);
+  const { copy, copied } = useCopyToClipboard();
 
   const handleCloseModal = () => {
     setModal({ type: null, proxy: null });
@@ -230,20 +238,10 @@ export const Toolbar = ({ sessionContext, proxy, onRequery }: ToolbarProps) => {
   };
 
   /** Copy the Proxy's URL, which callers use as the base URL of the provider's SDK, to the clipboard. */
-  const copyUrl = () => {
-    navigator.clipboard
-      .writeText(proxyUrl(proxy))
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((error) => {
-        console.error(loggerPrefix, "Error copying the proxy URL:", error);
-        setErrMessage(
-          interpolate(gettext("Could not copy the URL to the clipboard: %(url)s"), { url: proxyUrl(proxy) }),
-        );
-        setModal({ type: "error", proxy });
-      });
+  const copyUrl = async () => {
+    if (await copy(proxyUrl(proxy))) return;
+    setErrMessage(interpolate(gettext("Could not copy the URL to the clipboard: %(url)s"), { url: proxyUrl(proxy) }));
+    setModal({ type: "error", proxy });
   };
 
   return (
@@ -262,7 +260,7 @@ export const Toolbar = ({ sessionContext, proxy, onRequery }: ToolbarProps) => {
                 )
               : gettext("The proxy endpoints are disabled. Set SMARTER_ENABLE_PROXY=true.")
           }
-          onClick={copyUrl}
+          onClick={() => void copyUrl()}
           disabled={!proxy.url}
           tabIndex={0}
         >

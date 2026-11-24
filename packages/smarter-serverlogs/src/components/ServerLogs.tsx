@@ -15,7 +15,7 @@
  */
 import { Fragment, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
-import { gettext, interpolate, ngettext } from "@smarter/common";
+import { gettext, interpolate, ngettext, useCopyToClipboard } from "@smarter/common";
 
 import { ansiCss, parseAnsi, stripAnsi, type AnsiSegment } from "../lib/ansi";
 import { hasJsonBlock, logNodes, type LogNode } from "../lib/logJson";
@@ -43,7 +43,6 @@ const LINE_HEIGHT = 18;
 const COLUMN_WIDTH = 40;
 /** How close to the bottom, in pixels, counts as the bottom, so that new records are followed. */
 const BOTTOM_SLACK = 4;
-const COPIED_MILLISECONDS = 1500;
 
 function shortcutLabel(action: LogViewerAction): string {
   switch (action) {
@@ -167,7 +166,7 @@ function ServerLogs(props: ServerLogsProps) {
   const [filter, setFilter] = useState("");
   const [help, setHelp] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copy: copyText, copied } = useCopyToClipboard();
   // the blocks of JSON are collapsed, until the user expands them, one by one, or all of them.
   const [expandAll, setExpandAll] = useState(false);
   const [expandGeneration, setExpandGeneration] = useState(0);
@@ -196,18 +195,8 @@ function ServerLogs(props: ServerLogsProps) {
     setFollow(lines.scrollHeight - lines.scrollTop - lines.clientHeight <= BOTTOM_SLACK);
   };
 
-  const copy = () => {
-    const text = shownMessages.map(stripAnsi).join("\n");
-    navigator.clipboard
-      ?.writeText(text)
-      .then(() => {
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), COPIED_MILLISECONDS);
-      })
-      .catch(() => {
-        // e.g. the page isn't allowed to write to the clipboard. The lines can still be selected.
-      });
-  };
+  // where the page may not write to the clipboard, the lines can still be selected.
+  const copy = () => void copyText(shownMessages.map(stripAnsi).join("\n"));
 
   const toggleExpandAll = () => {
     setExpandAll((previous) => !previous);

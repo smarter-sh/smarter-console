@@ -2,7 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { COPIED_MILLISECONDS } from "@/components/CopyButton";
+import { COPIED_MILLISECONDS } from "@smarter/common";
 import Terminal from "@/components/Terminal";
 
 afterEach(() => {

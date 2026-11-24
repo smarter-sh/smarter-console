@@ -13,6 +13,7 @@ import {
   globalSearchErrorResponse,
   globalSearchResponse,
   myResources,
+  newestDoodles,
   quickActions,
   serviceHealth,
   tokenUsage,
@@ -25,6 +26,16 @@ export const gettingStartedHandler = http.post(appContext.gettingStartedApiUrl, 
   HttpResponse.json(gettingStarted),
 );
 export const activityHandler = http.post(appContext.activityApiUrl, () => HttpResponse.json(activity));
+export const newestDoodlesHandler = http.post(appContext.newestDoodlesApiUrl, () => HttpResponse.json(newestDoodles));
+/** Any doodle's artwork, in Storybook: a plain placeholder picture. */
+export const doodleArtworkHandler = http.get(
+  "/api/v1/doodles/artwork/:file",
+  () =>
+    new HttpResponse(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#f1faff"/><circle cx="200" cy="150" r="80" fill="#1b84ff"/></svg>',
+      { headers: { "Content-Type": "image/svg+xml" } },
+    ),
+);
 /** Answers "Bad Key=x" with its error, any query that has no "production" with no results, and others with two lists. */
 export const globalSearchHandler = http.post(appContext.globalSearchApiUrl, async ({ request }) => {
   const { query } = (await request.json()) as { query: string };
@@ -46,6 +57,8 @@ export const dashboardHandlers = [
   globalSearchHandler,
   gettingStartedHandler,
   activityHandler,
+  newestDoodlesHandler,
+  doodleArtworkHandler,
   chargesHandler,
   ...budgetsHandlers,
 ];

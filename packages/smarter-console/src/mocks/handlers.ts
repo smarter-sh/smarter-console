@@ -51,3 +51,27 @@ export const doodleHandler = http.get(DOODLE_API_URL, () =>
     showCaption: true,
   }),
 );
+
+/** A doodle that the Smarter Doodle Artist drew, as GET /api/v1/doodles/2026-11-19/mx/ returns it. */
+export const drawnDoodle = {
+  date: "2026-11-19",
+  region: "mx",
+  theme: "ai-2026-11-19-mx-revolution-day-1a2b3c4d",
+  title: "Revolution Day",
+  caption: "Happy Revolution Day!",
+  altText: "Paper flags in green, white and red hang above a Smarter LLMClient.",
+  linkUrl: "https://en.wikipedia.org/wiki/Mexican_Revolution",
+  imageUrl: "/static/doodle/base.svg",
+  isDefault: false,
+  aiCredit: "drawn",
+  learnHowUrl: "https://docs.smarter.sh/",
+  animated: false,
+  showCaption: true,
+};
+
+/** GET /api/v1/doodles/<date>/<region>/ answers with drawnDoodle on its day and region, and 404 on any other. */
+export const doodleByDayHandler = http.get("/api/v1/doodles/:date/:region/", ({ params }) =>
+  params.date === drawnDoodle.date && params.region === drawnDoodle.region
+    ? HttpResponse.json(drawnDoodle)
+    : HttpResponse.json({ detail: "Not found." }, { status: 404 }),
+);

@@ -5,23 +5,16 @@
  */
 import { gettext } from "@smarter/common";
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useSearchParams } from "react-router";
+import { Navigate, useSearchParams } from "react-router";
 
 import { AuthCard } from "@/components/AuthCard";
-import { FormError, TextField } from "@/components/FormFields";
+import { SignInForm } from "@/components/SignInForm";
 import type { AccountErrors } from "@/contract.gen";
 import { accountErrors, isInactiveAccount, signIn } from "@/lib/account";
-import { INACTIVE_PATH } from "@/lib/const";
 import { nextRoute } from "@/lib/next";
 import { useConsoleSession } from "@/session/context";
 
 const NO_ERRORS: AccountErrors = { detail: "", fieldErrors: {} };
-
-/** The url that starts signing in with an OAuth provider, and comes back to the console's next route. */
-function oauthUrl(backend: string, next: string): string {
-  const query = new URLSearchParams({ next });
-  return `/social-auth/login/${backend}/?${query.toString()}`;
-}
 
 export function LoginPage() {
   const { session, replace } = useConsoleSession();
@@ -57,59 +50,18 @@ export function LoginPage() {
 
   return (
     <AuthCard title={gettext("Sign In")}>
-      {(options.google || options.github) && (
-        <div className="d-grid gap-3 mb-6">
-          {options.google && (
-            <a className="btn btn-light border" href={oauthUrl("google-oauth2", next)}>
-              {gettext("Sign in with Google")}
-            </a>
-          )}
-          {options.github && (
-            <a className="btn btn-light border" href={oauthUrl("github", next)}>
-              {gettext("Sign in with GitHub")}
-            </a>
-          )}
-        </div>
-      )}
-      <form onSubmit={(event) => void handleSubmit(event)} noValidate>
-        <FormError message={errors.detail} />
-        {inactive && (
-          <p className="text-center">
-            <Link to={INACTIVE_PATH}>{gettext("Send a new activation link")}</Link>
-          </p>
-        )}
-        <TextField
-          label={gettext("Email")}
-          type="email"
-          name="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          errors={errors.fieldErrors.email}
-        />
-        <TextField
-          label={gettext("Password")}
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          errors={errors.fieldErrors.password}
-        />
-        <div className="d-flex justify-content-end mb-6">
-          <Link to="/password-reset-request">{gettext("Forgot Password ?")}</Link>
-        </div>
-        <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
-          {gettext("Sign In")}
-        </button>
-      </form>
-      {options.signUp && (
-        <p className="text-center text-gray-600 mt-6 mb-0">
-          {gettext("Not a Member yet?")} <Link to="/register">{gettext("Sign up")}</Link>
-        </p>
-      )}
+      <SignInForm
+        options={options}
+        next={next}
+        email={email}
+        password={password}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onSubmit={(event) => void handleSubmit(event)}
+        errors={errors}
+        inactive={inactive}
+        submitting={submitting}
+      />
     </AuthCard>
   );
 }

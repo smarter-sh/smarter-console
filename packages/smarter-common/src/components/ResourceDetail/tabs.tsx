@@ -5,6 +5,7 @@
 import { useMemo, useState } from "react";
 
 import { gettext, interpolate, ngettext } from "../../lib/i18n";
+import CopyButton from "../CopyButton/Component";
 import ResourceTree from "../ResourceTree/Component";
 import ResourceCard from "../ResourceTree/ResourceCard";
 import { branchIds, countResources, depth, type NodeId } from "../ResourceTree/tree";
@@ -12,9 +13,6 @@ import type { ResourceTreeNode } from "../ResourceTree/types";
 import type { ResourceDetailData } from "./api";
 import { CodeBlock } from "./code";
 import { highlightYaml } from "./yaml";
-
-/** How long the Copy button says "Copied", in milliseconds. */
-export const COPIED_MS = 2000;
 
 /** A tab's empty state: an icon, a title and an explanation. */
 function EmptyState({ icon, title, children }: { icon: string; title: string; children?: React.ReactNode }) {
@@ -37,7 +35,6 @@ export function manifestFileName(kind: string, name: string | null): string {
 
 /** The Manifest tab: the resource's manifest, highlighted, with Copy, Download and Edit. */
 export function ManifestTab({ detail }: { detail: ResourceDetailData }) {
-  const [copied, setCopied] = useState(false);
   const lines = useMemo(() => (detail.manifest ? highlightYaml(detail.manifest) : []), [detail.manifest]);
 
   if (!detail.manifest) {
@@ -49,12 +46,6 @@ export function ManifestTab({ detail }: { detail: ResourceDetailData }) {
   }
   const manifest = detail.manifest;
 
-  const copy = () => {
-    void navigator.clipboard?.writeText(manifest).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), COPIED_MS);
-    });
-  };
   const download = () => {
     const url = URL.createObjectURL(new Blob([manifest], { type: "application/yaml" }));
     const link = document.createElement("a");
@@ -72,10 +63,7 @@ export function ManifestTab({ detail }: { detail: ResourceDetailData }) {
             kind: detail.kind,
           })}
         </p>
-        <button type="button" className="btn btn-sm btn-light" onClick={copy}>
-          <i className={`ki-outline ki-${copied ? "check" : "copy"} fs-5`} aria-hidden="true" />
-          {copied ? gettext("Copied") : gettext("Copy")}
-        </button>
+        <CopyButton text={manifest} />
         <button type="button" className="btn btn-sm btn-light" onClick={download}>
           <i className="ki-outline ki-file-down fs-5" aria-hidden="true" />
           {gettext("Download")}

@@ -14,6 +14,15 @@ which you paste, type, open or drop any Smarter manifest, or start from a kind's
 - **Drop Zone**: dragging a file over the page shows the drop zone over the editor; dropping the file there opens
   it. A manifest that would replace your text asks first.
 
+The page's second tab, **From a GitHub repository**, applies every manifest of a public GitHub repository at
+once, with the repository apply api, `/api/web/account/repository-apply/` (`src/lib/repositoryApply.ts`): POST
+`{url}` starts a run (or returns the one in progress), and the page polls `<id>/` every two seconds until it has
+finished or failed. It shows the run's stage and progress, and the manifests it discovered, in apply order, with
+each one's status; the status counts filter them, and a failed or skipped manifest opens its message, its apply
+output and its file on GitHub. Beside it, the user's recent runs. Every manifest is applied as the signed-in user,
+in their account; the repository's scripts never run, folders that its `owners.yaml` assigns to other users are
+skipped, and no LLMClient is deployed (`components/RepositoryApply/`).
+
 The editor is `@smarter/manifest-editor`'s, in its `isNew` mode: the same editor as each resource's manifest
 page, without locked fields, and without Clone and Delete.
 

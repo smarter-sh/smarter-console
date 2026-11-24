@@ -38,7 +38,6 @@ describe("Toolbar", () => {
   });
 
   it("copies the request, and says so briefly", async () => {
-    vi.spyOn(console, "debug").mockImplementation(() => {});
     const user = userEvent.setup();
     render(<Toolbar editor={fakeEditor().monacoEditor} />);
     await user.click(button("Copy JSON"));

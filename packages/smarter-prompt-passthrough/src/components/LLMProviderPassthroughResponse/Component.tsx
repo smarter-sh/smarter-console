@@ -14,13 +14,12 @@
  * :param isProcessing: True while a request is on its way.
  * :type isProcessing: bool
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import type * as monaco from "monaco-editor";
 
-import { gettext } from "@smarter/common";
+import { gettext, useCopyToClipboard } from "@smarter/common";
 
-import { loggerPrefix } from "../../const";
 import EditorViewToolbar from "../EditorViewToolbar";
 import { CompletionPanel, ErrorPanel } from "./ResponseSummary";
 import SuccessEmoji from "./status_success";
@@ -59,22 +58,7 @@ function StatusBadge({ response }: { response: PassthroughResponse }) {
 
 /** Copy and download buttons for the response's JSON. */
 function ResponseActions({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 1500);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch (err) {
-      console.error(loggerPrefix, "Couldn't copy the response:", err);
-    }
-  };
+  const { copy, copied } = useCopyToClipboard();
 
   const handleDownload = () => {
     const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
@@ -92,7 +76,7 @@ function ResponseActions({ text }: { text: string }) {
         className="btn btn-sm btn-icon btn-light btn-active-light-primary"
         title={copied ? gettext("Copied to clipboard") : gettext("Copy JSON")}
         aria-label={copied ? gettext("Copied to clipboard") : gettext("Copy JSON")}
-        onClick={handleCopy}
+        onClick={() => void copy(text)}
       >
         <i className={`ki-outline ${copied ? "ki-check text-success" : "ki-copy"} fs-4`}></i>
       </button>

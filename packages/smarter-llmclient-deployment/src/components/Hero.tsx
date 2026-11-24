@@ -2,9 +2,8 @@
  * The top of the page: the LLMClient's status and url, the command that deploys it if it isn't
  * deployed, the links to the page's sections, and a card about the LLMClient.
  */
-import { gettext, interpolate, interpolateNodes } from "@smarter/common";
+import { CopyButton, gettext, interpolate, interpolateNodes } from "@smarter/common";
 
-import CopyButton from "./CopyButton";
 import Terminal from "./Terminal";
 import { DOCS_URLS } from "../lib/const";
 import type { LLMClientDeploymentPage } from "../lib/types";
@@ -118,7 +117,7 @@ export default function Hero({ page }: { page: LLMClientDeploymentPage }) {
             <div className="smarter-url d-flex align-items-center gap-3 mb-6">
               <i className="ki-outline ki-cloud fs-2 text-gray-500" aria-hidden="true" />
               <code className="flex-grow-1 text-break">{`${llmclient.url}/`}</code>
-              <CopyButton text={`${llmclient.url}/`} />
+              <CopyButton text={`${llmclient.url}/`} className="smarter-terminal-copy" iconClassName={null} />
             </div>
             {deployed ? (
               <p className="smarter-hero-lead fs-5 mb-8">

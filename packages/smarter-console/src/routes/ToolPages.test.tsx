@@ -21,14 +21,16 @@ interface StandInProps {
   sessionContext: { ApiUrl: string };
   kinds?: string[];
   schemaApiUrl?: string;
+  repositoryApplyApiUrl?: string;
   providerApiUrl?: string;
   logStreamUrl?: string;
 }
 
 vi.mock("@smarter/apply-manifest", () => ({
-  ApplyManifest: ({ sessionContext, kinds, schemaApiUrl }: StandInProps) => (
+  ApplyManifest: ({ sessionContext, kinds, schemaApiUrl, repositoryApplyApiUrl }: StandInProps) => (
     <p>
-      apply manifest at {sessionContext.ApiUrl}, kinds {kinds?.join(",")}, schemas at {schemaApiUrl}
+      apply manifest at {sessionContext.ApiUrl}, kinds {kinds?.join(",")}, schemas at {schemaApiUrl}, repositories at{" "}
+      {repositoryApplyApiUrl}
     </p>
   ),
 }));
@@ -59,7 +61,7 @@ describe("Apply Manifest", () => {
     mountAt("/dashboard/dropzone/", { manifestDropZone: true });
     expect(
       await screen.findByText(
-        `apply manifest at /api/v1/cli/apply/, kinds ${userSession.samKinds.join(",")}, schemas at /api/v1/cli/json-schema/__kind__/`,
+        `apply manifest at /api/v1/cli/apply/, kinds ${userSession.samKinds.join(",")}, schemas at /api/v1/cli/json-schema/__kind__/, repositories at /api/web/account/repository-apply/`,
       ),
     ).toBeInTheDocument();
   });

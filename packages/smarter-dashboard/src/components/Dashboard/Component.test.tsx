@@ -25,6 +25,13 @@ describe("Dashboard", () => {
 
     const activity = screen.getByRole("region", { name: "Recent Activity" });
     expect(await within(activity).findByText("Not found")).toBeInTheDocument();
+
+    const doodles = await screen.findByRole("region", { name: "Newest Doodles" });
+    expect(within(doodles).getAllByRole("listitem")).toHaveLength(2);
+    // below the usage and budget charts.
+    for (const chart of [screen.getByLabelText("User Usage"), screen.getByLabelText("Budget vs Actual")]) {
+      expect(chart.compareDocumentPosition(doodles) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
   });
 
   it("tracks the getting started steps", async () => {
@@ -59,6 +66,7 @@ describe("Dashboard", () => {
 
     expect(await screen.findByText(/Failed to load resources/)).toBeInTheDocument();
     expect(await screen.findByText(/Failed to load recent activity/)).toBeInTheDocument();
+    expect(await screen.findByText(/Failed to load the newest doodles/)).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "What's New" })).toBeInTheDocument();
   });
 });

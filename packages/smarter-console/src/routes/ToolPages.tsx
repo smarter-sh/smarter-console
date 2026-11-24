@@ -41,6 +41,7 @@ export function ApplyManifestPage() {
       schemaApiUrl={manifestEditorUrls.schema}
       exampleApiUrl={manifestEditorUrls.example}
       kindPlaceholder={KIND_PLACEHOLDER}
+      repositoryApplyApiUrl={toolUrls.repositoryApply}
     />,
   );
 }

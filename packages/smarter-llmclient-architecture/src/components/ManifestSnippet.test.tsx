@@ -2,7 +2,9 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ManifestSnippet, { COPIED_MILLISECONDS } from "@/components/ManifestSnippet";
+import { COPIED_MILLISECONDS } from "@smarter/common";
+
+import ManifestSnippet from "@/components/ManifestSnippet";
 import { GUARDRAIL_SNIPPET } from "@/lib/gettingStarted";
 
 describe("ManifestSnippet", () => {

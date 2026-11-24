@@ -18,14 +18,10 @@
 import { useEffect, useState } from "react";
 import type * as monaco from "monaco-editor";
 
-import { gettext } from "@smarter/common";
+import { gettext, useCopyToClipboard } from "@smarter/common";
 import { ToolbarButton } from "@smarter/serverlogs";
 
-import { loggerPrefix } from "../../const";
-
 import "./styles.css";
-
-const COPIED_MILLISECONDS = 1500;
 
 interface EditorViewToolbarProps {
   editor: monaco.editor.IStandaloneCodeEditor | null;
@@ -34,7 +30,7 @@ interface EditorViewToolbarProps {
 function EditorViewToolbar({ editor }: EditorViewToolbarProps) {
   const [wrap, setWrap] = useState(true);
   const [expanded, setExpanded] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const { copy: copyText, copied } = useCopyToClipboard();
 
   useEffect(() => {
     editor?.updateOptions({ wordWrap: wrap ? "on" : "off" });
@@ -50,12 +46,6 @@ function EditorViewToolbar({ editor }: EditorViewToolbarProps) {
     return () => subscription.dispose();
   }, [editor]);
 
-  useEffect(() => {
-    if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), COPIED_MILLISECONDS);
-    return () => window.clearTimeout(timer);
-  }, [copied]);
-
   const toggleExpanded = () => {
     if (!editor) return;
     editor.trigger("toolbar", "editor.unfoldAll", null);
@@ -64,17 +54,8 @@ function EditorViewToolbar({ editor }: EditorViewToolbarProps) {
     setExpanded((previous) => !previous);
   };
 
-  const copy = () => {
-    const text = editor?.getValue() ?? "";
-    if (!text) return;
-    navigator.clipboard
-      ?.writeText(text)
-      .then(() => setCopied(true))
-      .catch((err: unknown) => {
-        // e.g. the page isn't allowed to write to the clipboard. The text can still be selected.
-        console.error(loggerPrefix, "Couldn't copy the editor's text:", err);
-      });
-  };
+  // where the page may not write to the clipboard, the text can still be selected.
+  const copy = () => void copyText(editor?.getValue() ?? "");
 
   return (
     <div className="console-server-logs-toolbar passthrough-editor-toolbar">
